@@ -32,8 +32,13 @@ export const NAV_ITEMS = [
 
 export function AppProvider({ children }) {
   const getInitialPage = () => {
-    const hash = window.location.hash.replace('#/', '').replace('#', '');
-    return NAV_ITEMS.some(item => item.id === hash) ? hash : 'command';
+    try {
+      if (typeof window === 'undefined' || !window.location) return 'command';
+      const hash = window.location.hash.replace('#/', '').replace('#', '');
+      return NAV_ITEMS.some(item => item.id === hash) ? hash : 'command';
+    } catch {
+      return 'command';
+    }
   };
 
   const [page, setPageState] = useState(getInitialPage);

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { 
-  Bot, 
-  Send, 
-  Terminal, 
-  Cpu, 
-  Zap, 
-  CheckCircle2, 
-  ShieldCheck, 
-  Layers, 
+import {
+  Bot,
+  Send,
+  Terminal,
+  Cpu,
+  Zap,
+  CheckCircle2,
+  ShieldCheck,
+  Layers,
   Activity,
   Sparkles,
   Heart,
@@ -304,21 +304,20 @@ export default function AgentSystem() {
             {/* Chat Log Window */}
             <div className="h-72 space-y-3 overflow-y-auto rounded-lg bg-black/50 p-4 font-mono text-xs border border-cyan-400/15">
               {messages.map((m, idx) => (
-                <div 
-                  key={idx} 
+                <div
+                  key={idx}
                   className={`space-y-1 ${m.sender === 'user' ? 'text-right' : 'text-left'}`}
                 >
                   <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                     {m.sender === 'user' ? 'PRIYA (FAMILY LEAD)' : m.sender === 'sys' ? 'SYSTEM' : 'AURA-CORE (GENAI ASSISTANT)'}
                   </div>
-                  <div 
-                    className={`inline-block rounded-lg p-3 text-left leading-relaxed whitespace-pre-wrap ${
-                      m.sender === 'user'
-                        ? 'bg-cyan-400/20 text-cyan-100 border border-cyan-400/40'
-                        : m.sender === 'sys'
+                  <div
+                    className={`inline-block rounded-lg p-3 text-left leading-relaxed whitespace-pre-wrap ${m.sender === 'user'
+                      ? 'bg-cyan-400/20 text-cyan-100 border border-cyan-400/40'
+                      : m.sender === 'sys'
                         ? 'bg-[#0c182c] text-slate-300 border border-cyan-400/10'
                         : 'bg-[#08101e] text-slate-100 border border-cyan-400/30'
-                    }`}
+                      }`}
                   >
                     {m.text}
                   </div>
@@ -335,8 +334,8 @@ export default function AgentSystem() {
           </div>
 
           {/* Terminal Input Bar */}
-          <form 
-            onSubmit={(e) => { e.preventDefault(); handleSend(); }} 
+          <form
+            onSubmit={(e) => { e.preventDefault(); handleSend(); }}
             className="flex items-center gap-2 border-t border-cyan-400/10 pt-3"
           >
             <label htmlFor="agent-query-input" className="sr-only">Ask AURA GenAI Assistant</label>
@@ -373,8 +372,8 @@ export default function AgentSystem() {
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {FAMILY_AGENTS_ROSTER.map((agent) => (
-            <div 
-              key={agent.id} 
+            <div
+              key={agent.id}
               className="p-4 rounded-xl border border-cyan-400/10 bg-[#030712] space-y-2 font-mono text-xs hover:border-cyan-400/30 transition"
             >
               <div className="flex items-center justify-between">

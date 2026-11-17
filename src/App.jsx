@@ -37,11 +37,21 @@ export default function App() {
   const { page, sidebarCollapsed } = useApp();
 
   const [booted, setBooted] = useState(() => {
-    return sessionStorage.getItem('aura-boot') === '1';
+    try {
+      return typeof window !== 'undefined' && window.sessionStorage?.getItem('aura-boot') === '1';
+    } catch {
+      return false;
+    }
   });
 
   const handleBootDone = () => {
-    sessionStorage.setItem('aura-boot', '1');
+    try {
+      if (typeof window !== 'undefined') {
+        window.sessionStorage?.setItem('aura-boot', '1');
+      }
+    } catch {
+      // ignore storage restriction
+    }
     setBooted(true);
   };
 
