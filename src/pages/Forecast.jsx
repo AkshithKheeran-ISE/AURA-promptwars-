@@ -52,6 +52,8 @@ export default function Forecast() {
               <button
                 key={item.day}
                 onClick={() => setSelectedDayIndex(idx)}
+                aria-pressed={isSelected}
+                aria-label={`Select forecast for Day ${item.day}: AQI ${item.aqi}, ${item.risk} risk tier`}
                 className={`p-2.5 rounded-lg border text-left font-mono transition cursor-pointer relative ${cardColor} ${
                   isSelected
                     ? 'ring-2 ring-cyan-300 scale-102 bg-cyan-400/20'

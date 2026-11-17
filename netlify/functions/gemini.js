@@ -12,12 +12,55 @@ Provide actionable low-emission daily routines, indoor air quality (IAQ) hacks (
 Always clearly explain the direct impact of choices: quantify inhaled PM2.5 lung burden reduced (in µg/day), avoided carbon emissions (kg CO2), and prevented respiratory clinic visits.
 Maintain a concise, authoritative, cyber-tactical yet compassionate tone.`;
 
+/**
+ * In-memory sliding rate limiter: clientIp -> { count, resetTime }
+ */
+const rateLimitMap = new Map();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const MAX_REQUESTS_PER_WINDOW = 30;
+
+function checkRateLimit(clientIp) {
+  const now = Date.now();
+  const record = rateLimitMap.get(clientIp);
+
+  if (!record || now > record.resetTime) {
+    rateLimitMap.set(clientIp, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+    return { limited: false };
+  }
+
+  record.count += 1;
+  if (record.count > MAX_REQUESTS_PER_WINDOW) {
+    const retryAfterSeconds = Math.ceil((record.resetTime - now) / 1000);
+    return { limited: true, retryAfterSeconds };
+  }
+
+  return { limited: false };
+}
+
+function getCorsOrigin(requestHeaders) {
+  const origin = requestHeaders?.origin || requestHeaders?.Origin || '';
+  if (!origin) return '*';
+  if (
+    origin.includes('localhost') ||
+    origin.includes('127.0.0.1') ||
+    origin.endsWith('.netlify.app') ||
+    origin.endsWith('.vercel.app') ||
+    origin.includes('github.io')
+  ) {
+    return origin;
+  }
+  return 'null';
+}
+
 export async function handler(event) {
-  // CORS Headers
+  const allowedOrigin = getCorsOrigin(event.headers);
+
+  // Security and CORS Headers
   const headers = {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': allowedOrigin,
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'X-Content-Type-Options': 'nosniff',
     'Content-Type': 'application/json'
   };
 
@@ -30,6 +73,27 @@ export async function handler(event) {
       statusCode: 405,
       headers,
       body: JSON.stringify({ error: 'Method not allowed. Use POST.' })
+    };
+  }
+
+  // Rate Limiting & Abuse Protection
+  const clientIp =
+    event.headers?.['client-ip'] ||
+    event.headers?.['x-forwarded-for']?.split(',')[0]?.trim() ||
+    'global';
+  const rateLimitStatus = checkRateLimit(clientIp);
+  if (rateLimitStatus.limited) {
+    return {
+      statusCode: 429,
+      headers: {
+        ...headers,
+        'Retry-After': String(rateLimitStatus.retryAfterSeconds || 60)
+      },
+      body: JSON.stringify({
+        success: false,
+        fallback: true,
+        message: 'Rate limit exceeded (30 req/min). Falling back to local deterministic expert system.'
+      })
     };
   }
 

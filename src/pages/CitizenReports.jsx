@@ -341,6 +341,7 @@ export default function CitizenReports() {
                       {rep.stage < 4 ? (
                         <button
                           onClick={() => advanceReportStage(rep.id)}
+                          aria-label={`Advance triage stage for report ${rep.id}`}
                           className="text-cyan-300 hover:underline font-mono text-[11px] cursor-pointer flex items-center gap-1"
                         >
                           Advance &rarr;

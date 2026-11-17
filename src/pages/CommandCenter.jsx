@@ -163,10 +163,12 @@ export default function CommandCenter() {
         </div>
 
         <div className="flex items-center gap-2 text-slate-400 text-xs">
-          <span>Target Ward:</span>
+          <label htmlFor="target-ward-select">Target Ward:</label>
           <select
+            id="target-ward-select"
             value={selectedWard.id}
             onChange={(e) => setSelectedWardId(e.target.value)}
+            aria-label="Select target monitoring ward"
             className="rounded-lg border border-cyan-400/20 bg-[#0c182c] px-2.5 py-1 text-white focus:outline-none"
           >
             {WARDS_DATA.map((w) => (

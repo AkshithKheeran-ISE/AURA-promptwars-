@@ -20,4 +20,18 @@ describe('Indoor Air Quality (IAQ) Hacks Catalog', () => {
       expect(hack.badge).toBeTruthy();
     });
   });
+
+  it('guarantees unique hack IDs and realistic engineering parameters', () => {
+    const ids = IAQ_HACKS.map((h) => h.id);
+    const uniqueIds = new Set(ids);
+    expect(uniqueIds.size).toBe(ids.length);
+
+    IAQ_HACKS.forEach((hack) => {
+      expect(hack.costInr).toBeGreaterThanOrEqual(0);
+      expect(hack.pm25ReductionPct).toBeGreaterThan(0);
+      expect(hack.pm25ReductionPct).toBeLessThanOrEqual(100);
+      expect(Array.isArray(hack.materials)).toBe(true);
+      expect(hack.materials.length).toBeGreaterThan(0);
+    });
+  });
 });

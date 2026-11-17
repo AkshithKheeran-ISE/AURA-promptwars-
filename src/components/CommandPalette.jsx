@@ -20,8 +20,18 @@ export default function CommandPalette() {
   useEffect(() => {
     if (!commandPaletteOpen) {
       setQuery('');
+      return;
     }
-  }, [commandPaletteOpen]);
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setCommandPaletteOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [commandPaletteOpen, setCommandPaletteOpen]);
 
   if (!commandPaletteOpen) return null;
 
@@ -60,7 +70,8 @@ export default function CommandPalette() {
       role="dialog"
       aria-modal="true"
       aria-label="Command Palette"
-      className="fixed inset-0 z-[3000] grid place-items-start justify-center bg-black/70 p-4 pt-20 backdrop-blur-sm"
+      onClick={() => setCommandPaletteOpen(false)}
+      className="fixed inset-0 z-[3000] grid place-items-start justify-center bg-black/70 p-4 pt-20 backdrop-blur-sm cursor-pointer"
     >
       <div
         className="w-full max-w-2xl panel panel-corners border-cyan-400/30 bg-[#08101e] shadow-2xl overflow-hidden"

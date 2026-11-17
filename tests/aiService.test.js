@@ -139,5 +139,50 @@ describe('AURA Verifiable GenAI & Multi-Agent Orchestration Service', () => {
       const res2 = await orchestrateAgentWorkflow('Elderly asthma airway safety directives');
       expect(res1.attestationToken).not.toBe(res2.attestationToken);
     });
+
+    it('seamlessly integrates live Gemini proxy completions when available', async () => {
+      const mockFetch = (url) => {
+        if (url === '/api/gemini') {
+          return Promise.resolve({
+            ok: true,
+            json: async () => ({
+              success: true,
+              text: 'Custom AI recommendation for urban smog defense.',
+              model: 'gemini-2.0-flash',
+              latencyMs: 95
+            })
+          });
+        }
+        return Promise.reject(new Error('Unknown url'));
+      };
+
+      const originalFetch = globalThis.fetch;
+      globalThis.fetch = mockFetch;
+
+      try {
+        const res = await orchestrateAgentWorkflow('What is the best winter air routine?');
+        expect(res.text).toBe('Custom AI recommendation for urban smog defense.');
+        expect(res.engine).toContain('Gemini 2.0 Flash');
+        expect(
+          res.trace.some((t) => t.step === 'SERVER_PROXY_DISPATCH' && t.status === 'SUCCESS')
+        ).toBe(true);
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+
+    it('verifies complete diagnostic trace schema for every agent task execution', async () => {
+      const res = await orchestrateAgentWorkflow('Test prompt for trace verification');
+      expect(Array.isArray(res.trace)).toBe(true);
+      expect(res.trace.length).toBeGreaterThanOrEqual(3);
+      res.trace.forEach((step) => {
+        expect(step).toHaveProperty('step');
+        expect(step).toHaveProperty('status');
+        expect(step).toHaveProperty('detail');
+        expect(typeof step.step).toBe('string');
+        expect(typeof step.status).toBe('string');
+        expect(typeof step.detail).toBe('string');
+      });
+    });
   });
 });

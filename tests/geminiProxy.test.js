@@ -153,4 +153,48 @@ describe('AURA Secure Gemini Serverless Proxy (netlify/functions/gemini.js)', ()
     expect(body.model).toBe('gemini-2.0-flash');
     expect(typeof body.latencyMs).toBe('number');
   });
+
+  it('reflects trusted origins and restricts untrusted origins in CORS headers', async () => {
+    const trustedEvent = {
+      httpMethod: 'OPTIONS',
+      headers: { origin: 'https://aura-the-urbanairqualityassistant.netlify.app' }
+    };
+    const trustedRes = await handler(trustedEvent);
+    expect(trustedRes.headers['Access-Control-Allow-Origin']).toBe(
+      'https://aura-the-urbanairqualityassistant.netlify.app'
+    );
+
+    const untrustedEvent = {
+      httpMethod: 'OPTIONS',
+      headers: { origin: 'https://malicious-phishing-site.example.com' }
+    };
+    const untrustedRes = await handler(untrustedEvent);
+    expect(untrustedRes.headers['Access-Control-Allow-Origin']).toBe('null');
+  });
+
+  it('enforces rate limiting and returns 429 when abuse threshold is exceeded', async () => {
+    process.env.GEMINI_API_KEY = 'AIzaSyFakeKeyForTestingPurposesOnly12345678';
+    const clientIp = '198.51.100.42';
+
+    // Simulate 31 consecutive requests from the same IP
+    for (let i = 0; i < 30; i++) {
+      await handler({
+        httpMethod: 'POST',
+        headers: { 'client-ip': clientIp },
+        body: JSON.stringify({ prompt: 'test' })
+      });
+    }
+
+    const rateLimitedRes = await handler({
+      httpMethod: 'POST',
+      headers: { 'client-ip': clientIp },
+      body: JSON.stringify({ prompt: 'test' })
+    });
+
+    expect(rateLimitedRes.statusCode).toBe(429);
+    const body = JSON.parse(rateLimitedRes.body);
+    expect(body.fallback).toBe(true);
+    expect(body.message).toContain('Rate limit exceeded');
+    expect(rateLimitedRes.headers).toHaveProperty('Retry-After');
+  });
 });

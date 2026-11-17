@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useMemo } from 'react';
 import {
   WARDS_DATA,
   PRIORITY_ALERTS,
@@ -120,23 +120,30 @@ export function AppProvider({ children }) {
     setAuditLogs((prev) => [newEntry, ...prev]);
   };
 
-  const selectedWard = WARDS_DATA.find((w) => w.id === selectedWardId) || WARDS_DATA[0];
+  const selectedWard = useMemo(
+    () => WARDS_DATA.find((w) => w.id === selectedWardId) || WARDS_DATA[0],
+    [selectedWardId]
+  );
 
   // Calculated Real-Time Family Impact
   const usesHEPA = activeHacks.includes('corsi_rosenthal');
   const weatherstripped = activeHacks.includes('weatherstrip_seals');
-  const exposureCalc = calculateInhaledExposure(
-    selectedWard.pm25,
-    24,
-    usesHEPA,
-    weatherstripped,
-    'n95'
+  const exposureCalc = useMemo(
+    () => calculateInhaledExposure(selectedWard.pm25, 24, usesHEPA, weatherstripped, 'n95'),
+    [selectedWard.pm25, usesHEPA, weatherstripped]
   );
-  const communitySavings = calculateCommunitySavings(18, 'petrolCar', transitChoice, true, true);
-  const healthRisk = calculateHealthRiskIndex(
-    exposureCalc.indoorPm25,
-    familyArchetype === 'asthma_seniors',
-    familyArchetype === 'school_infant'
+  const communitySavings = useMemo(
+    () => calculateCommunitySavings(18, 'petrolCar', transitChoice, true, true),
+    [transitChoice]
+  );
+  const healthRisk = useMemo(
+    () =>
+      calculateHealthRiskIndex(
+        exposureCalc.indoorPm25,
+        familyArchetype === 'asthma_seniors',
+        familyArchetype === 'school_infant'
+      ),
+    [exposureCalc.indoorPm25, familyArchetype]
   );
 
   const toggleHack = (hackId) => {

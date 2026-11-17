@@ -108,10 +108,13 @@ export default function AlertCenter() {
                     : 'border-amber-400/30 bg-amber-400/10 text-amber-200';
 
               return (
-                <div
+                <button
+                  type="button"
                   key={alr.id}
                   onClick={() => setSelectedAlertId(alr.id)}
-                  className={`p-3.5 rounded-xl border text-left transition cursor-pointer space-y-2 ${
+                  aria-pressed={isSelected}
+                  aria-label={`Select incident alert ${alr.id}: ${alr.title}`}
+                  className={`w-full p-3.5 rounded-xl border text-left transition cursor-pointer space-y-2 focus:outline-none focus:ring-2 focus:ring-cyan-400 ${
                     isSelected
                       ? 'border-cyan-400/60 bg-[#0c182c] shadow-[inset_0_0_0_1px_rgba(34,211,238,0.4)]'
                       : 'border-cyan-400/10 bg-[#060d1b] hover:bg-white/5'
@@ -136,7 +139,7 @@ export default function AlertCenter() {
                       Score: <strong className="text-rose-400">{alr.score.toFixed(1)}/10</strong>
                     </span>
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>

@@ -34,4 +34,16 @@ describe('Routine Engine Service', () => {
     expect(defaultAdvice.title).toContain('Community Clean Commute Protocol');
     expect(defaultAdvice.keyRule).toContain('Metro / electric carpool');
   });
+
+  it('guarantees complete guidance schema across all defined family archetypes', () => {
+    FAMILY_ARCHETYPES.forEach((arch) => {
+      const guidance = generatePersonalizedGuidance(arch.id, 250);
+      expect(guidance).toHaveProperty('title');
+      expect(guidance).toHaveProperty('keyRule');
+      expect(guidance).toHaveProperty('hepaSetting');
+      expect(guidance).toHaveProperty('avoidAction');
+      expect(guidance.title.length).toBeGreaterThan(5);
+      expect(guidance.keyRule.length).toBeGreaterThan(10);
+    });
+  });
 });

@@ -38,6 +38,7 @@ export default function Header() {
         <select
           value={page}
           onChange={(e) => setPage(e.target.value)}
+          aria-label="Select application view"
           className="rounded-lg border border-cyan-400/20 bg-[#0c182c] px-2 py-1 text-xs text-white focus:outline-none"
         >
           {NAV_ITEMS.map((item) => (
@@ -52,6 +53,7 @@ export default function Header() {
       <div className="relative hidden max-w-md flex-1 md:block">
         <button
           onClick={() => setCommandPaletteOpen(true)}
+          aria-label="Search or open command palette (Ctrl+K)"
           className="flex w-full items-center justify-between rounded-lg border border-cyan-400/15 bg-[#08101e] py-2 pl-9 pr-3 text-sm text-slate-400 hover:border-cyan-400/40 hover:bg-[#0c182c] transition cursor-pointer text-left"
         >
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
