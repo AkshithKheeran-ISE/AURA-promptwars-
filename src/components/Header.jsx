@@ -86,9 +86,11 @@ export default function Header() {
           <button
             onClick={() => setNotifOpen(!notifOpen)}
             className="relative rounded-lg p-2 text-slate-400 hover:bg-white/5 hover:text-white transition cursor-pointer"
+            aria-label={`View notifications, ${criticalCount} critical alerts`}
+            aria-expanded={notifOpen}
             title="Notifications"
           >
-            <Bell className="h-5 w-5" />
+            <Bell className="h-5 w-5" aria-hidden="true" />
             {criticalCount > 0 && (
               <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-rose-500 shadow-glow-red" />
             )}
@@ -105,13 +107,14 @@ export default function Header() {
               </div>
               <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
                 {alerts.slice(0, 4).map((alr) => (
-                  <div
+                  <button
                     key={alr.id}
+                    type="button"
                     onClick={() => {
                       setPage('alerts');
                       setNotifOpen(false);
                     }}
-                    className="rounded-lg p-2 hover:bg-white/5 cursor-pointer border border-transparent hover:border-cyan-400/20 transition"
+                    className="w-full text-left rounded-lg p-2 hover:bg-white/5 cursor-pointer border border-transparent hover:border-cyan-400/20 transition"
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-mono text-[10px] text-rose-300 font-bold">
@@ -123,10 +126,11 @@ export default function Header() {
                       {alr.title}
                     </div>
                     <div className="text-[10px] text-slate-400 truncate">{alr.ward}</div>
-                  </div>
+                  </button>
                 ))}
               </div>
               <button
+                type="button"
                 onClick={() => {
                   setPage('alerts');
                   setNotifOpen(false);

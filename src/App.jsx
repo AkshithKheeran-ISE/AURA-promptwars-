@@ -59,6 +59,14 @@ export default function App() {
 
   return (
     <>
+      {/* Accessibility Skip to Main Content Link */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:rounded-lg focus:bg-cyan-400 focus:px-4 focus:py-2 focus:font-sans focus:text-xs focus:font-bold focus:text-black focus:shadow-glow focus:outline-none"
+      >
+        Skip to main content &rarr;
+      </a>
+
       {/* Optional Boot Splash Sequence */}
       {!booted && <BootScreen onDone={handleBootDone} />}
 
@@ -78,7 +86,11 @@ export default function App() {
         <LiveTicker />
 
         {/* Dynamic Page Viewport */}
-        <main className="mx-auto max-w-[1600px] p-4 md:p-6 min-h-[calc(100vh-140px)]">
+        <main
+          id="main-content"
+          role="main"
+          className="mx-auto max-w-[1600px] p-4 md:p-6 min-h-[calc(100vh-140px)]"
+        >
           <ErrorBoundary key={page}>
             <CurrentPageComponent />
           </ErrorBoundary>

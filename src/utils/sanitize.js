@@ -293,3 +293,91 @@ export function computeMerkleRoot(hashes) {
 
   return currentLevel[0];
 }
+
+/**
+ * Safely recovers a corrupted ledger chain while preserving 100% of valid user reports.
+ * 1. Isolates corrupted blocks without deleting user submissions.
+ * 2. Restores authentic payload for corrupted blocks from canonical storage.
+ * 3. Re-chains hashes forward to the tip so all valid user records are retained.
+ * 4. Captures cryptographic forensic evidence of the tamper attempt.
+ *
+ * @param {Array<object>} chain - The active ledger chain with a corrupted block
+ * @param {Map<string, object>|Record<string, object>} canonicalStore - Authentic baseline payloads
+ * @returns {{
+ *   success: boolean,
+ *   repairedChain: Array<object>,
+ *   restoredCount: number,
+ *   preservedCount: number,
+ *   quarantinedEvidence: Array<object>
+ * }}
+ */
+export function repairLedgerChain(chain, canonicalStore) {
+  if (!Array.isArray(chain) || chain.length === 0) {
+    return {
+      success: true,
+      repairedChain: [],
+      restoredCount: 0,
+      preservedCount: 0,
+      quarantinedEvidence: []
+    };
+  }
+
+  const repaired = chain.map((block) => ({ ...block }));
+  const quarantinedEvidence = [];
+  let restoredCount = 0;
+  const GENESIS_PREV_HASH = '0'.repeat(64);
+
+  const getCanonical = (id) => {
+    if (canonicalStore instanceof Map) return canonicalStore.get(id);
+    if (canonicalStore && typeof canonicalStore === 'object') return canonicalStore[id];
+    return null;
+  };
+
+  for (let i = 0; i < repaired.length; i++) {
+    const block = repaired[i];
+    const expectedPrev = i === 0 ? GENESIS_PREV_HASH : repaired[i - 1].hash;
+    const computed = computeBlockHash(block, expectedPrev);
+
+    const hasPointerCorruption = block.prevHash !== expectedPrev;
+    const hasHashCorruption = block.hash !== computed;
+
+    if (hasPointerCorruption || hasHashCorruption) {
+      quarantinedEvidence.push({
+        blockIndex: i,
+        blockId: block.id,
+        tamperedPayload: { ...block },
+        expectedPrev,
+        detectedAt: Date.now()
+      });
+
+      const canonicalRecord = getCanonical(block.id);
+      if (canonicalRecord) {
+        block.issue = canonicalRecord.issue;
+        block.location = canonicalRecord.location;
+        block.reporter = canonicalRecord.reporter;
+        block.urgency = canonicalRecord.urgency;
+        restoredCount++;
+      } else {
+        block.issue = `[RECOVERED EVIDENCE] ${block.issue.replace(/\[TAMPERED[^\]]*\]\s*/gi, '')}`;
+      }
+
+      block.prevHash = expectedPrev;
+      block.hash = computeBlockHash(block, expectedPrev);
+    } else {
+      if (block.prevHash !== expectedPrev) {
+        block.prevHash = expectedPrev;
+        block.hash = computeBlockHash(block, expectedPrev);
+      }
+    }
+  }
+
+  const verification = verifyLedgerIntegrity(repaired);
+  return {
+    success: verification.valid,
+    repairedChain: repaired,
+    restoredCount,
+    preservedCount: repaired.length,
+    quarantinedEvidence
+  };
+}
+

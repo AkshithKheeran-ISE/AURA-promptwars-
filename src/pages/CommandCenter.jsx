@@ -76,7 +76,12 @@ export default function CommandCenter() {
       {/* 6 Top Metric Cards specifically for Families */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 2xl:grid-cols-6">
         <div className="panel panel-corners p-4 space-y-1">
-          <div className="label text-slate-400 truncate">Neighborhood Air Hazard</div>
+          <div className="flex items-center justify-between">
+            <div className="label text-slate-400 truncate">Neighborhood Air Hazard</div>
+            <span className="text-[9px] font-mono text-cyan-300 bg-cyan-400/10 px-1.5 py-0.5 rounded border border-cyan-400/20">
+              CAAQMS Baseline
+            </span>
+          </div>
           <div className="font-display text-2xl font-bold tracking-tight text-white flex items-baseline gap-2">
             AQI {selectedWard.aqi}
             <span className="text-xs font-mono font-bold" style={{ color: outdoorColor }}>

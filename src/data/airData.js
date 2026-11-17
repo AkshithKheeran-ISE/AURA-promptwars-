@@ -1,5 +1,35 @@
 // Comprehensive Environmental Data for AURA Command Center
 
+export const DATA_PROVENANCE_TIERS = {
+  STATUTORY_BASELINE: {
+    id: 'STATUTORY_BASELINE',
+    label: 'Statutory CAAQMS Baseline',
+    badgeColor: '#22d3ee',
+    source: 'Central Pollution Control Board (CPCB) & Delhi DPCC Monitoring Network',
+    method: 'Statutory Continuous Ambient Air Quality Monitoring (Beta-Attenuation Monitors)',
+    freshness: 'Statutory Hourly Benchmark Baseline',
+    isSimulation: false
+  },
+  SIMULATED_MICRO_MESH: {
+    id: 'SIMULATED_MICRO_MESH',
+    label: 'Simulated IoT Micro-Sensor Mesh',
+    badgeColor: '#fbbf24',
+    source: 'Demonstration 3,420-Node IoT Particulate Mesh Emulation',
+    method: 'Mathematical Gaussian Plume Interpolation & Street Canyon Dispersion Model',
+    freshness: 'Simulated Real-Time Telemetry',
+    isSimulation: true
+  },
+  METEOROLOGICAL_FORECAST: {
+    id: 'METEOROLOGICAL_FORECAST',
+    label: 'Meteorological Dispersion Simulation',
+    badgeColor: '#a855f7',
+    source: 'WRF-Chem (Weather Research & Forecasting with Chemistry) Baseline',
+    method: 'Boundary Layer Nocturnal Inversion & Wind Vector Simulation',
+    freshness: '30-Day Outlook Projection',
+    isSimulation: true
+  }
+};
+
 export const WARDS_DATA = [
   {
     id: 'wazirpur',

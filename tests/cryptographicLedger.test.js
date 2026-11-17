@@ -4,6 +4,7 @@ import {
   sha256Async,
   computeBlockHash,
   verifyLedgerIntegrity,
+  repairLedgerChain,
   computeMerkleRoot
 } from '../src/utils/sanitize';
 import { INITIAL_CITIZEN_REPORTS } from '../src/data/airData';
@@ -81,6 +82,73 @@ describe('Cryptographic Hash-Chain Ledger & SHA-256 Primitives', () => {
       const verification = verifyLedgerIntegrity(chain);
       expect(verification.valid).toBe(true);
       expect(chain.length).toBe(5);
+    });
+
+    it('safely recovers corrupted blocks without deleting user-added reports (zero data loss)', () => {
+      // 1. Start with initial 4 blocks and add 2 new user reports
+      const chain = [...INITIAL_CITIZEN_REPORTS];
+      const canonicalStore = {};
+      INITIAL_CITIZEN_REPORTS.forEach((b) => {
+        canonicalStore[b.id] = { ...b };
+      });
+
+      // User adds Block 5
+      const b5 = {
+        id: 'REP-AURA-8105',
+        issue: 'Illegal rubber incineration behind metro depot',
+        location: 'Anand Vihar Sector 3',
+        reporter: 'Citizen Amit',
+        urgency: 'Critical',
+        prevHash: chain[chain.length - 1].hash
+      };
+      b5.hash = computeBlockHash(b5, b5.prevHash);
+      chain.push(b5);
+      canonicalStore[b5.id] = { ...b5 };
+
+      // User adds Block 6
+      const b6 = {
+        id: 'REP-AURA-8106',
+        issue: 'Dust storm from uncovered construction sand heaps',
+        location: 'Rohini Sector 18',
+        reporter: 'Resident Priya',
+        urgency: 'Medium',
+        prevHash: b5.hash
+      };
+      b6.hash = computeBlockHash(b6, b6.prevHash);
+      chain.push(b6);
+      canonicalStore[b6.id] = { ...b6 };
+
+      expect(chain.length).toBe(6);
+      expect(verifyLedgerIntegrity(chain).valid).toBe(true);
+
+      // 2. Adversary corrupts Block 2 (index 1) to conceal industrial emissions
+      chain[1].issue = '[TAMPERED] Concealing industrial stack emissions';
+      chain[1].hash = '000000000000000000000000000000000000000000000000000000000000dead';
+
+      // Verify tamper is detected
+      const check = verifyLedgerIntegrity(chain);
+      expect(check.valid).toBe(false);
+      expect(check.brokenIndex).toBe(1);
+
+      // 3. Execute safe recovery
+      const recovery = repairLedgerChain(chain, canonicalStore);
+      expect(recovery.success).toBe(true);
+      expect(recovery.restoredCount).toBe(1);
+      expect(recovery.preservedCount).toBe(6); // All 6 blocks preserved!
+      expect(recovery.quarantinedEvidence.length).toBe(1);
+      expect(recovery.quarantinedEvidence[0].blockId).toBe('REP-AURA-8102');
+
+      // 4. Verify repaired chain integrity and data preservation
+      const repairedChain = recovery.repairedChain;
+      expect(verifyLedgerIntegrity(repairedChain).valid).toBe(true);
+      expect(repairedChain[1].issue).toBe(
+        'Dense Chemical Fumes & Black Smoke from Fabrication Chimney'
+      );
+      // Blocks 5 and 6 are intact with original content!
+      expect(repairedChain[4].id).toBe('REP-AURA-8105');
+      expect(repairedChain[4].issue).toBe('Illegal rubber incineration behind metro depot');
+      expect(repairedChain[5].id).toBe('REP-AURA-8106');
+      expect(repairedChain[5].reporter).toBe('Resident Priya');
     });
   });
 

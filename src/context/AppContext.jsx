@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import {
   WARDS_DATA,
   PRIORITY_ALERTS,
@@ -10,7 +10,12 @@ import {
   calculateCommunitySavings,
   calculateHealthRiskIndex
 } from '../services/impactCalculator';
-import { computeBlockHash, verifyLedgerIntegrity, sha256 } from '../utils/sanitize';
+import {
+  computeBlockHash,
+  verifyLedgerIntegrity,
+  repairLedgerChain,
+  sha256
+} from '../utils/sanitize';
 
 const AppContext = createContext();
 
@@ -59,6 +64,13 @@ export function AppProvider({ children }) {
   const [auditLogs, setAuditLogs] = useState(INITIAL_AUDIT_LOGS);
   const [toasts, setToasts] = useState([]);
   const [ledgerTampered, setLedgerTampered] = useState(false);
+  const [quarantinedEvidence, setQuarantinedEvidence] = useState([]);
+  const canonicalLedgerRef = useRef(
+    INITIAL_CITIZEN_REPORTS.reduce((acc, rep) => {
+      acc[rep.id] = { ...rep };
+      return acc;
+    }, {})
+  );
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -199,6 +211,7 @@ export function AppProvider({ children }) {
     };
     completeReport.hash = computeBlockHash(completeReport, lastHash);
 
+    canonicalLedgerRef.current[newId] = { ...completeReport };
     setCitizenReports((prev) => [...prev, completeReport]);
     addToast('Report Secured', `Hazard report ${newId} chained to immutable ledger`, 'cyan');
     logAudit(
@@ -219,6 +232,10 @@ export function AppProvider({ children }) {
       prev.map((rep) => {
         if (rep.id === reportId && rep.stage < 4) {
           const nextInfo = stageMap[rep.stage];
+          if (canonicalLedgerRef.current[reportId]) {
+            canonicalLedgerRef.current[reportId].stage = nextInfo.next;
+            canonicalLedgerRef.current[reportId].statusText = nextInfo.text;
+          }
           return { ...rep, stage: nextInfo.next, statusText: nextInfo.text };
         }
         return rep;
@@ -257,19 +274,25 @@ export function AppProvider({ children }) {
   const verifyLedger = () => {
     const result = verifyLedgerIntegrity(citizenReports);
     if (!result.valid) {
-      setCitizenReports(INITIAL_CITIZEN_REPORTS);
-      setLedgerTampered(false);
-      addToast(
-        'Tamper Detected & Repaired',
-        `Block integrity error isolated at Block #${result.brokenIndex + 1}. Cryptographic state restored from genesis.`,
-        'green'
-      );
-      logAudit(
-        'Validator Agent (AI)',
-        `Cryptographic audit detected fault: ${result.reason}. Restored ledger consensus.`,
-        'Ledger Root',
-        'agent'
-      );
+      const recovery = repairLedgerChain(citizenReports, canonicalLedgerRef.current);
+      if (recovery.success) {
+        setCitizenReports(recovery.repairedChain);
+        setLedgerTampered(false);
+        if (recovery.quarantinedEvidence.length > 0) {
+          setQuarantinedEvidence((prev) => [...recovery.quarantinedEvidence, ...prev]);
+        }
+        addToast(
+          'Cryptographic Consensus Restored',
+          `Repaired ${recovery.restoredCount} tampered block(s). All ${recovery.preservedCount} citizen reports preserved intact.`,
+          'green'
+        );
+        logAudit(
+          'Validator Agent (AI)',
+          `Resolved ledger breach at Block #${result.brokenIndex + 1}. Re-anchored consensus with zero user data loss (${recovery.preservedCount} blocks intact).`,
+          'Ledger Root',
+          'agent'
+        );
+      }
     } else {
       setLedgerTampered(false);
       addToast(
@@ -318,6 +341,7 @@ export function AppProvider({ children }) {
         simulateTamper,
         verifyLedger,
         ledgerTampered,
+        quarantinedEvidence,
         auditLogs,
         logAudit,
         toasts,

@@ -112,7 +112,8 @@ export const DAILY_ROUTINE_SLOTS = [
  * Generate customized advice based on ambient AQI and family profile
  */
 export function generatePersonalizedGuidance(archetypeId, currentAqi) {
-  const isExtreme = currentAqi > 300;
+  const safeAqi = Math.max(0, Math.min(1000, Number(currentAqi) || 100));
+  const isExtreme = safeAqi > 300;
 
   if (archetypeId === 'school_infant') {
     return {
