@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { 
-  Leaf, 
-  Car, 
-  Flame, 
-  Trash2, 
-  Zap, 
-  TrendingDown, 
-  ShieldCheck, 
-  CheckCircle2, 
-  Users, 
-  DollarSign, 
+import {
+  Leaf,
+  Car,
+  Flame,
+  Trash2,
+  Zap,
+  TrendingDown,
+  ShieldCheck,
+  CheckCircle2,
+  Users,
+  DollarSign,
   Heart,
   Layers
 } from 'lucide-react';
@@ -208,23 +208,21 @@ export default function SustainableAlternatives() {
           const isAdopted = adoptedPledges.includes(item.id);
 
           return (
-            <div 
+            <div
               key={item.id}
-              className={`panel panel-corners p-5 space-y-4 transition ${
-                isAdopted 
-                  ? 'border-emerald-400/40 bg-[#08101e]' 
-                  : 'border-cyan-400/10 bg-[#060d1b]'
-              }`}
+              className={`panel panel-corners p-5 space-y-4 transition ${isAdopted
+                ? 'border-emerald-400/40 bg-[#08101e]'
+                : 'border-cyan-400/10 bg-[#060d1b]'
+                }`}
             >
               <div className="flex items-center justify-between border-b border-cyan-400/10 pb-2.5">
                 <h3 className="text-base font-bold text-white font-sans">{item.title}</h3>
                 <button
                   onClick={() => handlePledge(item.id, item.clean.title)}
-                  className={`px-3 py-1 rounded text-xs font-mono font-bold transition cursor-pointer flex items-center gap-1.5 ${
-                    isAdopted
-                      ? 'bg-emerald-400 text-black hover:bg-emerald-300'
-                      : 'bg-[#0c182c] border border-cyan-400/30 text-cyan-300 hover:bg-cyan-400/20'
-                  }`}
+                  className={`px-3 py-1 rounded text-xs font-mono font-bold transition cursor-pointer flex items-center gap-1.5 ${isAdopted
+                    ? 'bg-emerald-400 text-black hover:bg-emerald-300'
+                    : 'bg-[#0c182c] border border-cyan-400/30 text-cyan-300 hover:bg-cyan-400/20'
+                    }`}
                 >
                   {isAdopted ? (
                     <>

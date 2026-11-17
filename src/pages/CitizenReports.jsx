@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { 
-  FileText, 
-  ShieldCheck, 
-  ShieldAlert, 
-  CheckCircle2, 
-  Send, 
-  ArrowRight, 
-  RotateCcw, 
+import {
+  FileText,
+  ShieldCheck,
+  ShieldAlert,
+  CheckCircle2,
+  Send,
+  ArrowRight,
+  RotateCcw,
   AlertTriangle,
   Lock,
   Link as LinkIcon
@@ -16,12 +16,12 @@ import { useApp } from '../context/AppContext';
 import { validateCitizenReport } from '../utils/sanitize';
 
 export default function CitizenReports() {
-  const { 
-    citizenReports, 
-    addCitizenReport, 
-    advanceReportStage, 
-    simulateTamper, 
-    verifyLedger, 
+  const {
+    citizenReports,
+    addCitizenReport,
+    advanceReportStage,
+    simulateTamper,
+    verifyLedger,
     ledgerTampered,
     addToast
   } = useApp();
@@ -224,11 +224,10 @@ export default function CitizenReports() {
               return (
                 <div
                   key={rep.id}
-                  className={`w-72 shrink-0 p-3.5 rounded-xl border font-mono text-xs space-y-2 transition relative ${
-                    isCorrupt
-                      ? 'border-rose-500 bg-rose-500/20 shadow-glow-red animate-pulse'
-                      : 'border-cyan-400/20 bg-[#030712] hover:border-cyan-400/50'
-                  }`}
+                  className={`w-72 shrink-0 p-3.5 rounded-xl border font-mono text-xs space-y-2 transition relative ${isCorrupt
+                    ? 'border-rose-500 bg-rose-500/20 shadow-glow-red animate-pulse'
+                    : 'border-cyan-400/20 bg-[#030712] hover:border-cyan-400/50'
+                    }`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-cyan-300">BLOCK #{idx + 1}</span>
@@ -306,9 +305,8 @@ export default function CitizenReports() {
                       {[1, 2, 3, 4].map((step) => (
                         <div
                           key={step}
-                          className={`h-2 w-5 rounded-sm ${
-                            step <= rep.stage ? 'bg-cyan-400' : 'bg-slate-700'
-                          }`}
+                          className={`h-2 w-5 rounded-sm ${step <= rep.stage ? 'bg-cyan-400' : 'bg-slate-700'
+                            }`}
                         />
                       ))}
                       <span className="ml-2 text-[10px] text-slate-300 font-sans">{rep.statusText}</span>

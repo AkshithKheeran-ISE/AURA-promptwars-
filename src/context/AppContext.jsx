@@ -1,18 +1,18 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { 
-  WARDS_DATA, 
-  PRIORITY_ALERTS, 
-  INITIAL_CITIZEN_REPORTS, 
-  INITIAL_AUDIT_LOGS 
+import {
+  WARDS_DATA,
+  PRIORITY_ALERTS,
+  INITIAL_CITIZEN_REPORTS,
+  INITIAL_AUDIT_LOGS
 } from '../data/airData';
-import { 
-  calculateInhaledExposure, 
-  calculateCommunitySavings, 
-  calculateHealthRiskIndex 
+import {
+  calculateInhaledExposure,
+  calculateCommunitySavings,
+  calculateHealthRiskIndex
 } from '../services/impactCalculator';
-import { 
-  generateDeterministicHash, 
-  validateCitizenReport 
+import {
+  generateDeterministicHash,
+  validateCitizenReport
 } from '../utils/sanitize';
 
 const AppContext = createContext();
@@ -108,8 +108,8 @@ export function AppProvider({ children }) {
   const exposureCalc = calculateInhaledExposure(selectedWard.pm25, 24, usesHEPA, weatherstripped, 'n95');
   const communitySavings = calculateCommunitySavings(18, 'petrolCar', transitChoice, true, true);
   const healthRisk = calculateHealthRiskIndex(
-    exposureCalc.indoorPm25, 
-    familyArchetype === 'asthma_seniors', 
+    exposureCalc.indoorPm25,
+    familyArchetype === 'asthma_seniors',
     familyArchetype === 'school_infant'
   );
 

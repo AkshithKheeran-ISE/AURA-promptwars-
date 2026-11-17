@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
-import { 
-  ShieldAlert, 
-  CheckCircle2, 
-  Droplets, 
-  Bell, 
-  Power, 
-  Truck, 
-  Navigation, 
-  CloudRain, 
-  Zap, 
-  FileCheck, 
-  DollarSign, 
-  Plane, 
-  Users, 
-  Flame, 
-  Ban, 
+import {
+  ShieldAlert,
+  CheckCircle2,
+  Droplets,
+  Bell,
+  Power,
+  Truck,
+  Navigation,
+  CloudRain,
+  Zap,
+  FileCheck,
+  DollarSign,
+  Plane,
+  Users,
+  Flame,
+  Ban,
   CloudDrizzle,
   TrendingUp,
   Share2
@@ -41,10 +41,10 @@ const PLAYBOOK_ICONS = {
 };
 
 export default function AlertCenter() {
-  const { 
-    alerts, 
-    executePlaybookAction, 
-    boostAlertPriority 
+  const {
+    alerts,
+    executePlaybookAction,
+    boostAlertPriority
   } = useApp();
 
   const [selectedAlertId, setSelectedAlertId] = useState(alerts[0]?.id || 'ALR-DEL-901');
@@ -80,11 +80,10 @@ export default function AlertCenter() {
           <button
             key={sev}
             onClick={() => setFilterSeverity(sev)}
-            className={`px-3 py-1.5 rounded-lg border transition cursor-pointer uppercase ${
-              filterSeverity === sev
-                ? 'bg-cyan-400/15 border-cyan-400 text-cyan-200'
-                : 'border-cyan-400/10 text-slate-400 hover:bg-white/5'
-            }`}
+            className={`px-3 py-1.5 rounded-lg border transition cursor-pointer uppercase ${filterSeverity === sev
+              ? 'bg-cyan-400/15 border-cyan-400 text-cyan-200'
+              : 'border-cyan-400/10 text-slate-400 hover:bg-white/5'
+              }`}
           >
             {sev} ({sev === 'all' ? alerts.length : alerts.filter(a => a.severity === sev).length})
           </button>
@@ -103,20 +102,19 @@ export default function AlertCenter() {
           <div className="space-y-2 max-h-[640px] overflow-y-auto pr-1">
             {filteredAlerts.map((alr) => {
               const isSelected = alr.id === selectedAlertId;
-              const sevBadge = 
+              const sevBadge =
                 alr.severity === 'critical' ? 'border-rose-500/50 bg-rose-500/20 text-rose-200' :
-                alr.severity === 'high' ? 'border-orange-400/40 bg-orange-400/15 text-orange-200' :
-                'border-amber-400/30 bg-amber-400/10 text-amber-200';
+                  alr.severity === 'high' ? 'border-orange-400/40 bg-orange-400/15 text-orange-200' :
+                    'border-amber-400/30 bg-amber-400/10 text-amber-200';
 
               return (
                 <div
                   key={alr.id}
                   onClick={() => setSelectedAlertId(alr.id)}
-                  className={`p-3.5 rounded-xl border text-left transition cursor-pointer space-y-2 ${
-                    isSelected 
-                      ? 'border-cyan-400/60 bg-[#0c182c] shadow-[inset_0_0_0_1px_rgba(34,211,238,0.4)]' 
-                      : 'border-cyan-400/10 bg-[#060d1b] hover:bg-white/5'
-                  }`}
+                  className={`p-3.5 rounded-xl border text-left transition cursor-pointer space-y-2 ${isSelected
+                    ? 'border-cyan-400/60 bg-[#0c182c] shadow-[inset_0_0_0_1px_rgba(34,211,238,0.4)]'
+                    : 'border-cyan-400/10 bg-[#060d1b] hover:bg-white/5'
+                    }`}
                 >
                   <div className="flex items-center justify-between font-mono text-xs">
                     <span className="font-bold text-cyan-300">{alr.id}</span>
@@ -210,11 +208,10 @@ export default function AlertCenter() {
                     key={action.id}
                     onClick={() => executePlaybookAction(selectedAlert.id, action.id, action.label)}
                     disabled={action.done}
-                    className={`flex items-center gap-3 p-3 rounded-lg border text-left transition font-mono text-xs cursor-pointer ${
-                      action.done
-                        ? 'border-emerald-400/40 bg-emerald-400/10 text-emerald-300 cursor-default'
-                        : 'border-cyan-400/20 bg-[#0c182c] text-slate-200 hover:border-cyan-400/60 hover:bg-cyan-400/10'
-                    }`}
+                    className={`flex items-center gap-3 p-3 rounded-lg border text-left transition font-mono text-xs cursor-pointer ${action.done
+                      ? 'border-emerald-400/40 bg-emerald-400/10 text-emerald-300 cursor-default'
+                      : 'border-cyan-400/20 bg-[#0c182c] text-slate-200 hover:border-cyan-400/60 hover:bg-cyan-400/10'
+                      }`}
                   >
                     <ActionIcon className={`h-4 w-4 shrink-0 ${action.done ? 'text-emerald-400' : 'text-cyan-400'}`} />
                     <span className="truncate flex-1">{action.label}</span>

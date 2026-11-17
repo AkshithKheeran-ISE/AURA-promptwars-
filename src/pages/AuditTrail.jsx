@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { 
-  Download, 
-  Filter, 
-  Search, 
-  User, 
-  Bot, 
-  Cpu, 
-  CheckCircle2 
+import {
+  Download,
+  Filter,
+  Search,
+  User,
+  Bot,
+  Cpu,
+  CheckCircle2
 } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
 import { useApp } from '../context/AppContext';
@@ -19,7 +19,7 @@ export default function AuditTrail() {
 
   const filteredLogs = auditLogs.filter(log => {
     const matchesType = filterType === 'all' || log.type === filterType;
-    const matchesSearch = 
+    const matchesSearch =
       log.actor.toLowerCase().includes(searchTerm.toLowerCase()) ||
       log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
       log.target.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -29,7 +29,7 @@ export default function AuditTrail() {
 
   const exportCSV = () => {
     const headers = 'id,timestamp,actor,action,target,type,hash\n';
-    const rows = auditLogs.map(l => 
+    const rows = auditLogs.map(l =>
       `"${l.id}","${new Date(l.ts).toISOString()}","${l.actor}","${l.action.replace(/"/g, '""')}","${l.target}","${l.type}","${l.hash}"`
     ).join('\n');
 
@@ -111,11 +111,10 @@ export default function AuditTrail() {
             <button
               key={type}
               onClick={() => setFilterType(type)}
-              className={`px-3 py-1.5 rounded-lg border transition cursor-pointer uppercase ${
-                filterType === type
-                  ? 'bg-cyan-400/15 border-cyan-400 text-cyan-200'
-                  : 'border-cyan-400/10 text-slate-400 hover:bg-white/5'
-              }`}
+              className={`px-3 py-1.5 rounded-lg border transition cursor-pointer uppercase ${filterType === type
+                ? 'bg-cyan-400/15 border-cyan-400 text-cyan-200'
+                : 'border-cyan-400/10 text-slate-400 hover:bg-white/5'
+                }`}
             >
               {type}
             </button>
@@ -162,13 +161,13 @@ export default function AuditTrail() {
             </thead>
             <tbody className="divide-y divide-cyan-400/5">
               {filteredLogs.map((log) => {
-                const actorColor = 
+                const actorColor =
                   log.type === 'human' ? 'text-cyan-300' :
-                  log.type === 'agent' ? 'text-purple-300' : 'text-slate-400';
+                    log.type === 'agent' ? 'text-purple-300' : 'text-slate-400';
 
-                const ActorIcon = 
+                const ActorIcon =
                   log.type === 'human' ? User :
-                  log.type === 'agent' ? Bot : Cpu;
+                    log.type === 'agent' ? Bot : Cpu;
 
                 return (
                   <tr key={log.id + log.ts} className="hover:bg-white/5 transition">
