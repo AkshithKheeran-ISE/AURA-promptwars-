@@ -1,0 +1,223 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-display: 'Orbitron', sans-serif;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #030712;
+    color: #f1f5f9;
+    overflow-x: hidden;
+  }
+}
+
+.font-display {
+  font-family: var(--font-display), 'Orbitron', sans-serif;
+}
+
+.font-mono {
+  font-family: var(--font-mono), 'JetBrains Mono', monospace;
+}
+
+/* Cyber Abyss Color System */
+.bg-abyss-950 { background-color: #030712; }
+.bg-abyss-900 { background-color: #08101e; }
+.bg-abyss-850 { background-color: #0c182c; }
+.bg-abyss-800 { background-color: #11223d; }
+.bg-abyss-600 { background-color: #1e3a5f; }
+
+/* Grid Background */
+.grid-bg {
+  background-image: 
+    linear-gradient(#22d3ee0d 1px, transparent 1px),
+    linear-gradient(90deg, #22d3ee0d 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Glass & Border Panels */
+.panel {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background-color: rgba(6, 13, 27, 0.85);
+  border: 1px solid rgba(34, 211, 238, 0.15);
+  border-radius: 0.75rem;
+  position: relative;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 10px 30px -15px rgba(0, 0, 0, 0.7);
+}
+
+/* HUD Sci-Fi Corner Brackets */
+.panel-corners {
+  position: relative;
+}
+.panel-corners::before,
+.panel-corners::after {
+  content: "";
+  pointer-events: none;
+  border-color: rgba(34, 211, 238, 0.7);
+  width: 12px;
+  height: 12px;
+  position: absolute;
+  z-index: 10;
+}
+.panel-corners::before {
+  border-top: 2px solid;
+  border-left: 2px solid;
+  border-top-left-radius: 6px;
+  top: -1px;
+  left: -1px;
+}
+.panel-corners::after {
+  border-bottom: 2px solid;
+  border-right: 2px solid;
+  border-bottom-right-radius: 6px;
+  bottom: -1px;
+  right: -1px;
+}
+
+/* Tactical Labels */
+.label {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #94a3b8;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* Glow Shadows */
+.shadow-glow {
+  box-shadow: 0 0 24px -2px rgba(34, 211, 238, 0.45);
+}
+.shadow-glow-green {
+  box-shadow: 0 0 24px -4px rgba(52, 211, 153, 0.5);
+}
+.shadow-glow-red {
+  box-shadow: 0 0 24px -4px rgba(244, 63, 94, 0.55);
+}
+
+/* CRT Scanlines */
+.scanline {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 20;
+}
+.scanline::after {
+  content: "";
+  background: linear-gradient(transparent, rgba(34, 211, 238, 0.06), transparent);
+  height: 35%;
+  animation: 6s linear infinite scan;
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+
+/* Keyframes */
+@keyframes scan {
+  0% { top: -35%; }
+  100% { top: 100%; }
+}
+
+@keyframes sweep {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes dash {
+  to { stroke-dashoffset: -40px; }
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+@keyframes ping2 {
+  0% { transform: scale(1); opacity: 0.8; }
+  80%, 100% { transform: scale(2.4); opacity: 0; }
+}
+
+/* Animation utilities */
+.animate-sweep {
+  animation: 4s linear infinite sweep;
+}
+
+.animate-ticker {
+  display: flex;
+  width: max-content;
+  animation: 45s linear infinite ticker;
+}
+.animate-ticker:hover {
+  animation-play-state: paused;
+}
+
+.animate-dash {
+  animation: 1.2s linear infinite dash;
+}
+
+.animate-blink {
+  animation: 1s step-end infinite blink;
+}
+
+/* Radar Map Markers */
+.aura-marker {
+  position: relative;
+  width: 18px;
+  height: 18px;
+}
+.aura-marker .dot {
+  position: absolute;
+  inset: 3px;
+  border-radius: 9999px;
+  border: 2px solid #030712;
+}
+.aura-marker .ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  animation: 2s cubic-bezier(0, 0, 0.2, 1) infinite ping2;
+}
+
+/* Leaflet Dark Customization */
+.aura-map .leaflet-tile-pane {
+  filter: brightness(0.7) invert(1) contrast(1.15) hue-rotate(185deg) saturate(1.3);
+}
+.leaflet-container {
+  background: #030712 !important;
+  font-family: inherit;
+}
+.leaflet-popup-content-wrapper {
+  background: #08101ecc !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(34, 211, 238, 0.3) !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.8) !important;
+}
+.leaflet-popup-tip {
+  background: #08101e !important;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(3, 7, 18, 0.6);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(34, 211, 238, 0.25);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(34, 211, 238, 0.5);
+}

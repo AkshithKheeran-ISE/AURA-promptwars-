@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="auraGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22d3ee" />
+      <stop offset="50%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#34d399" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+  <!-- Outer tactical hexagon/circle -->
+  <circle cx="50" cy="50" r="44" stroke="#22d3ee" stroke-width="1.5" stroke-dasharray="8 4" opacity="0.4" />
+  <circle cx="50" cy="50" r="38" stroke="#38bdf8" stroke-width="1.2" opacity="0.6" />
+  
+  <!-- Atmospheric vortex / particle rings -->
+  <path d="M50 18 C65 18, 80 30, 80 48 C80 64, 66 78, 50 78 C32 78, 22 66, 22 52 C22 36, 36 28, 50 28 C60 28, 68 36, 68 46 C68 56, 58 64, 50 64 C42 64, 34 58, 34 50 C34 42, 42 36, 50 36" 
+        stroke="url(#auraGrad)" stroke-width="3" stroke-linecap="round" fill="none" filter="url(#glow)" />
+        
+  <!-- Radar crosshairs -->
+  <line x1="50" y1="6" x2="50" y2="16" stroke="#22d3ee" stroke-width="2" stroke-linecap="round" />
+  <line x1="50" y1="84" x2="50" y2="94" stroke="#22d3ee" stroke-width="2" stroke-linecap="round" />
+  <line x1="6" y1="50" x2="16" y2="50" stroke="#22d3ee" stroke-width="2" stroke-linecap="round" />
+  <line x1="84" y1="50" x2="94" y2="50" stroke="#22d3ee" stroke-width="2" stroke-linecap="round" />
+  
+  <!-- Central core sensor -->
+  <circle cx="50" cy="50" r="4" fill="#22d3ee" filter="url(#glow)" />
+</svg>
