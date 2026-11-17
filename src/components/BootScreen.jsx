@@ -38,7 +38,7 @@ export default function BootScreen({ onDone }) {
               style={{ background: 'conic-gradient(from 0deg, rgba(34,211,238,.35), transparent 30%)' }}
             ></div>
             <img 
-              src="/aura.svg" 
+              src="./aura.svg" 
               alt="AURA" 
               className="relative h-24 w-24"
               style={{ filter: 'drop-shadow(0 0 25px rgba(34,211,238,.8))' }}

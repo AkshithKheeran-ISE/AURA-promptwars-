@@ -46,7 +46,7 @@ export default function Header() {
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-cyan-400/10 bg-[#030712]/85 px-4 backdrop-blur-md md:px-6">
       {/* Mobile Brand & Module Select */}
       <div className="flex items-center gap-2 md:hidden">
-        <img src="/aura.svg" alt="AURA" className="h-7 w-7" />
+        <img src="./aura.svg" alt="AURA" className="h-7 w-7" />
         <select
           value={page}
           onChange={(e) => setPage(e.target.value)}

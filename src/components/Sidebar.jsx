@@ -55,7 +55,7 @@ export default function Sidebar() {
       <div className="flex h-16 items-center justify-between px-4 border-b border-cyan-400/10">
         <div className="flex items-center gap-3">
           <img
-            src="/aura.svg"
+            src="./aura.svg"
             alt="AURA Smog Defense Logo"
             className={sidebarCollapsed ? 'h-8 w-8' : 'h-9 w-9'}
             style={{ filter: 'drop-shadow(0 0 12px rgba(34,211,238,0.7))' }}

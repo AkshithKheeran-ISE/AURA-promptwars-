@@ -247,7 +247,7 @@ export default function AgentSystem() {
             {/* Central Orchestrator Core */}
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center z-10">
               <div className="relative mx-auto grid h-24 w-36 place-items-center rounded-xl border-2 border-cyan-400/70 bg-[#08101e] shadow-glow p-2">
-                <img src="/aura.svg" alt="AURA-CORE" className="h-8 w-8" />
+                <img src="./aura.svg" alt="AURA-CORE" className="h-8 w-8" />
                 <div className="font-display text-xs font-black tracking-widest text-white mt-1">
                   AURA-CORE
                 </div>
