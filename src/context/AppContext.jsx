@@ -32,6 +32,11 @@ export const NAV_ITEMS = [
   { id: 'audit', label: 'Impact Ledger', icon: 'ShieldCheck', badge: null }
 ];
 
+const INITIAL_CANONICAL_LEDGER = INITIAL_CITIZEN_REPORTS.reduce((acc, rep) => {
+  acc[rep.id] = { ...rep };
+  return acc;
+}, {});
+
 export function AppProvider({ children }) {
   const getInitialPage = () => {
     try {
@@ -65,12 +70,7 @@ export function AppProvider({ children }) {
   const [toasts, setToasts] = useState([]);
   const [ledgerTampered, setLedgerTampered] = useState(false);
   const [quarantinedEvidence, setQuarantinedEvidence] = useState([]);
-  const canonicalLedgerRef = useRef(
-    INITIAL_CITIZEN_REPORTS.reduce((acc, rep) => {
-      acc[rep.id] = { ...rep };
-      return acc;
-    }, {})
-  );
+  const canonicalLedgerRef = useRef({ ...INITIAL_CANONICAL_LEDGER });
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -98,7 +98,7 @@ export function AppProvider({ children }) {
   }, []);
 
   const addToast = (title, body, tone = 'cyan') => {
-    const id = Date.now() + Math.random();
+    const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
     setToasts((prev) => [...prev, { id, title, body, tone }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));

@@ -2,6 +2,13 @@ import React, { useState } from 'react';
 import SectionHeader from '../components/SectionHeader';
 import { THIRTY_DAY_FORECAST } from '../data/airData';
 
+const RISK_CARD_CLASSES = {
+  Critical: 'border-rose-500/50 bg-rose-500/15 text-rose-300',
+  High: 'border-amber-400/40 bg-amber-400/10 text-amber-300',
+  Low: 'border-emerald-400/40 bg-emerald-400/10 text-emerald-300'
+};
+const DEFAULT_RISK_CARD_CLASS = 'border-emerald-400/40 bg-emerald-400/10 text-emerald-300';
+
 export default function Forecast() {
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   const selectedDay = THIRTY_DAY_FORECAST[selectedDayIndex];
@@ -41,12 +48,7 @@ export default function Forecast() {
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-6 2xl:grid-cols-10">
           {THIRTY_DAY_FORECAST.map((item, idx) => {
             const isSelected = idx === selectedDayIndex;
-            const cardColor =
-              item.risk === 'Critical'
-                ? 'border-rose-500/50 bg-rose-500/15 text-rose-300'
-                : item.risk === 'High'
-                  ? 'border-amber-400/40 bg-amber-400/10 text-amber-300'
-                  : 'border-emerald-400/40 bg-emerald-400/10 text-emerald-300';
+            const cardColor = RISK_CARD_CLASSES[item.risk] || DEFAULT_RISK_CARD_CLASS;
 
             return (
               <button

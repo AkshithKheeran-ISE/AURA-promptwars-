@@ -5,6 +5,18 @@ import SectionHeader from '../components/SectionHeader';
 import { useApp } from '../context/AppContext';
 import { WARDS_DATA } from '../data/airData';
 
+const STATUS_COLORS = {
+  Critical: '#f43f5e',
+  High: '#fb923c',
+  Moderate: '#fbbf24',
+  Low: '#34d399'
+};
+const DEFAULT_STATUS_COLOR = '#34d399';
+
+function getStatusColor(status) {
+  return STATUS_COLORS[status] || DEFAULT_STATUS_COLOR;
+}
+
 export default function ThreatMap() {
   const { selectedWard, setSelectedWardId, addToast } = useApp();
 
@@ -65,14 +77,7 @@ export default function ThreatMap() {
 
     WARDS_DATA.forEach((ward) => {
       const isSelected = selectedWard.id === ward.id;
-      const color =
-        ward.status === 'Critical'
-          ? '#f43f5e'
-          : ward.status === 'High'
-            ? '#fb923c'
-            : ward.status === 'Moderate'
-              ? '#fbbf24'
-              : '#34d399';
+      const color = getStatusColor(ward.status);
 
       const customIcon = L.divIcon({
         className: 'aura-marker',
@@ -292,14 +297,7 @@ export default function ThreatMap() {
             <div
               className="font-display text-4xl font-extrabold"
               style={{
-                color:
-                  selectedWard.status === 'Critical'
-                    ? '#f43f5e'
-                    : selectedWard.status === 'High'
-                      ? '#fb923c'
-                      : selectedWard.status === 'Moderate'
-                        ? '#fbbf24'
-                        : '#34d399'
+                color: getStatusColor(selectedWard.status)
               }}
             >
               {selectedWard.aqi}

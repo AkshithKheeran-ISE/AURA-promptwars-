@@ -15,6 +15,21 @@ import { useApp } from '../context/AppContext';
 import { WARDS_DATA, HOURLY_TRENDS } from '../data/airData';
 import { FAMILY_ARCHETYPES } from '../services/routineEngine';
 
+const WARD_STATUS_CLASSES = {
+  Critical: 'border-rose-500/40 bg-rose-500/5 hover:border-rose-500',
+  High: 'border-orange-500/40 bg-orange-500/5 hover:border-orange-500',
+  Moderate: 'border-amber-400/30 bg-amber-400/5 hover:border-amber-400',
+  Low: 'border-emerald-400/30 bg-emerald-400/5 hover:border-emerald-400'
+};
+const DEFAULT_WARD_STATUS_CLASS = 'border-emerald-400/30 bg-emerald-400/5 hover:border-emerald-400';
+
+function getAqiColor(aqi) {
+  if (aqi <= 100) return '#34d399'; // Emerald
+  if (aqi <= 200) return '#fbbf24'; // Amber
+  if (aqi <= 300) return '#fb923c'; // Orange
+  return '#f43f5e'; // Rose
+}
+
 export default function CommandCenter() {
   const {
     setPage,
@@ -29,13 +44,6 @@ export default function CommandCenter() {
     activeHacks,
     addToast
   } = useApp();
-
-  const getAqiColor = (aqi) => {
-    if (aqi <= 100) return '#34d399'; // Emerald
-    if (aqi <= 200) return '#fbbf24'; // Amber
-    if (aqi <= 300) return '#fb923c'; // Orange
-    return '#f43f5e'; // Rose
-  };
 
   const outdoorColor = getAqiColor(selectedWard.aqi);
 
@@ -211,14 +219,7 @@ export default function CommandCenter() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {WARDS_DATA.map((w) => {
               const isSelected = selectedWard.id === w.id;
-              const statusBg =
-                w.status === 'Critical'
-                  ? 'border-rose-500/40 bg-rose-500/5 hover:border-rose-500'
-                  : w.status === 'High'
-                    ? 'border-orange-500/40 bg-orange-500/5 hover:border-orange-500'
-                    : w.status === 'Moderate'
-                      ? 'border-amber-400/30 bg-amber-400/5 hover:border-amber-400'
-                      : 'border-emerald-400/30 bg-emerald-400/5 hover:border-emerald-400';
+              const statusBg = WARD_STATUS_CLASSES[w.status] || DEFAULT_WARD_STATUS_CLASS;
 
               return (
                 <button

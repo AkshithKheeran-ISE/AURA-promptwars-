@@ -5,7 +5,14 @@ import { AppProvider } from './context/AppContext';
 import 'leaflet/dist/leaflet.css';
 import './index.css';
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error(
+    'Root element not found: please ensure an element with id="root" exists in index.html'
+  );
+}
+
+ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <AppProvider>
       <App />

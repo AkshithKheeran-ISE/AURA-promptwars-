@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Download, Filter, Search, User, Bot, Cpu, CheckCircle2 } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
 import { useApp } from '../context/AppContext';
@@ -9,15 +9,20 @@ export default function AuditTrail() {
   const [filterType, setFilterType] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredLogs = auditLogs.filter((log) => {
-    const matchesType = filterType === 'all' || log.type === filterType;
-    const matchesSearch =
-      log.actor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.target.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.id.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesType && matchesSearch;
-  });
+  const filteredLogs = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    return auditLogs.filter((log) => {
+      const matchesType = filterType === 'all' || log.type === filterType;
+      if (!matchesType) return false;
+      if (!term) return true;
+      return (
+        log.actor.toLowerCase().includes(term) ||
+        log.action.toLowerCase().includes(term) ||
+        log.target.toLowerCase().includes(term) ||
+        log.id.toLowerCase().includes(term)
+      );
+    });
+  }, [auditLogs, filterType, searchTerm]);
 
   const exportCSV = () => {
     const headers = 'id,timestamp,actor,action,target,type,hash\n';
@@ -39,9 +44,18 @@ export default function AuditTrail() {
     addToast('CSV Exported', 'Downloaded complete cryptographically verified audit trail', 'green');
   };
 
-  const humanCount = auditLogs.filter((l) => l.type === 'human').length;
-  const agentCount = auditLogs.filter((l) => l.type === 'agent').length;
-  const systemCount = auditLogs.filter((l) => l.type === 'system').length;
+  const { humanCount, agentCount, systemCount } = useMemo(() => {
+    let human = 0;
+    let agent = 0;
+    let system = 0;
+    for (let i = 0; i < auditLogs.length; i++) {
+      const type = auditLogs[i].type;
+      if (type === 'human') human++;
+      else if (type === 'agent') agent++;
+      else if (type === 'system') system++;
+    }
+    return { humanCount: human, agentCount: agent, systemCount: system };
+  }, [auditLogs]);
 
   return (
     <div className="space-y-6">

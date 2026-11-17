@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   LayoutDashboard,
   Map,
@@ -37,7 +37,10 @@ const ICON_MAP = {
 export default function Sidebar() {
   const { page, setPage, sidebarCollapsed, setSidebarCollapsed, alerts } = useApp();
 
-  const criticalCount = alerts.filter((a) => a.severity === 'critical').length;
+  const criticalCount = useMemo(
+    () => alerts.filter((a) => a.severity === 'critical').length,
+    [alerts]
+  );
 
   return (
     <aside

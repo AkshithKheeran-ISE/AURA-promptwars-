@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Search, AlertOctagon, ShieldCheck, Bell } from 'lucide-react';
 import { useApp, NAV_ITEMS } from '../context/AppContext';
 
@@ -28,7 +28,10 @@ export default function Header() {
   const { page, setPage, setCommandPaletteOpen, alerts } = useApp();
 
   const [notifOpen, setNotifOpen] = useState(false);
-  const criticalCount = alerts.filter((a) => a.severity === 'critical').length;
+  const criticalCount = useMemo(
+    () => alerts.filter((a) => a.severity === 'critical').length,
+    [alerts]
+  );
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-cyan-400/10 bg-[#030712]/85 px-4 backdrop-blur-md md:px-6">

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { AlertTriangle, Sparkles, CheckCircle2, Users } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
 import { useApp } from '../context/AppContext';
@@ -21,7 +21,10 @@ export default function DailyRoutines() {
     logAudit
   } = useApp();
 
-  const currentGuidance = generatePersonalizedGuidance(familyArchetype, selectedWard.aqi);
+  const currentGuidance = useMemo(
+    () => generatePersonalizedGuidance(familyArchetype, selectedWard.aqi),
+    [familyArchetype, selectedWard.aqi]
+  );
 
   const handleArchetypeChange = (id) => {
     setFamilyArchetype(id);

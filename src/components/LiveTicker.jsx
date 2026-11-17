@@ -11,9 +11,16 @@ const LIVE_TICKER_ITEMS = [
   '[TRAFFIC-CONTROL] Heavy commercial freight diverted to Western Peripheral Expressway'
 ];
 
-export default function LiveTicker() {
-  const repeated = [...LIVE_TICKER_ITEMS, ...LIVE_TICKER_ITEMS];
+const PARSED_TICKER_ITEMS = [...LIVE_TICKER_ITEMS, ...LIVE_TICKER_ITEMS].map((item, idx) => {
+  const [prefix, rest] = item.split(']');
+  return {
+    id: `ticker-${idx}-${prefix.replace(/[^a-zA-Z0-9]/g, '')}`,
+    prefix: `${prefix}]`,
+    rest
+  };
+});
 
+export default function LiveTicker() {
   return (
     <div className="relative flex h-8 items-center overflow-hidden border-b border-cyan-400/10 bg-[#08101e]/60">
       {/* Fixed LIVE Badge */}
@@ -24,15 +31,12 @@ export default function LiveTicker() {
 
       {/* Marquee Scroller */}
       <div className="flex animate-ticker whitespace-nowrap">
-        {repeated.map((item, idx) => {
-          const [prefix, rest] = item.split(']');
-          return (
-            <span key={idx} className="mx-6 font-mono text-[11px] text-slate-300">
-              <span className="text-cyan-300 font-bold">{prefix}]</span>
-              {rest}
-            </span>
-          );
-        })}
+        {PARSED_TICKER_ITEMS.map((item) => (
+          <span key={item.id} className="mx-6 font-mono text-[11px] text-slate-300">
+            <span className="text-cyan-300 font-bold">{item.prefix}</span>
+            {item.rest}
+          </span>
+        ))}
       </div>
     </div>
   );

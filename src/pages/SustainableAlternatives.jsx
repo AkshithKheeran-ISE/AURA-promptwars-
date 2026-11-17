@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Leaf, CheckCircle2 } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
 import { useApp } from '../context/AppContext';
@@ -100,16 +100,16 @@ export default function SustainableAlternatives() {
   };
 
   // Scaled calculations based on society size
-  const totalCo2PreventedTons = Number(
-    ((householdScale * 1.8 * adoptedPledges.length) / 4).toFixed(1)
-  );
-  const totalPm25PreventedKg = Number(
-    ((householdScale * 8.4 * adoptedPledges.length) / 4).toFixed(1)
-  );
-  const asthmaCasesPrevented = Math.round(householdScale * 0.42 * adoptedPledges.length);
-  const fuelSavingsLakhsInr = Number(
-    ((householdScale * 24000 * adoptedPledges.length) / 400000).toFixed(2)
-  );
+  const { totalCo2PreventedTons, totalPm25PreventedKg, asthmaCasesPrevented, fuelSavingsLakhsInr } =
+    useMemo(() => {
+      const pledgeCount = adoptedPledges.length;
+      return {
+        totalCo2PreventedTons: Number(((householdScale * 1.8 * pledgeCount) / 4).toFixed(1)),
+        totalPm25PreventedKg: Number(((householdScale * 8.4 * pledgeCount) / 4).toFixed(1)),
+        asthmaCasesPrevented: Math.round(householdScale * 0.42 * pledgeCount),
+        fuelSavingsLakhsInr: Number(((householdScale * 24000 * pledgeCount) / 400000).toFixed(2))
+      };
+    }, [householdScale, adoptedPledges.length]);
 
   return (
     <div className="space-y-6">

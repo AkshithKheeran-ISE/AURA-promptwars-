@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ShieldAlert, CheckCircle2, RotateCcw, Lock } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
 import { useApp } from '../context/AppContext';
@@ -22,6 +22,11 @@ export default function CitizenReports() {
     urgency: 'High',
     description: ''
   });
+
+  const merkleRootHex = useMemo(
+    () => computeMerkleRoot(citizenReports.map((r) => r.hash)),
+    [citizenReports]
+  );
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -275,7 +280,7 @@ export default function CitizenReports() {
 
           <div className="rounded-lg bg-[#030712] p-3 border border-cyan-400/10 flex items-center justify-between text-xs font-mono text-slate-400">
             <span className="truncate max-w-[60%]">
-              Merkle Root: 0x{computeMerkleRoot(citizenReports.map((r) => r.hash)).slice(0, 32)}...
+              Merkle Root: 0x{merkleRootHex.slice(0, 32)}...
             </span>
             <span className="text-emerald-400 flex items-center gap-1 shrink-0">
               <CheckCircle2 className="h-3.5 w-3.5" /> Immutable Audit Ledger Online

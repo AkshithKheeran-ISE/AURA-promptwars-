@@ -74,6 +74,65 @@ const FAMILY_AGENTS_ROSTER = [
   }
 ];
 
+const SAMPLE_QUERIES = [
+  'How do I build a low-cost DIY Corsi-Rosenthal box air purifier for ₹1,450?',
+  'What daily smog routine should I follow for my infant and asthmatic senior?',
+  'When is the safest time of day to open windows for ventilation?',
+  'What is the direct carbon and soot savings if our family takes the Metro?',
+  'Why is open coal sigdi heating dangerous and what is the clean alternative?'
+];
+
+const SATELLITE_AGENTS_CONFIG = [
+  {
+    agentId: 'family_advisor',
+    rosterIndex: 0,
+    posClass: 'left-[8%] top-[12%]',
+    borderClass: 'border-cyan-400/40',
+    textClass: 'text-cyan-300',
+    fallbackLabel: 'Routines & Commute'
+  },
+  {
+    agentId: 'iaq_engineer',
+    rosterIndex: 1,
+    posClass: 'right-[8%] top-[12%]',
+    borderClass: 'border-emerald-400/40',
+    textClass: 'text-emerald-300',
+    fallbackLabel: 'DIY Corsi & Hacks'
+  },
+  {
+    agentId: 'pediatric_shield',
+    rosterIndex: 2,
+    posClass: 'left-[3%] top-[45%]',
+    borderClass: 'border-rose-500/40',
+    textClass: 'text-rose-400',
+    fallbackLabel: 'Infant & Asthmatic Lung'
+  },
+  {
+    agentId: 'meteo_forecaster',
+    rosterIndex: 3,
+    posClass: 'right-[3%] top-[45%]',
+    borderClass: 'border-purple-500/40',
+    textClass: 'text-purple-300',
+    fallbackLabel: 'Inversion & Timing'
+  },
+  {
+    agentId: 'eco_auditor',
+    rosterIndex: 4,
+    posClass: 'left-[10%] bottom-[12%]',
+    borderClass: 'border-amber-400/40',
+    textClass: 'text-amber-300',
+    fallbackLabel: 'Direct Impact Metric'
+  },
+  {
+    agentId: 'community_watch',
+    rosterIndex: 5,
+    posClass: 'right-[10%] bottom-[12%]',
+    borderClass: 'border-sky-400/40',
+    textClass: 'text-sky-300',
+    fallbackLabel: 'Tamper-Proof Ledger'
+  }
+];
+
 export default function AgentSystem() {
   const { addToast, logAudit, familyArchetype, selectedWard } = useApp();
   const aiStatus = getAiServiceStatus();
@@ -97,14 +156,6 @@ export default function AgentSystem() {
     eco_auditor: { calls: 0, lastLatencyMs: null, status: 'READY' },
     community_watch: { calls: 0, lastLatencyMs: null, status: 'READY' }
   });
-
-  const sampleQueries = [
-    'How do I build a low-cost DIY Corsi-Rosenthal box air purifier for ₹1,450?',
-    'What daily smog routine should I follow for my infant and asthmatic senior?',
-    'When is the safest time of day to open windows for ventilation?',
-    'What is the direct carbon and soot savings if our family takes the Metro?',
-    'Why is open coal sigdi heating dangerous and what is the clean alternative?'
-  ];
 
   const handleSend = async (queryText, directAgentId = null) => {
     const rawText = queryText || inputText;
@@ -381,95 +432,31 @@ export default function AgentSystem() {
               </button>
             </div>
 
-            {/* Satellite Agent 1: FamilyAdvisor (Top Left) */}
-            <button
-              onClick={() => handleSend(FAMILY_AGENTS_ROSTER[0].sampleQuery, 'family_advisor')}
-              className="absolute left-[8%] top-[12%] text-center cursor-pointer hover:scale-105 transition"
-            >
-              <div className="p-2 rounded-lg border border-cyan-400/40 bg-[#0c182c] shadow-md font-mono text-[10px] space-y-0.5">
-                <div className="text-cyan-300 font-bold">FamilyAdvisor</div>
-                <div className="text-[8px] text-slate-400">
-                  {agentMetrics.family_advisor.calls > 0
-                    ? `${agentMetrics.family_advisor.calls} runs (${agentMetrics.family_advisor.lastLatencyMs}ms)`
-                    : 'Routines & Commute'}
-                </div>
-              </div>
-            </button>
-
-            {/* Satellite Agent 2: IAQEngineer (Top Right) */}
-            <button
-              onClick={() => handleSend(FAMILY_AGENTS_ROSTER[1].sampleQuery, 'iaq_engineer')}
-              className="absolute right-[8%] top-[12%] text-center cursor-pointer hover:scale-105 transition"
-            >
-              <div className="p-2 rounded-lg border border-emerald-400/40 bg-[#0c182c] shadow-md font-mono text-[10px] space-y-0.5">
-                <div className="text-emerald-300 font-bold">IAQEngineer</div>
-                <div className="text-[8px] text-slate-400">
-                  {agentMetrics.iaq_engineer.calls > 0
-                    ? `${agentMetrics.iaq_engineer.calls} runs (${agentMetrics.iaq_engineer.lastLatencyMs}ms)`
-                    : 'DIY Corsi & Hacks'}
-                </div>
-              </div>
-            </button>
-
-            {/* Satellite Agent 3: PediatricShield (Mid Left) */}
-            <button
-              onClick={() => handleSend(FAMILY_AGENTS_ROSTER[2].sampleQuery, 'pediatric_shield')}
-              className="absolute left-[3%] top-[45%] text-center cursor-pointer hover:scale-105 transition"
-            >
-              <div className="p-2 rounded-lg border border-rose-500/40 bg-[#0c182c] shadow-md font-mono text-[10px] space-y-0.5">
-                <div className="text-rose-400 font-bold">PediatricShield</div>
-                <div className="text-[8px] text-slate-400">
-                  {agentMetrics.pediatric_shield.calls > 0
-                    ? `${agentMetrics.pediatric_shield.calls} runs (${agentMetrics.pediatric_shield.lastLatencyMs}ms)`
-                    : 'Infant & Asthmatic Lung'}
-                </div>
-              </div>
-            </button>
-
-            {/* Satellite Agent 4: MeteoForecaster (Mid Right) */}
-            <button
-              onClick={() => handleSend(FAMILY_AGENTS_ROSTER[3].sampleQuery, 'meteo_forecaster')}
-              className="absolute right-[3%] top-[45%] text-center cursor-pointer hover:scale-105 transition"
-            >
-              <div className="p-2 rounded-lg border border-purple-500/40 bg-[#0c182c] shadow-md font-mono text-[10px] space-y-0.5">
-                <div className="text-purple-300 font-bold">MeteoForecaster</div>
-                <div className="text-[8px] text-slate-400">
-                  {agentMetrics.meteo_forecaster.calls > 0
-                    ? `${agentMetrics.meteo_forecaster.calls} runs (${agentMetrics.meteo_forecaster.lastLatencyMs}ms)`
-                    : 'Inversion & Timing'}
-                </div>
-              </div>
-            </button>
-
-            {/* Satellite Agent 5: EcoAuditor (Bottom Left) */}
-            <button
-              onClick={() => handleSend(FAMILY_AGENTS_ROSTER[4].sampleQuery, 'eco_auditor')}
-              className="absolute left-[10%] bottom-[12%] text-center cursor-pointer hover:scale-105 transition"
-            >
-              <div className="p-2 rounded-lg border border-amber-400/40 bg-[#0c182c] shadow-md font-mono text-[10px] space-y-0.5">
-                <div className="text-amber-300 font-bold">EcoAuditor</div>
-                <div className="text-[8px] text-slate-400">
-                  {agentMetrics.eco_auditor.calls > 0
-                    ? `${agentMetrics.eco_auditor.calls} runs (${agentMetrics.eco_auditor.lastLatencyMs}ms)`
-                    : 'Direct Impact Metric'}
-                </div>
-              </div>
-            </button>
-
-            {/* Satellite Agent 6: CommunityWatch (Bottom Right) */}
-            <button
-              onClick={() => handleSend(FAMILY_AGENTS_ROSTER[5].sampleQuery, 'community_watch')}
-              className="absolute right-[10%] bottom-[12%] text-center cursor-pointer hover:scale-105 transition"
-            >
-              <div className="p-2 rounded-lg border border-sky-400/40 bg-[#0c182c] shadow-md font-mono text-[10px] space-y-0.5">
-                <div className="text-sky-300 font-bold">CommunityWatch</div>
-                <div className="text-[8px] text-slate-400">
-                  {agentMetrics.community_watch.calls > 0
-                    ? `${agentMetrics.community_watch.calls} runs (${agentMetrics.community_watch.lastLatencyMs}ms)`
-                    : 'Tamper-Proof Ledger'}
-                </div>
-              </div>
-            </button>
+            {/* Satellite Agents Network */}
+            {SATELLITE_AGENTS_CONFIG.map(
+              ({ agentId, rosterIndex, posClass, borderClass, textClass, fallbackLabel }) => {
+                const agent = FAMILY_AGENTS_ROSTER[rosterIndex];
+                const metrics = agentMetrics[agentId];
+                return (
+                  <button
+                    key={agentId}
+                    onClick={() => handleSend(agent.sampleQuery, agentId)}
+                    className={`absolute ${posClass} text-center cursor-pointer hover:scale-105 transition`}
+                  >
+                    <div
+                      className={`p-2 rounded-lg border ${borderClass} bg-[#0c182c] shadow-md font-mono text-[10px] space-y-0.5`}
+                    >
+                      <div className={`${textClass} font-bold`}>{agent.name}</div>
+                      <div className="text-[8px] text-slate-400">
+                        {metrics.calls > 0
+                          ? `${metrics.calls} runs (${metrics.lastLatencyMs}ms)`
+                          : fallbackLabel}
+                      </div>
+                    </div>
+                  </button>
+                );
+              }
+            )}
           </div>
         </div>
 
@@ -488,7 +475,7 @@ export default function AgentSystem() {
             <div className="py-2 space-y-1">
               <div className="label text-[9px] text-slate-500">Quick Family Prompts:</div>
               <div className="flex flex-wrap gap-1.5">
-                {sampleQueries.map((q, idx) => (
+                {SAMPLE_QUERIES.map((q, idx) => (
                   <button
                     key={idx}
                     onClick={() => handleSend(q)}

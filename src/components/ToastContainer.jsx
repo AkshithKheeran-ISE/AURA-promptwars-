@@ -1,20 +1,23 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 
+const TONE_BORDER_CLASSES = {
+  red: 'border-l-rose-500 bg-[#0c182c]/95',
+  rose: 'border-l-rose-500 bg-[#0c182c]/95',
+  green: 'border-l-emerald-400 bg-[#0c182c]/95',
+  emerald: 'border-l-emerald-400 bg-[#0c182c]/95',
+  amber: 'border-l-amber-400 bg-[#0c182c]/95',
+  yellow: 'border-l-amber-400 bg-[#0c182c]/95'
+};
+const DEFAULT_BORDER_CLASS = 'border-l-cyan-400 bg-[#0c182c]/95';
+
 export default function ToastContainer() {
   const { toasts } = useApp();
 
   return (
     <div className="fixed bottom-4 right-4 z-[1000] space-y-2 pointer-events-none">
       {toasts.map((toast) => {
-        const borderClass =
-          toast.tone === 'red' || toast.tone === 'rose'
-            ? 'border-l-rose-500 bg-[#0c182c]/95'
-            : toast.tone === 'green' || toast.tone === 'emerald'
-              ? 'border-l-emerald-400 bg-[#0c182c]/95'
-              : toast.tone === 'amber' || toast.tone === 'yellow'
-                ? 'border-l-amber-400 bg-[#0c182c]/95'
-                : 'border-l-cyan-400 bg-[#0c182c]/95';
+        const borderClass = TONE_BORDER_CLASSES[toast.tone] || DEFAULT_BORDER_CLASS;
 
         return (
           <div

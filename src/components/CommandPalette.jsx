@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Search, X, LayoutDashboard, MapPin, Zap, ShieldAlert, Sparkles } from 'lucide-react';
 import { useApp, NAV_ITEMS } from '../context/AppContext';
 import { WARDS_DATA } from '../data/airData';
@@ -33,20 +33,26 @@ export default function CommandPalette() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [commandPaletteOpen, setCommandPaletteOpen]);
 
+  const filteredPages = useMemo(() => {
+    const term = query.trim().toLowerCase();
+    if (!term) return NAV_ITEMS;
+    return NAV_ITEMS.filter(
+      (item) => item.label.toLowerCase().includes(term) || item.id.toLowerCase().includes(term)
+    );
+  }, [query]);
+
+  const filteredWards = useMemo(() => {
+    const term = query.trim().toLowerCase();
+    if (!term) return WARDS_DATA;
+    return WARDS_DATA.filter(
+      (ward) =>
+        ward.name.toLowerCase().includes(term) ||
+        ward.id.toLowerCase().includes(term) ||
+        ward.status.toLowerCase().includes(term)
+    );
+  }, [query]);
+
   if (!commandPaletteOpen) return null;
-
-  const filteredPages = NAV_ITEMS.filter(
-    (item) =>
-      item.label.toLowerCase().includes(query.toLowerCase()) ||
-      item.id.toLowerCase().includes(query.toLowerCase())
-  );
-
-  const filteredWards = WARDS_DATA.filter(
-    (ward) =>
-      ward.name.toLowerCase().includes(query.toLowerCase()) ||
-      ward.id.toLowerCase().includes(query.toLowerCase()) ||
-      ward.status.toLowerCase().includes(query.toLowerCase())
-  );
 
   const handleSelectPage = (id) => {
     setPage(id);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   ShieldAlert,
   CheckCircle2,
@@ -40,18 +40,28 @@ const PLAYBOOK_ICONS = {
   CloudDrizzle
 };
 
+const SEVERITY_BADGE_CLASSES = {
+  critical: 'border-rose-500/50 bg-rose-500/20 text-rose-200',
+  high: 'border-orange-400/40 bg-orange-400/15 text-orange-200',
+  medium: 'border-amber-400/30 bg-amber-400/10 text-amber-200'
+};
+const DEFAULT_SEVERITY_BADGE_CLASS = 'border-amber-400/30 bg-amber-400/10 text-amber-200';
+
 export default function AlertCenter() {
   const { alerts, executePlaybookAction, boostAlertPriority } = useApp();
 
   const [selectedAlertId, setSelectedAlertId] = useState(alerts[0]?.id || 'ALR-DEL-901');
   const [filterSeverity, setFilterSeverity] = useState('all');
 
-  const selectedAlert = alerts.find((a) => a.id === selectedAlertId) || alerts[0];
+  const selectedAlert = useMemo(
+    () => alerts.find((a) => a.id === selectedAlertId) || alerts[0],
+    [alerts, selectedAlertId]
+  );
 
-  const filteredAlerts = alerts.filter((a) => {
-    if (filterSeverity === 'all') return true;
-    return a.severity === filterSeverity;
-  });
+  const filteredAlerts = useMemo(() => {
+    if (filterSeverity === 'all') return alerts;
+    return alerts.filter((a) => a.severity === filterSeverity);
+  }, [alerts, filterSeverity]);
 
   return (
     <div className="space-y-6">
@@ -100,12 +110,7 @@ export default function AlertCenter() {
           <div className="space-y-2 max-h-[640px] overflow-y-auto pr-1">
             {filteredAlerts.map((alr) => {
               const isSelected = alr.id === selectedAlertId;
-              const sevBadge =
-                alr.severity === 'critical'
-                  ? 'border-rose-500/50 bg-rose-500/20 text-rose-200'
-                  : alr.severity === 'high'
-                    ? 'border-orange-400/40 bg-orange-400/15 text-orange-200'
-                    : 'border-amber-400/30 bg-amber-400/10 text-amber-200';
+              const sevBadge = SEVERITY_BADGE_CLASSES[alr.severity] || DEFAULT_SEVERITY_BADGE_CLASS;
 
               return (
                 <button
