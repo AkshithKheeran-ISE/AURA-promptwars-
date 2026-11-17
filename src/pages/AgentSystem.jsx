@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
 import { useApp } from '../context/AppContext';
+import { sanitizeInput } from '../utils/sanitize';
 
 const FAMILY_AGENTS_ROSTER = [
   {
@@ -153,19 +154,20 @@ export default function AgentSystem() {
   ];
 
   const handleSend = (queryText) => {
-    const textToSend = queryText || inputText;
-    if (!textToSend.trim()) return;
+    const rawText = queryText || inputText;
+    const cleanText = sanitizeInput(rawText, 500);
+    if (!cleanText.trim()) return;
 
-    const userMsg = { sender: 'user', text: textToSend };
+    const userMsg = { sender: 'user', text: cleanText };
     setMessages(prev => [...prev, userMsg]);
     setInputText('');
     setIsThinking(true);
 
-    logAudit('Family Member', `Submitted GenAI query: ${textToSend.slice(0, 30)}...`, 'AURA-CORE', 'human');
+    logAudit('Family Member', `Submitted GenAI query: ${cleanText.slice(0, 30)}...`, 'AURA-CORE', 'human');
 
     setTimeout(() => {
       let reply = FAMILY_KNOWLEDGE_BASE.corsi;
-      const lower = textToSend.toLowerCase();
+      const lower = cleanText.toLowerCase();
 
       if (lower.includes('baby') || lower.includes('infant') || lower.includes('child')) reply = FAMILY_KNOWLEDGE_BASE.baby;
       else if (lower.includes('window') || lower.includes('ventilate') || lower.includes('inversion')) reply = FAMILY_KNOWLEDGE_BASE.inversion;
@@ -337,19 +339,23 @@ export default function AgentSystem() {
             onSubmit={(e) => { e.preventDefault(); handleSend(); }} 
             className="flex items-center gap-2 border-t border-cyan-400/10 pt-3"
           >
-            <span className="font-mono text-cyan-400 font-bold">&gt;</span>
+            <label htmlFor="agent-query-input" className="sr-only">Ask AURA GenAI Assistant</label>
+            <span className="font-mono text-cyan-400 font-bold" aria-hidden="true">&gt;</span>
             <input
+              id="agent-query-input"
               type="text"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder="Ask for custom family routines, Corsi box tips, or impact calculations..."
+              aria-label="Ask for custom family routines, Corsi box tips, or impact calculations"
               className="flex-1 bg-transparent font-mono text-xs text-white placeholder:text-slate-600 focus:outline-none"
             />
             <button
               type="submit"
+              aria-label="Send message to GenAI assistant"
               className="rounded-lg bg-cyan-400 p-2 text-black hover:bg-cyan-300 transition cursor-pointer"
             >
-              <Send className="h-4 w-4" />
+              <Send className="h-4 w-4" aria-hidden="true" />
             </button>
           </form>
         </div>

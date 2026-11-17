@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { 
-  AlertTriangle, 
   ShieldAlert, 
   CheckCircle2, 
   Droplets, 
@@ -10,7 +9,6 @@ import {
   Navigation, 
   CloudRain, 
   Zap, 
-  ShieldCheck, 
   FileCheck, 
   DollarSign, 
   Plane, 

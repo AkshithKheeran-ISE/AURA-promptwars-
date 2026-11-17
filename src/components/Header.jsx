@@ -3,10 +3,7 @@ import {
   Search, 
   AlertOctagon, 
   ShieldCheck, 
-  Bell, 
-  User, 
-  Clock, 
-  ExternalLink 
+  Bell 
 } from 'lucide-react';
 import { useApp, NAV_ITEMS } from '../context/AppContext';
 
@@ -39,8 +36,7 @@ export default function Header() {
     page, 
     setPage, 
     setCommandPaletteOpen, 
-    alerts, 
-    auditLogs 
+    alerts 
   } = useApp();
   
   const [notifOpen, setNotifOpen] = useState(false);

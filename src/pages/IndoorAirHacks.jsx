@@ -3,14 +3,6 @@ import {
   Sparkles, 
   Check, 
   Plus, 
-  HelpCircle, 
-  DollarSign, 
-  ShieldCheck, 
-  Cpu, 
-  Layers, 
-  CheckCircle2, 
-  Flame, 
-  ExternalLink,
   ChevronDown,
   ChevronUp
 } from 'lucide-react';

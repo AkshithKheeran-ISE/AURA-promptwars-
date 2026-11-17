@@ -10,19 +10,12 @@ import {
   calculateCommunitySavings, 
   calculateHealthRiskIndex 
 } from '../services/impactCalculator';
+import { 
+  generateDeterministicHash, 
+  validateCitizenReport 
+} from '../utils/sanitize';
 
 const AppContext = createContext();
-
-function generateMockHash(str) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash |= 0;
-  }
-  const hex = Math.abs(hash).toString(16).padStart(8, '0');
-  return `${hex}${Math.abs(hash * 31).toString(16).padStart(8, '0')}${Math.abs(hash * 17).toString(16).padStart(8, '0')}`.slice(0, 40);
-}
 
 export const NAV_ITEMS = [
   { id: 'command', label: 'Smog Command', icon: 'LayoutDashboard', badge: null },
@@ -102,7 +95,7 @@ export function AppProvider({ children }) {
       action,
       target,
       type,
-      hash: generateMockHash(`${actor}-${action}-${target}-${Date.now()}`)
+      hash: generateDeterministicHash(`${actor}-${action}-${target}-${Date.now()}`)
     };
     setAuditLogs(prev => [newEntry, ...prev]);
   };
@@ -146,10 +139,22 @@ export function AppProvider({ children }) {
     logAudit('Family Lead', `Executed emergency safety action: ${actionLabel}`, alertId, 'human');
   };
 
+  const boostAlertPriority = (alertId) => {
+    setAlerts(prev => prev.map(alr => {
+      if (alr.id === alertId) {
+        const newScore = Math.min(10, alr.score + 0.5);
+        return { ...alr, score: newScore, severity: 'critical' };
+      }
+      return alr;
+    }));
+    addToast('Priority Boosted', `Alert ${alertId} escalated to highest severity tier`, 'rose');
+    logAudit('Incident Commander', `Escalated alert priority for ${alertId}`, alertId, 'human');
+  };
+
   const addCitizenReport = (newReportData) => {
     const lastHash = citizenReports.length > 0 ? citizenReports[citizenReports.length - 1].hash : '0000000000000000';
     const newId = `REP-AURA-${Math.floor(8200 + Math.random() * 800)}`;
-    const newHash = generateMockHash(`${lastHash}-${newId}-${newReportData.issue}-${Date.now()}`);
+    const newHash = generateDeterministicHash(`${lastHash}-${newId}-${newReportData.issue}-${Date.now()}`);
 
     const completeReport = {
       id: newId,
@@ -237,6 +242,7 @@ export function AppProvider({ children }) {
         healthRisk,
         alerts,
         executePlaybookAction,
+        boostAlertPriority,
         citizenReports,
         addCitizenReport,
         advanceReportStage,

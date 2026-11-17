@@ -1,16 +1,8 @@
 import React from 'react';
 import { 
-  Clock, 
-  Sun, 
-  Moon, 
-  Wind, 
-  ShieldCheck, 
   AlertTriangle, 
   Sparkles, 
   CheckCircle2, 
-  ArrowRight,
-  Heart,
-  Baby,
   Users
 } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
@@ -30,7 +22,6 @@ export default function DailyRoutines() {
     selectedWard,
     exposureCalc,
     communitySavings,
-    healthRisk,
     addToast,
     logAudit
   } = useApp();

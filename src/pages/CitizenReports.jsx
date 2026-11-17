@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
 import { useApp } from '../context/AppContext';
+import { validateCitizenReport } from '../utils/sanitize';
 
 export default function CitizenReports() {
   const { 
@@ -21,7 +22,8 @@ export default function CitizenReports() {
     advanceReportStage, 
     simulateTamper, 
     verifyLedger, 
-    ledgerTampered 
+    ledgerTampered,
+    addToast
   } = useApp();
 
   const [formData, setFormData] = useState({
@@ -34,14 +36,22 @@ export default function CitizenReports() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.description) return;
+    if (!formData.description.trim()) return;
 
-    addCitizenReport({
+    const rawPayload = {
       location: formData.location,
       issue: `${formData.issueType} — ${formData.description}`,
       reporter: formData.reporter || 'Anonymous Resident',
       urgency: formData.urgency
-    });
+    };
+
+    const validation = validateCitizenReport(rawPayload);
+    if (!validation.isValid) {
+      addToast('Validation Error', validation.errors[0] || 'Invalid report fields', 'rose');
+      return;
+    }
+
+    addCitizenReport(validation.sanitized);
 
     setFormData({
       location: 'Wazirpur Industrial Sector',
@@ -111,8 +121,9 @@ export default function CitizenReports() {
 
           <form onSubmit={handleSubmit} className="space-y-3 text-xs font-mono">
             <div>
-              <label className="text-slate-400 block mb-1">Ward / Location:</label>
+              <label htmlFor="rep-location" className="text-slate-400 block mb-1">Ward / Location:</label>
               <select
+                id="rep-location"
                 value={formData.location}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                 className="w-full rounded-lg border border-cyan-400/20 bg-[#0c182c] px-3 py-2 text-white focus:outline-none"
@@ -127,8 +138,9 @@ export default function CitizenReports() {
             </div>
 
             <div>
-              <label className="text-slate-400 block mb-1">Hazard Category:</label>
+              <label htmlFor="rep-issue-type" className="text-slate-400 block mb-1">Hazard Category:</label>
               <select
+                id="rep-issue-type"
                 value={formData.issueType}
                 onChange={(e) => setFormData({ ...formData, issueType: e.target.value })}
                 className="w-full rounded-lg border border-cyan-400/20 bg-[#0c182c] px-3 py-2 text-white focus:outline-none"
@@ -143,8 +155,9 @@ export default function CitizenReports() {
 
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="text-slate-400 block mb-1">Reporter Name/Role:</label>
+                <label htmlFor="rep-reporter" className="text-slate-400 block mb-1">Reporter Name/Role:</label>
                 <input
+                  id="rep-reporter"
                   type="text"
                   placeholder="e.g. Resident Welfare"
                   value={formData.reporter}
@@ -153,8 +166,9 @@ export default function CitizenReports() {
                 />
               </div>
               <div>
-                <label className="text-slate-400 block mb-1">Urgency:</label>
+                <label htmlFor="rep-urgency" className="text-slate-400 block mb-1">Urgency:</label>
                 <select
+                  id="rep-urgency"
                   value={formData.urgency}
                   onChange={(e) => setFormData({ ...formData, urgency: e.target.value })}
                   className="w-full rounded-lg border border-cyan-400/20 bg-[#0c182c] px-3 py-2 text-white focus:outline-none"
@@ -168,8 +182,9 @@ export default function CitizenReports() {
             </div>
 
             <div>
-              <label className="text-slate-400 block mb-1">Observations & Specifics:</label>
+              <label htmlFor="rep-description" className="text-slate-400 block mb-1">Observations & Specifics:</label>
               <textarea
+                id="rep-description"
                 rows="3"
                 placeholder="What did you observe? e.g. Thick rubber fumes smoldering near railway underpass..."
                 value={formData.description}

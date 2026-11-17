@@ -4,14 +4,9 @@ import {
   X,
   LayoutDashboard,
   MapPin,
-  AlertTriangle,
   Zap,
   ShieldAlert,
-  Radio,
-  FileText,
-  Clock,
-  Sparkles,
-  Leaf
+  Sparkles
 } from 'lucide-react';
 import { useApp, NAV_ITEMS } from '../context/AppContext';
 import { WARDS_DATA } from '../data/airData';
@@ -23,7 +18,6 @@ export default function CommandPalette() {
     setPage,
     setSelectedWardId,
     addToast,
-    logAudit,
     simulateTamper,
     verifyLedger,
     toggleHack

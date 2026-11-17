@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import { 
-  ShieldCheck, 
   Download, 
   Filter, 
   Search, 
   User, 
   Bot, 
   Cpu, 
-  CheckCircle2, 
-  FileText 
+  CheckCircle2 
 } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
 import { useApp } from '../context/AppContext';
@@ -125,12 +123,15 @@ export default function AuditTrail() {
         </div>
 
         <div className="relative w-full max-w-xs">
-          <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
+          <label htmlFor="audit-search-input" className="sr-only">Search action logs</label>
+          <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" aria-hidden="true" />
           <input
+            id="audit-search-input"
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search action logs..."
+            aria-label="Search action logs"
             className="w-full rounded-lg border border-cyan-400/15 bg-[#030712] py-1.5 pl-9 pr-3 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-400/50"
           />
         </div>

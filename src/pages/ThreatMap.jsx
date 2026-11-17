@@ -185,8 +185,9 @@ export default function ThreatMap() {
             </div>
 
             <div className="flex flex-wrap items-center gap-3 text-xs font-mono">
-              <label className="flex items-center gap-1.5 cursor-pointer text-slate-300 hover:text-white">
+              <label htmlFor="layer-sensors" className="flex items-center gap-1.5 cursor-pointer text-slate-300 hover:text-white">
                 <input
+                  id="layer-sensors"
                   type="checkbox"
                   checked={layers.sensors}
                   onChange={() => toggleLayer('sensors')}
@@ -195,8 +196,9 @@ export default function ThreatMap() {
                 <span>Micro-Sensors</span>
               </label>
 
-              <label className="flex items-center gap-1.5 cursor-pointer text-rose-300 hover:text-white">
+              <label htmlFor="layer-plumes" className="flex items-center gap-1.5 cursor-pointer text-rose-300 hover:text-white">
                 <input
+                  id="layer-plumes"
                   type="checkbox"
                   checked={layers.plumes}
                   onChange={() => toggleLayer('plumes')}
@@ -205,8 +207,9 @@ export default function ThreatMap() {
                 <span>Industrial Plumes</span>
               </label>
 
-              <label className="flex items-center gap-1.5 cursor-pointer text-amber-300 hover:text-white">
+              <label htmlFor="layer-traffic" className="flex items-center gap-1.5 cursor-pointer text-amber-300 hover:text-white">
                 <input
+                  id="layer-traffic"
                   type="checkbox"
                   checked={layers.traffic}
                   onChange={() => toggleLayer('traffic')}
@@ -215,8 +218,9 @@ export default function ThreatMap() {
                 <span>Freight Corridors</span>
               </label>
 
-              <label className="flex items-center gap-1.5 cursor-pointer text-emerald-300 hover:text-white">
+              <label htmlFor="layer-sensitive" className="flex items-center gap-1.5 cursor-pointer text-emerald-300 hover:text-white">
                 <input
+                  id="layer-sensitive"
                   type="checkbox"
                   checked={layers.sensitive}
                   onChange={() => toggleLayer('sensitive')}

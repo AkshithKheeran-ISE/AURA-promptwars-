@@ -1,28 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
-  AlertTriangle,
-  ShieldCheck,
   Wind,
   Thermometer,
-  Droplets,
   Sparkles,
   ExternalLink,
-  Zap,
   CheckCircle2,
-  TrendingUp,
-  Cpu,
   Layers,
   Leaf,
   Users,
-  Clock,
-  HeartPulse
+  Clock
 } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
 import { useApp } from '../context/AppContext';
 import {
   WARDS_DATA,
-  HOURLY_TRENDS,
-  SYSTEM_HEALTH_METRICS
+  HOURLY_TRENDS
 } from '../data/airData';
 import { FAMILY_ARCHETYPES } from '../services/routineEngine';
 
@@ -41,8 +33,6 @@ export default function CommandCenter() {
     addToast
   } = useApp();
 
-  const [activePollutant, setActivePollutant] = useState('pm25');
-
   const getAqiColor = (aqi) => {
     if (aqi <= 100) return '#34d399'; // Emerald
     if (aqi <= 200) return '#fbbf24'; // Amber
@@ -51,12 +41,6 @@ export default function CommandCenter() {
   };
 
   const outdoorColor = getAqiColor(selectedWard.aqi);
-  const indoorColor = getAqiColor(exposureCalc.indoorPm25 * 2.2);
-
-  const radius = 38;
-  const circumference = 2 * Math.PI * radius;
-  const progressPercent = Math.min(100, (selectedWard.aqi / 500) * 100);
-  const strokeDashoffset = circumference - (progressPercent / 100) * circumference;
 
   return (
     <div className="space-y-6">

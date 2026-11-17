@@ -6,6 +6,7 @@ import Header from './components/Header';
 import LiveTicker from './components/LiveTicker';
 import CommandPalette from './components/CommandPalette';
 import ToastContainer from './components/ToastContainer';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // 10 Core Application Pages for Family Smog Defense
 import CommandCenter from './pages/CommandCenter';
@@ -68,7 +69,9 @@ export default function App() {
 
         {/* Dynamic Page Viewport */}
         <main className="mx-auto max-w-[1600px] p-4 md:p-6 min-h-[calc(100vh-140px)]">
-          <CurrentPageComponent />
+          <ErrorBoundary key={page}>
+            <CurrentPageComponent />
+          </ErrorBoundary>
         </main>
 
         {/* High-Tech Footer */}

@@ -1,15 +1,4 @@
 import React, { useState } from 'react';
-import { 
-  Calendar, 
-  Wind, 
-  Thermometer, 
-  CloudRain, 
-  Layers, 
-  AlertTriangle, 
-  CheckCircle2, 
-  TrendingUp,
-  Activity
-} from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
 import { THIRTY_DAY_FORECAST } from '../data/airData';
 

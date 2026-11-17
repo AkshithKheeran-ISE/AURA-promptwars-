@@ -12,7 +12,6 @@ import {
   ShieldCheck,
   ChevronLeft,
   ChevronRight,
-  Lock,
   Clock,
   Sparkles,
   Leaf

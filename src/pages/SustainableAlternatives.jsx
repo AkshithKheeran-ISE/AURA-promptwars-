@@ -139,7 +139,7 @@ export default function SustainableAlternatives() {
           </div>
 
           <div className="flex items-center gap-3 font-mono text-xs">
-            <span className="text-slate-400">Society Scale:</span>
+            <label htmlFor="society-scale-slider" className="text-slate-400">Society Scale:</label>
             <span className="font-display text-xl font-bold text-cyan-300 px-3 py-1 rounded bg-[#030712] border border-cyan-400/20">
               {householdScale} Families
             </span>
@@ -149,12 +149,14 @@ export default function SustainableAlternatives() {
         {/* Range Slider */}
         <div className="space-y-2">
           <input
+            id="society-scale-slider"
             type="range"
             min="10"
             max="500"
             step="10"
             value={householdScale}
             onChange={(e) => setHouseholdScale(Number(e.target.value))}
+            aria-label="Neighborhood household scale multiplier"
             className="w-full accent-cyan-400 h-2 bg-slate-800 rounded-lg cursor-pointer"
           />
           <div className="flex justify-between font-mono text-[10px] text-slate-500">
