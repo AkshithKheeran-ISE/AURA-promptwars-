@@ -7,28 +7,28 @@ import LiveTicker from './components/LiveTicker';
 import CommandPalette from './components/CommandPalette';
 import ToastContainer from './components/ToastContainer';
 
-// 10 Core Application Pages
+// 10 Core Application Pages for Family Smog Defense
 import CommandCenter from './pages/CommandCenter';
+import DailyRoutines from './pages/DailyRoutines';
+import IndoorAirHacks from './pages/IndoorAirHacks';
+import SustainableAlternatives from './pages/SustainableAlternatives';
 import ThreatMap from './pages/ThreatMap';
 import AlertCenter from './pages/AlertCenter';
-import EmissionControl from './pages/EmissionControl';
-import PublicHealth from './pages/PublicHealth';
 import CitizenReports from './pages/CitizenReports';
 import AgentSystem from './pages/AgentSystem';
 import Forecast from './pages/Forecast';
-import DroneMissions from './pages/DroneMissions';
 import AuditTrail from './pages/AuditTrail';
 
 const PAGES = {
   command: CommandCenter,
+  routines: DailyRoutines,
+  hacks: IndoorAirHacks,
+  alternatives: SustainableAlternatives,
   map: ThreatMap,
   alerts: AlertCenter,
-  emissions: EmissionControl,
-  health: PublicHealth,
   reports: CitizenReports,
   ai: AgentSystem,
   forecast: Forecast,
-  drones: DroneMissions,
   audit: AuditTrail
 };
 
@@ -73,7 +73,7 @@ export default function App() {
 
         {/* High-Tech Footer */}
         <footer className="border-t border-cyan-400/10 px-6 py-4 text-center font-mono text-[10px] text-slate-500 bg-[#030712]">
-          AURA · Atmospheric Understanding & Real-time Air Quality Intelligence Suite · Demonstration command center with simulated IoT mesh telemetry for Delhi NCR Air Basin — follow official CPCB / CAQM / IMD bulletins.
+          AURA · GenAI Family & Community Smog Defense Assistant · Low-emission daily routines, indoor air quality hacks & sustainable alternatives for urban winter smog.
         </footer>
       </div>
 

@@ -5,37 +5,44 @@ import {
   Wind, 
   Thermometer, 
   Droplets, 
-  Activity, 
+  Sparkles, 
   ExternalLink, 
   Zap, 
   CheckCircle2, 
   TrendingUp,
   Cpu,
   Layers,
-  Factory
+  Leaf,
+  Users,
+  Clock,
+  HeartPulse
 } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
 import { useApp } from '../context/AppContext';
 import { 
   WARDS_DATA, 
-  TOP_STAT_METRICS, 
   HOURLY_TRENDS, 
-  SYSTEM_HEALTH_METRICS,
-  INDUSTRIAL_CEMS_STATIONS
+  SYSTEM_HEALTH_METRICS 
 } from '../data/airData';
+import { FAMILY_ARCHETYPES } from '../services/routineEngine';
 
 export default function CommandCenter() {
   const { 
     setPage, 
     selectedWard, 
     setSelectedWardId, 
+    familyArchetype,
+    setFamilyArchetype,
+    exposureCalc,
+    communitySavings,
+    healthRisk,
     alerts, 
+    activeHacks,
     addToast 
   } = useApp();
 
   const [activePollutant, setActivePollutant] = useState('pm25');
 
-  // Gauge color based on AQI
   const getAqiColor = (aqi) => {
     if (aqi <= 100) return '#34d399'; // Emerald
     if (aqi <= 200) return '#fbbf24'; // Amber
@@ -43,9 +50,9 @@ export default function CommandCenter() {
     return '#f43f5e'; // Rose
   };
 
-  const aqiColor = getAqiColor(selectedWard.aqi);
+  const outdoorColor = getAqiColor(selectedWard.aqi);
+  const indoorColor = getAqiColor(exposureCalc.indoorPm25 * 2.2);
 
-  // Circular gauge calculations (dasharray)
   const radius = 38;
   const circumference = 2 * Math.PI * radius;
   const progressPercent = Math.min(100, (selectedWard.aqi / 500) * 100);
@@ -55,55 +62,140 @@ export default function CommandCenter() {
     <div className="space-y-6">
       {/* Header */}
       <SectionHeader
-        eyebrow="01 · Atmospheric Intelligence"
-        title="Urban Air Quality Command Center"
-        desc="Real-time multi-sensor telemetry, satellite aerosol optical depth, and predictive machine learning models across urban wards."
+        eyebrow="01 · Household Atmospheric Defense"
+        title="Family & Community Smog Command Center"
+        desc="Real-time boundary layer inversion tracking, indoor vs outdoor air quality telemetry, and explainable low-emission lifestyle guidance for urban households."
         right={
           <>
             <button
-              onClick={() => setPage('emissions')}
+              onClick={() => setPage('routines')}
               className="flex items-center gap-2 rounded-lg border border-cyan-400/20 bg-[#0c182c] px-3 py-1.5 text-xs font-mono text-cyan-300 hover:bg-cyan-400/10 transition cursor-pointer"
             >
-              <Factory className="h-3.5 w-3.5" />
-              Emission Defense
+              <Clock className="h-3.5 w-3.5" />
+              Smog Routines
             </button>
             <button
-              onClick={() => setPage('alerts')}
-              className="flex items-center gap-2 rounded-lg bg-rose-500/20 border border-rose-500/40 px-3 py-1.5 text-xs font-mono text-rose-300 hover:bg-rose-500/30 transition cursor-pointer"
+              onClick={() => setPage('hacks')}
+              className="flex items-center gap-2 rounded-lg bg-emerald-500/20 border border-emerald-500/40 px-3 py-1.5 text-xs font-mono text-emerald-300 hover:bg-emerald-500/30 transition cursor-pointer"
             >
-              <AlertTriangle className="h-3.5 w-3.5" />
-              Open Alert Center
+              <Sparkles className="h-3.5 w-3.5" />
+              DIY IAQ Hacks ({activeHacks.length} Active)
+            </button>
+            <button
+              onClick={() => setPage('alternatives')}
+              className="flex items-center gap-2 rounded-lg bg-cyan-400 px-3 py-1.5 text-xs font-mono font-bold text-black shadow-glow hover:bg-cyan-300 transition cursor-pointer"
+            >
+              <Leaf className="h-3.5 w-3.5" />
+              Clean Alternatives
             </button>
           </>
         }
       />
 
-      {/* 6 Top Metric Cards */}
+      {/* 6 Top Metric Cards specifically for Families */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 2xl:grid-cols-6">
-        {TOP_STAT_METRICS.map((stat, idx) => (
-          <div key={idx} className="panel panel-corners p-4 space-y-1">
-            <div className="label text-slate-400 truncate">{stat.label}</div>
-            <div className="font-display text-2xl font-bold tracking-tight text-white">
-              {stat.value}
-            </div>
-            <div className="flex items-center gap-1.5 text-xs font-mono">
-              <span className={stat.good ? 'text-emerald-400' : 'text-rose-400'}>
-                {stat.change}
-              </span>
-              <span className="text-slate-500 text-[10px] truncate">{stat.sub}</span>
-            </div>
+        <div className="panel panel-corners p-4 space-y-1">
+          <div className="label text-slate-400 truncate">Neighborhood Air Hazard</div>
+          <div className="font-display text-2xl font-bold tracking-tight text-white flex items-baseline gap-2">
+            AQI {selectedWard.aqi}
+            <span className="text-xs font-mono font-bold" style={{ color: outdoorColor }}>
+              {selectedWard.status}
+            </span>
           </div>
-        ))}
+          <div className="text-[10px] text-slate-400 font-mono truncate">{selectedWard.name}</div>
+        </div>
+
+        <div className="panel panel-corners p-4 space-y-1">
+          <div className="label text-slate-400 truncate">Indoor Inhaled Shield</div>
+          <div className="font-display text-2xl font-bold tracking-tight text-emerald-400">
+            -{exposureCalc.percentageReduction}%
+          </div>
+          <div className="text-[10px] text-slate-400 font-mono">
+            {exposureCalc.reductionMicrograms} µg PM2.5 avoided
+          </div>
+        </div>
+
+        <div className="panel panel-corners p-4 space-y-1">
+          <div className="label text-slate-400 truncate">Golden Ventilation Window</div>
+          <div className="font-display text-2xl font-bold tracking-tight text-cyan-300">
+            13:30 – 15:30
+          </div>
+          <div className="text-[10px] text-slate-400 font-mono">Inversion breaks to 420m</div>
+        </div>
+
+        <div className="panel panel-corners p-4 space-y-1">
+          <div className="label text-slate-400 truncate">Family Carbon Avoided</div>
+          <div className="font-display text-2xl font-bold tracking-tight text-white">
+            {communitySavings.co2SavedKg} kg
+          </div>
+          <div className="text-[10px] text-emerald-400 font-mono">+12% vs last week</div>
+        </div>
+
+        <div className="panel panel-corners p-4 space-y-1">
+          <div className="label text-slate-400 truncate">Active Community Alerts</div>
+          <div className="font-display text-2xl font-bold tracking-tight text-rose-400">
+            {alerts.length} Active
+          </div>
+          <div className="text-[10px] text-slate-400 font-mono">School & waste watches</div>
+        </div>
+
+        <div className="panel panel-corners p-4 space-y-1">
+          <div className="label text-slate-400 truncate">Health & Fuel Savings</div>
+          <div className="font-display text-2xl font-bold tracking-tight text-amber-300">
+            ₹ {communitySavings.totalFinancialSavingsInr}
+          </div>
+          <div className="text-[10px] text-slate-400 font-mono">Direct household savings</div>
+        </div>
       </div>
 
-      {/* Main Grid: Sector Matrix (Left) + Ward Detail Gauge (Right) */}
+      {/* Household Profile Toolbar */}
+      <div className="panel p-4 flex flex-wrap items-center justify-between gap-3 font-mono text-xs">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-slate-400 flex items-center gap-1.5">
+            <Users className="h-4 w-4 text-cyan-400" /> Tailored Profile:
+          </span>
+          {FAMILY_ARCHETYPES.map((arch) => (
+            <button
+              key={arch.id}
+              onClick={() => {
+                setFamilyArchetype(arch.id);
+                addToast('Profile Switched', `Active calculations adjusted for ${arch.label}`, 'cyan');
+              }}
+              className={`px-3 py-1 rounded-lg border transition cursor-pointer text-xs ${
+                familyArchetype === arch.id
+                  ? 'bg-cyan-400/20 border-cyan-400 text-cyan-200 font-bold'
+                  : 'border-cyan-400/10 text-slate-400 hover:bg-white/5'
+              }`}
+            >
+              {arch.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-2 text-slate-400 text-xs">
+          <span>Target Ward:</span>
+          <select
+            value={selectedWard.id}
+            onChange={(e) => setSelectedWardId(e.target.value)}
+            className="rounded-lg border border-cyan-400/20 bg-[#0c182c] px-2.5 py-1 text-white focus:outline-none"
+          >
+            {WARDS_DATA.map((w) => (
+              <option key={w.id} value={w.id}>
+                {w.name} (AQI {w.aqi})
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Main Grid: Sector Matrix (Left) + Indoor vs Outdoor Telemetry (Right) */}
       <div className="grid gap-6 xl:grid-cols-3">
-        {/* Left: Urban Intelligence Grid */}
+        {/* Left: Neighborhood Ward Matrix */}
         <div className="panel p-5 xl:col-span-2 space-y-4">
           <div className="flex items-center justify-between border-b border-cyan-400/10 pb-3">
             <div>
-              <span className="label text-cyan-300">Spatial Monitoring Mesh</span>
-              <h2 className="text-lg font-bold text-white mt-0.5">Metropolitan Ward Telemetry Grid</h2>
+              <span className="label text-cyan-300">Neighborhood Smog Grid</span>
+              <h2 className="text-lg font-bold text-white mt-0.5">Metropolitan Air Quality for Families</h2>
             </div>
             <div className="flex items-center gap-3 text-xs font-mono text-slate-400">
               <span className="flex items-center gap-1.5">
@@ -116,7 +208,7 @@ export default function CommandCenter() {
                 <span className="h-2 w-2 rounded-full bg-orange-400" /> Poor
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-rose-500" /> Critical (&gt;300)
+                <span className="h-2 w-2 rounded-full bg-rose-500" /> Severe (&gt;300)
               </span>
             </div>
           </div>
@@ -165,69 +257,37 @@ export default function CommandCenter() {
               onClick={() => setPage('map')}
               className="text-cyan-300 hover:underline flex items-center gap-1 cursor-pointer font-mono"
             >
-              Open Interactive Heatmap <ExternalLink className="h-3 w-3" />
+              Open Neighborhood Safe Corridors <ExternalLink className="h-3 w-3" />
             </button>
           </div>
         </div>
 
-        {/* Right: Regional Ward Telemetry Card */}
+        {/* Right: Indoor vs Outdoor Telemetry Comparison Card */}
         <div className="panel panel-corners p-5 space-y-4">
           <div className="border-b border-cyan-400/10 pb-2">
-            <span className="label text-cyan-300">Station Telemetry</span>
+            <span className="label text-cyan-300">Indoor vs Outdoor Telemetry</span>
             <h2 className="text-lg font-bold text-white truncate">{selectedWard.name}</h2>
-            <div className="font-mono text-xs text-slate-400">{selectedWard.sensorId} · {selectedWard.lat.toFixed(3)}°N, {selectedWard.lng.toFixed(3)}°E</div>
+            <div className="font-mono text-xs text-slate-400">Protected by {activeHacks.length} DIY IAQ Hacks</div>
           </div>
 
-          {/* Circular AQI Gauge */}
-          <div className="flex items-center justify-center py-2">
-            <div className="relative h-36 w-36 grid place-items-center">
-              <svg className="h-full w-full -rotate-90" viewBox="0 0 100 100">
-                <circle
-                  cx="50"
-                  cy="50"
-                  r={radius}
-                  className="stroke-[#13233f]"
-                  strokeWidth="8"
-                  fill="transparent"
-                />
-                <circle
-                  cx="50"
-                  cy="50"
-                  r={radius}
-                  stroke={aqiColor}
-                  strokeWidth="8"
-                  strokeDasharray={circumference}
-                  strokeDashoffset={strokeDashoffset}
-                  strokeLinecap="round"
-                  fill="transparent"
-                  className="transition-all duration-700"
-                />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                <span className="font-display text-3xl font-bold text-white">
-                  {selectedWard.aqi}
-                </span>
-                <span className="font-mono text-[10px] tracking-widest uppercase font-bold" style={{ color: aqiColor }}>
-                  {selectedWard.status}
-                </span>
-                <span className="text-[9px] text-slate-500">AQI INDEX</span>
-              </div>
+          {/* Dual Readout Comparison */}
+          <div className="grid grid-cols-2 gap-3 text-center font-mono">
+            <div className="rounded-xl border border-rose-500/30 bg-rose-500/5 p-3 space-y-0.5">
+              <div className="text-[10px] text-rose-300 font-bold uppercase">OUTDOOR SMOG</div>
+              <div className="font-display text-3xl font-extrabold text-rose-400">{selectedWard.aqi}</div>
+              <div className="text-[10px] text-slate-400">{selectedWard.pm25} µg/m³ PM2.5</div>
+              <span className="inline-block mt-1 px-1.5 py-0.5 rounded text-[9px] bg-rose-500/20 text-rose-300 font-bold">
+                {selectedWard.status}
+              </span>
             </div>
-          </div>
 
-          {/* Chemical Pollutant Metrics */}
-          <div className="grid grid-cols-3 gap-2 text-center font-mono">
-            <div className="rounded-lg bg-[#030712]/60 p-2 border border-cyan-400/10">
-              <div className="text-[10px] text-slate-500">PM2.5</div>
-              <div className="text-sm font-bold text-white mt-0.5">{selectedWard.pm25} <span className="text-[9px] text-slate-500">µg</span></div>
-            </div>
-            <div className="rounded-lg bg-[#030712]/60 p-2 border border-cyan-400/10">
-              <div className="text-[10px] text-slate-500">PM10</div>
-              <div className="text-sm font-bold text-white mt-0.5">{selectedWard.pm10} <span className="text-[9px] text-slate-500">µg</span></div>
-            </div>
-            <div className="rounded-lg bg-[#030712]/60 p-2 border border-cyan-400/10">
-              <div className="text-[10px] text-slate-500">NO2</div>
-              <div className="text-sm font-bold text-cyan-300 mt-0.5">{selectedWard.no2} <span className="text-[9px] text-slate-500">ppb</span></div>
+            <div className="rounded-xl border border-emerald-400/40 bg-emerald-400/5 p-3 space-y-0.5">
+              <div className="text-[10px] text-emerald-300 font-bold uppercase">INDOOR PROTECTED</div>
+              <div className="font-display text-3xl font-extrabold text-emerald-400">{exposureCalc.indoorPm25}</div>
+              <div className="text-[10px] text-slate-400">µg/m³ PM2.5 Inhaled</div>
+              <span className="inline-block mt-1 px-1.5 py-0.5 rounded text-[9px] bg-emerald-400/20 text-emerald-300 font-bold">
+                SAFE ZONE
+              </span>
             </div>
           </div>
 
@@ -241,82 +301,45 @@ export default function CommandCenter() {
             </div>
             <div className="flex items-center justify-between">
               <span className="flex items-center gap-1.5 text-slate-400">
-                <Wind className="h-3.5 w-3.5 text-cyan-400" /> Wind Velocity
+                <Wind className="h-3.5 w-3.5 text-cyan-400" /> Dispersion Wind
               </span>
               <span className="text-white font-bold">{selectedWard.wind} km/h ({selectedWard.windDir})</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="flex items-center gap-1.5 text-slate-400">
-                <Droplets className="h-3.5 w-3.5 text-cyan-400" /> Relative Humidity
-              </span>
-              <span className="text-white font-bold">{selectedWard.humidity} %</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-slate-400">
-                <Layers className="h-3.5 w-3.5 text-amber-400" /> Inversion Ceiling
+                <Layers className="h-3.5 w-3.5 text-amber-400" /> Night Inversion Ceiling
               </span>
               <span className="text-amber-300 font-bold">{selectedWard.inversion}</span>
             </div>
           </div>
 
-          {/* Node Integrity Verified Banner */}
-          <div className="rounded-lg border border-emerald-400/20 bg-emerald-400/5 p-2.5 flex items-center gap-2 text-xs font-semibold text-emerald-300">
-            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
-            <div className="truncate">
-              <div>Laser Particle Counter Attested</div>
-              <div className="text-[9px] font-mono text-slate-500 font-normal">Ed25519 Sig · TPM 2.0 Hardened</div>
+          {/* Health Vulnerability Shield Box */}
+          <div className="rounded-lg border border-cyan-400/20 bg-[#030712] p-3 text-xs space-y-1">
+            <div className="flex items-center justify-between font-mono">
+              <span className="text-cyan-300 font-bold">Family Respiratory Shield:</span>
+              <span className="text-emerald-400 font-bold">{healthRisk.respiratoryReliefPct}% Relief</span>
             </div>
+            <p className="text-slate-300 text-[11px] font-sans leading-tight">
+              Asthma flare-up probability minimized to {healthRisk.asthmaFlareUpProbability}%. Keep bedroom HEPA operational on silent mode overnight.
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Secondary Row: 24-Hour Trend Chart (Left) + System Status Health (Right) */}
+      {/* Secondary Row: 24-Hour Diurnal Inversion Curve (Left) + Family Smog Playbook (Right) */}
       <div className="grid gap-6 xl:grid-cols-3">
         {/* Left: 24h Trend Chart */}
         <div className="panel p-5 xl:col-span-2 space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-cyan-400/10 pb-3">
             <div>
-              <span className="label text-cyan-300">Diurnal Dynamics</span>
-              <h2 className="text-lg font-bold text-white">24-Hour Pollutant Progression Curve</h2>
+              <span className="label text-cyan-300">Atmospheric Dynamics</span>
+              <h2 className="text-lg font-bold text-white">24-Hour Diurnal Smog & Ventilation Curve</h2>
             </div>
-            {/* Pollutant Tabs */}
             <div className="flex items-center gap-1 bg-[#030712] p-1 rounded-lg border border-cyan-400/15 font-mono text-xs">
-              <button
-                onClick={() => setActivePollutant('pm25')}
-                className={`px-2.5 py-1 rounded transition cursor-pointer ${
-                  activePollutant === 'pm25' ? 'bg-cyan-400 text-black font-bold' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                PM2.5
-              </button>
-              <button
-                onClick={() => setActivePollutant('pm10')}
-                className={`px-2.5 py-1 rounded transition cursor-pointer ${
-                  activePollutant === 'pm10' ? 'bg-cyan-400 text-black font-bold' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                PM10
-              </button>
-              <button
-                onClick={() => setActivePollutant('no2')}
-                className={`px-2.5 py-1 rounded transition cursor-pointer ${
-                  activePollutant === 'no2' ? 'bg-cyan-400 text-black font-bold' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                NO2
-              </button>
-              <button
-                onClick={() => setActivePollutant('o3')}
-                className={`px-2.5 py-1 rounded transition cursor-pointer ${
-                  activePollutant === 'o3' ? 'bg-cyan-400 text-black font-bold' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                O3
-              </button>
+              <span className="text-slate-400 text-[11px] px-2">Golden Ventilation: 13:30 - 15:30</span>
             </div>
           </div>
 
-          {/* SVG Smooth Area Chart */}
           <div className="relative h-64 w-full pt-4">
             <svg className="h-full w-full overflow-visible" viewBox="0 0 500 180" preserveAspectRatio="none">
               <defs>
@@ -326,19 +349,20 @@ export default function CommandCenter() {
                 </linearGradient>
               </defs>
 
-              {/* Grid lines */}
               <line x1="0" y1="30" x2="500" y2="30" stroke="#1e293b" strokeDasharray="3 3" />
               <line x1="0" y1="75" x2="500" y2="75" stroke="#1e293b" strokeDasharray="3 3" />
               <line x1="0" y1="120" x2="500" y2="120" stroke="#1e293b" strokeDasharray="3 3" />
               <line x1="0" y1="165" x2="500" y2="165" stroke="#1e293b" />
 
-              {/* Render dynamic line according to activePollutant */}
+              {/* Shaded Golden Window at 12:00 - 16:00 */}
+              <rect x="250" y="20" width="85" height="145" fill="#34d399" opacity="0.12" rx="4" />
+              <text x="255" y="40" fill="#34d399" fontSize="10" fontFamily="JetBrains Mono">Golden Air</text>
+
               {(() => {
-                const maxVal = activePollutant === 'pm10' ? 600 : activePollutant === 'pm25' ? 450 : 120;
                 const points = HOURLY_TRENDS.map((pt, i) => {
-                  const val = pt[activePollutant];
+                  const val = pt.pm25;
                   const x = (i / (HOURLY_TRENDS.length - 1)) * 500;
-                  const y = 165 - (val / maxVal) * 135;
+                  const y = 165 - (val / 450) * 135;
                   return { x, y, val, time: pt.time };
                 });
 
@@ -352,16 +376,13 @@ export default function CommandCenter() {
                     <path d={areaD} fill="url(#curveGradient)" />
                     <path d={pathD} fill="none" stroke="#22d3ee" strokeWidth="2.5" />
                     {points.map((p, idx) => (
-                      <g key={idx} className="group">
-                        <circle cx={p.x} cy={p.y} r="3.5" fill="#030712" stroke="#22d3ee" strokeWidth="2" />
-                      </g>
+                      <circle key={idx} cx={p.x} cy={p.y} r="3.5" fill="#030712" stroke="#22d3ee" strokeWidth="2" />
                     ))}
                   </>
                 );
               })()}
             </svg>
 
-            {/* Time Axis Labels */}
             <div className="flex justify-between font-mono text-[10px] text-slate-500 pt-2">
               {HOURLY_TRENDS.map((t, idx) => (
                 <span key={idx}>{t.time}</span>
@@ -370,137 +391,56 @@ export default function CommandCenter() {
           </div>
         </div>
 
-        {/* Right: Ingestion & Model Health */}
+        {/* Right: Family Emergency Checklist */}
         <div className="panel p-5 space-y-4">
           <div className="border-b border-cyan-400/10 pb-3 flex items-center justify-between">
             <div>
-              <span className="label text-cyan-300">Telemetry Health</span>
-              <h2 className="text-lg font-bold text-white">System Infrastructure</h2>
+              <span className="label text-rose-400">Family Safeguards</span>
+              <h2 className="text-lg font-bold text-white">Daily Smog Checklist</h2>
             </div>
-            <span className="flex items-center gap-1 font-mono text-[10px] text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" /> ALL SYSTEMS OPERATIONAL
-            </span>
+            <span className="font-mono text-xs text-rose-300">Stage IV Active</span>
           </div>
 
-          <div className="space-y-3 font-mono text-xs">
-            {SYSTEM_HEALTH_METRICS.map((sys, idx) => (
-              <div key={idx} className="space-y-1">
-                <div className="flex justify-between text-slate-300">
-                  <span className="truncate">{sys.name}</span>
-                  <span className="text-cyan-300 font-bold">{sys.load}</span>
-                </div>
-                <div className="h-1.5 w-full bg-[#030712] rounded-full overflow-hidden border border-cyan-400/10">
-                  <div 
-                    className="h-full bg-gradient-to-r from-cyan-400 to-indigo-500 rounded-full"
-                    style={{ width: sys.load }}
-                  />
-                </div>
-                <div className="flex justify-between text-[10px] text-slate-500">
-                  <span>Latency: {sys.latency}</span>
-                  <span className="text-emerald-400 font-bold">{sys.status}</span>
-                </div>
+          <div className="space-y-2.5 text-xs font-mono">
+            <div className="p-2.5 rounded-lg bg-[#030712] border border-cyan-400/15 flex items-start gap-2.5">
+              <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+              <div>
+                <div className="font-bold text-white">Corsi-Rosenthal Box Running</div>
+                <div className="text-[10px] text-slate-400">92% particulate removal active</div>
               </div>
-            ))}
-          </div>
-
-          <div className="rounded-lg bg-[#030712] p-3 border border-cyan-400/10 font-mono text-xs space-y-1">
-            <div className="text-cyan-300 font-bold">Edge Attestation Certificate</div>
-            <div className="text-[10px] text-slate-500 truncate">SHA256: 8f921a8b74c20193e8471920394857201938</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom Grid: Priority Alerts (Left) + Top Offending Sources Table (Right) */}
-      <div className="grid gap-6 xl:grid-cols-2">
-        {/* Left: Priority Alerts */}
-        <div className="panel p-5 space-y-3">
-          <div className="flex items-center justify-between border-b border-cyan-400/10 pb-3">
-            <div>
-              <span className="label text-rose-400">Emergency Queue</span>
-              <h2 className="text-lg font-bold text-white">Active Environmental Incidents</h2>
             </div>
-            <button
-              onClick={() => setPage('alerts')}
-              className="text-xs text-cyan-300 hover:underline font-mono cursor-pointer"
-            >
-              View all ({alerts.length}) &rarr;
-            </button>
-          </div>
 
-          <div className="space-y-2">
-            {alerts.slice(0, 3).map((alr) => (
-              <div 
-                key={alr.id} 
-                className="flex items-start justify-between gap-3 p-3 rounded-lg border border-cyan-400/10 bg-[#030712]/50 hover:bg-white/5 transition"
-              >
-                <div className="space-y-1 min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-bold text-rose-400">{alr.id}</span>
-                    <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse" />
-                    <span className="text-xs font-semibold text-white truncate">{alr.title}</span>
-                  </div>
-                  <div className="text-xs text-slate-400 truncate">{alr.ward} · {alr.source}</div>
-                  <div className="text-[10px] font-mono text-amber-300">{alr.exceedance}</div>
-                </div>
-
-                <button
-                  onClick={() => setPage('alerts')}
-                  className="rounded-lg bg-cyan-400/10 border border-cyan-400/30 px-3 py-1.5 text-xs font-mono text-cyan-300 hover:bg-cyan-400/20 transition cursor-pointer shrink-0"
-                >
-                  Investigate
-                </button>
+            <div className="p-2.5 rounded-lg bg-[#030712] border border-cyan-400/15 flex items-start gap-2.5">
+              <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+              <div>
+                <div className="font-bold text-white">Window Foam Weatherstripped</div>
+                <div className="text-[10px] text-slate-400">Draft infiltration down to 25%</div>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Right: Industrial CEMS Stack Offenders */}
-        <div className="panel p-5 space-y-3">
-          <div className="flex items-center justify-between border-b border-cyan-400/10 pb-3">
-            <div>
-              <span className="label text-amber-400">Point Source Telemetry</span>
-              <h2 className="text-lg font-bold text-white">Continuous Stack Emission (CEMS)</h2>
             </div>
-            <button
-              onClick={() => setPage('emissions')}
-              className="text-xs text-cyan-300 hover:underline font-mono cursor-pointer"
-            >
-              Full Defense Matrix &rarr;
-            </button>
+
+            <div className="p-2.5 rounded-lg bg-[#030712] border border-cyan-400/15 flex items-start gap-2.5">
+              <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+              <div>
+                <div className="font-bold text-white">Microfiber Wet-Mopping Only</div>
+                <div className="text-[10px] text-slate-400">Dry sweeping strictly banned</div>
+              </div>
+            </div>
+
+            <div className="p-2.5 rounded-lg bg-[#030712] border border-cyan-400/15 flex items-start gap-2.5">
+              <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+              <div>
+                <div className="font-bold text-white">N95 Mask Fit Tested for Children</div>
+                <div className="text-[10px] text-slate-400">Nasal bridge sealed with paper tape</div>
+              </div>
+            </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs font-mono">
-              <thead>
-                <tr className="border-b border-cyan-400/10 text-slate-500">
-                  <th className="pb-2 font-normal">Stack Unit</th>
-                  <th className="pb-2 font-normal">Pollutant</th>
-                  <th className="pb-2 font-normal">Recorded vs Limit</th>
-                  <th className="pb-2 font-normal">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-cyan-400/5">
-                {INDUSTRIAL_CEMS_STATIONS.slice(0, 4).map((cems) => (
-                  <tr key={cems.id} className="hover:bg-white/5 transition">
-                    <td className="py-2.5 text-cyan-300 font-bold">{cems.id}</td>
-                    <td className="py-2.5 text-slate-300">{cems.pollutant}</td>
-                    <td className="py-2.5 text-white">
-                      {cems.actual} <span className="text-slate-500">/ {cems.limit}</span>
-                    </td>
-                    <td className="py-2.5">
-                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                        cems.status.includes('VIOLATION') ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' :
-                        cems.status.includes('TAMPER') ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' :
-                        'bg-emerald-500/20 text-emerald-300'
-                      }`}>
-                        {cems.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <button
+            onClick={() => setPage('hacks')}
+            className="w-full text-center text-xs text-cyan-300 hover:underline pt-2 border-t border-cyan-400/10 cursor-pointer font-mono"
+          >
+            Explore All 6 Low-Cost IAQ Hacks &rarr;
+          </button>
         </div>
       </div>
     </div>

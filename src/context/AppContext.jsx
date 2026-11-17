@@ -5,10 +5,14 @@ import {
   INITIAL_CITIZEN_REPORTS, 
   INITIAL_AUDIT_LOGS 
 } from '../data/airData';
+import { 
+  calculateInhaledExposure, 
+  calculateCommunitySavings, 
+  calculateHealthRiskIndex 
+} from '../services/impactCalculator';
 
 const AppContext = createContext();
 
-// Simple SHA-256 simulation for browser hash verification
 function generateMockHash(str) {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -21,20 +25,19 @@ function generateMockHash(str) {
 }
 
 export const NAV_ITEMS = [
-  { id: 'command', label: 'Command Center', icon: 'LayoutDashboard', badge: null },
-  { id: 'map', label: 'Urban AQI Map', icon: 'Map', badge: null },
-  { id: 'alerts', label: 'Alert Center', icon: 'AlertTriangle', badge: 8 },
-  { id: 'emissions', label: 'Emission Defense', icon: 'Factory', badge: 4 },
-  { id: 'health', label: 'Citizen Guidance', icon: 'HeartPulse', badge: null },
-  { id: 'reports', label: 'Secure Reports', icon: 'FileText', badge: null },
-  { id: 'ai', label: 'AURA AI Agents', icon: 'Bot', badge: null },
-  { id: 'forecast', label: '30-Day Forecast', icon: 'CalendarDays', badge: null },
-  { id: 'drones', label: 'Drone Missions', icon: 'Radio', badge: null },
-  { id: 'audit', label: 'Audit Trail', icon: 'ShieldCheck', badge: null }
+  { id: 'command', label: 'Smog Command', icon: 'LayoutDashboard', badge: null },
+  { id: 'routines', label: 'Daily Routines', icon: 'Clock', badge: 'SMART' },
+  { id: 'hacks', label: 'Indoor IAQ Hacks', icon: 'Sparkles', badge: 'DIY' },
+  { id: 'alternatives', label: 'Clean Alternatives', icon: 'Leaf', badge: null },
+  { id: 'map', label: 'Neighborhood Map', icon: 'Map', badge: null },
+  { id: 'alerts', label: 'Family Alerts', icon: 'AlertTriangle', badge: 5 },
+  { id: 'reports', label: 'Community Watch', icon: 'FileText', badge: null },
+  { id: 'ai', label: 'GenAI Assistant', icon: 'Bot', badge: 'AI' },
+  { id: 'forecast', label: '30-Day Outlook', icon: 'CalendarDays', badge: null },
+  { id: 'audit', label: 'Impact Ledger', icon: 'ShieldCheck', badge: null }
 ];
 
 export function AppProvider({ children }) {
-  // Hash-based navigation
   const getInitialPage = () => {
     const hash = window.location.hash.replace('#/', '').replace('#', '');
     return NAV_ITEMS.some(item => item.id === hash) ? hash : 'command';
@@ -44,16 +47,20 @@ export function AppProvider({ children }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [selectedWardId, setSelectedWardId] = useState('wazirpur');
-  
-  // App State
+
+  // Family & Lifestyle Customization State
+  const [familyArchetype, setFamilyArchetype] = useState('school_infant');
+  const [dwellingType, setDwellingType] = useState('apartment_high');
+  const [activeHacks, setActiveHacks] = useState(['corsi_rosenthal', 'weatherstrip_seals', 'wet_mopping_protocol']);
+  const [transitChoice, setTransitChoice] = useState('eRickshawMetro');
+
+  // Application Data State
   const [alerts, setAlerts] = useState(PRIORITY_ALERTS);
   const [citizenReports, setCitizenReports] = useState(INITIAL_CITIZEN_REPORTS);
   const [auditLogs, setAuditLogs] = useState(INITIAL_AUDIT_LOGS);
   const [toasts, setToasts] = useState([]);
-  const [droneMissionStatus, setDroneMissionStatus] = useState('IN FLIGHT');
   const [ledgerTampered, setLedgerTampered] = useState(false);
 
-  // Sync hash routing
   useEffect(() => {
     const handleHashChange = () => {
       setPageState(getInitialPage());
@@ -68,7 +75,6 @@ export function AppProvider({ children }) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Keyboard shortcut for Command Palette (Ctrl+K or Cmd+K)
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
@@ -80,7 +86,6 @@ export function AppProvider({ children }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Toast notification system
   const addToast = (title, body, tone = 'cyan') => {
     const id = Date.now() + Math.random();
     setToasts(prev => [...prev, { id, title, body, tone }]);
@@ -89,7 +94,6 @@ export function AppProvider({ children }) {
     }, 4500);
   };
 
-  // Log to immutable audit trail
   const logAudit = (actor, action, target, type = 'human') => {
     const newEntry = {
       id: `AUD-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -103,10 +107,33 @@ export function AppProvider({ children }) {
     setAuditLogs(prev => [newEntry, ...prev]);
   };
 
-  // Selected ward full object
   const selectedWard = WARDS_DATA.find(w => w.id === selectedWardId) || WARDS_DATA[0];
 
-  // Alert playbook actions
+  // Calculated Real-Time Family Impact
+  const usesHEPA = activeHacks.includes('corsi_rosenthal');
+  const weatherstripped = activeHacks.includes('weatherstrip_seals');
+  const exposureCalc = calculateInhaledExposure(selectedWard.pm25, 24, usesHEPA, weatherstripped, 'n95');
+  const communitySavings = calculateCommunitySavings(18, 'petrolCar', transitChoice, true, true);
+  const healthRisk = calculateHealthRiskIndex(
+    exposureCalc.indoorPm25, 
+    familyArchetype === 'asthma_seniors', 
+    familyArchetype === 'school_infant'
+  );
+
+  const toggleHack = (hackId) => {
+    setActiveHacks(prev => {
+      const exists = prev.includes(hackId);
+      const next = exists ? prev.filter(h => h !== hackId) : [...prev, hackId];
+      addToast(
+        exists ? 'Hack Deactivated' : 'Hack Activated',
+        exists ? `Removed ${hackId} from active household defense` : `Applied ${hackId} — updated IAQ recalculation`,
+        exists ? 'amber' : 'green'
+      );
+      logAudit('Household Member', `${exists ? 'Deactivated' : 'Activated'} IAQ hack: ${hackId}`, 'Household Defense', 'human');
+      return next;
+    });
+  };
+
   const executePlaybookAction = (alertId, actionId, actionLabel) => {
     setAlerts(prev => prev.map(alr => {
       if (alr.id === alertId) {
@@ -116,16 +143,9 @@ export function AppProvider({ children }) {
       return alr;
     }));
     addToast('Action Executed', `${actionLabel} dispatched for ${alertId}`, 'green');
-    logAudit('Analyst Akshith', `Dispatched playbook action: ${actionLabel}`, alertId, 'human');
+    logAudit('Family Lead', `Executed emergency safety action: ${actionLabel}`, alertId, 'human');
   };
 
-  const boostAlertPriority = (alertId) => {
-    setAlerts(prev => prev.map(alr => alr.id === alertId ? { ...alr, score: Math.min(10, alr.score + 0.5), escalated: true } : alr));
-    addToast('Priority Boosted', `Alert ${alertId} escalated to State Emergency Cell`, 'red');
-    logAudit('Analyst Akshith', 'Elevated alert score to maximum priority', alertId, 'human');
-  };
-
-  // Citizen Reports Workflow & Cryptographic Ledger
   const addCitizenReport = (newReportData) => {
     const lastHash = citizenReports.length > 0 ? citizenReports[citizenReports.length - 1].hash : '0000000000000000';
     const newId = `REP-AURA-${Math.floor(8200 + Math.random() * 800)}`;
@@ -135,7 +155,7 @@ export function AppProvider({ children }) {
       id: newId,
       issue: newReportData.issue,
       location: newReportData.location,
-      reporter: newReportData.reporter || 'Anonymous Citizen',
+      reporter: newReportData.reporter || 'Priya Family Member',
       urgency: newReportData.urgency || 'High',
       lat: 28.65 + (Math.random() - 0.5) * 0.1,
       lng: 77.20 + (Math.random() - 0.5) * 0.1,
@@ -143,19 +163,19 @@ export function AppProvider({ children }) {
       prevHash: lastHash,
       hash: newHash,
       stage: 1,
-      statusText: 'Signed & Chained to Ledger'
+      statusText: 'Hashed to Community Ledger'
     };
 
     setCitizenReports(prev => [...prev, completeReport]);
-    addToast('Report Secured', `Report ${newId} hashed and chained to immutable ledger`, 'cyan');
-    logAudit('Citizen Reporter', `Logged air hazard report: ${newReportData.issue.slice(0, 30)}...`, newId, 'human');
+    addToast('Report Secured', `Hazard report ${newId} chained to immutable ledger`, 'cyan');
+    logAudit('Community Reporter', `Logged community smog report: ${newReportData.issue.slice(0, 30)}...`, newId, 'human');
   };
 
   const advanceReportStage = (reportId) => {
     const stageMap = {
-      1: { next: 2, text: 'Dispatched Field Team' },
-      2: { next: 3, text: 'Inspection In Progress' },
-      3: { next: 4, text: 'Remediation Done & Fine Levied' }
+      1: { next: 2, text: 'RWA / Society Triage' },
+      2: { next: 3, text: 'Municipal Flying Squad Dispatched' },
+      3: { next: 4, text: 'Hazard Doused & Fine Issued' }
     };
     setCitizenReports(prev => prev.map(rep => {
       if (rep.id === reportId && rep.stage < 4) {
@@ -165,7 +185,7 @@ export function AppProvider({ children }) {
       return rep;
     }));
     addToast('Workflow Advanced', `Report ${reportId} progressed to next operational tier`, 'green');
-    logAudit('Municipal Officer', `Advanced report stage for ${reportId}`, reportId, 'human');
+    logAudit('RWA Committee', `Advanced community action stage for ${reportId}`, reportId, 'human');
   };
 
   const simulateTamper = () => {
@@ -174,19 +194,18 @@ export function AppProvider({ children }) {
         const copy = [...prev];
         copy[1] = {
           ...copy[1],
-          issue: '[TAMPERED BY ATTACKER] Altered smoke opacity reading to bypass fine',
-          hash: '0000_TAMPERED_HASH_INVALID_CHAIN_BREAK_7721'
+          issue: '[TAMPERED BY POLLUTER] Falsified report to conceal industrial burning',
+          hash: '0000_TAMPERED_HASH_INVALID_CHAIN_BREAK_9921'
         };
         return copy;
       });
       setLedgerTampered(true);
       addToast('SECURITY ALARM', 'Cryptographic hash mismatch! Block #2 chain broken!', 'red');
-      logAudit('Intrusion Detection (IDS)', 'Flagged unauthorized tampering attempt on citizen report ledger', 'REP-AURA-8102', 'system');
+      logAudit('IDS Watchdog', 'Flagged unauthorized tampering attempt on community report ledger', 'REP-AURA-8102', 'system');
     }
   };
 
   const verifyLedger = () => {
-    // Recalculate true valid hashes
     setCitizenReports(INITIAL_CITIZEN_REPORTS);
     setLedgerTampered(false);
     addToast('Ledger Validated', 'All SHA-256 blocks re-verified. 100% integrity restored.', 'green');
@@ -205,9 +224,19 @@ export function AppProvider({ children }) {
         selectedWard,
         selectedWardId,
         setSelectedWardId,
+        familyArchetype,
+        setFamilyArchetype,
+        dwellingType,
+        setDwellingType,
+        activeHacks,
+        toggleHack,
+        transitChoice,
+        setTransitChoice,
+        exposureCalc,
+        communitySavings,
+        healthRisk,
         alerts,
         executePlaybookAction,
-        boostAlertPriority,
         citizenReports,
         addCitizenReport,
         advanceReportStage,
@@ -217,9 +246,7 @@ export function AppProvider({ children }) {
         auditLogs,
         logAudit,
         toasts,
-        addToast,
-        droneMissionStatus,
-        setDroneMissionStatus
+        addToast
       }}
     >
       {children}

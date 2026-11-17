@@ -8,7 +8,10 @@ import {
   Zap, 
   ShieldAlert, 
   Radio, 
-  FileText 
+  FileText,
+  Clock,
+  Sparkles,
+  Leaf
 } from 'lucide-react';
 import { useApp, NAV_ITEMS } from '../context/AppContext';
 import { WARDS_DATA } from '../data/airData';
@@ -22,7 +25,8 @@ export default function CommandPalette() {
     addToast,
     logAudit,
     simulateTamper,
-    verifyLedger
+    verifyLedger,
+    toggleHack
   } = useApp();
 
   const [query, setQuery] = useState('');
@@ -64,25 +68,32 @@ export default function CommandPalette() {
   };
 
   return (
-    <div className="fixed inset-0 z-[3000] grid place-items-start justify-center bg-black/70 p-4 pt-20 backdrop-blur-sm">
+    <div 
+      role="dialog"
+      aria-modal="true"
+      aria-label="Command Palette"
+      className="fixed inset-0 z-[3000] grid place-items-start justify-center bg-black/70 p-4 pt-20 backdrop-blur-sm"
+    >
       <div 
         className="w-full max-w-2xl panel panel-corners border-cyan-400/30 bg-[#08101e] shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search Input Bar */}
         <div className="flex items-center gap-3 border-b border-cyan-400/20 px-4 py-3">
-          <Search className="h-5 w-5 text-cyan-400" />
+          <Search className="h-5 w-5 text-cyan-400" aria-hidden="true" />
           <input
             autoFocus
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Type a command, module, ward, or emergency action..."
+            placeholder="Type a command, routine, IAQ hack, ward, or action..."
+            aria-label="Search modules and actions"
             className="flex-1 bg-transparent text-sm text-white placeholder:text-slate-500 focus:outline-none"
           />
           <button 
             onClick={() => setCommandPaletteOpen(false)}
-            className="rounded p-1 text-slate-400 hover:text-white cursor-pointer"
+            aria-label="Close command palette"
+            className="rounded p-1 text-slate-400 hover:text-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-cyan-400"
           >
             <X className="h-4 w-4" />
           </button>
@@ -90,21 +101,20 @@ export default function CommandPalette() {
 
         {/* Results Container */}
         <div className="max-h-96 overflow-y-auto p-3 space-y-4 font-sans text-sm">
-          {/* Quick Emergency Actions */}
+          {/* Quick Family Actions */}
           <div>
             <div className="label px-2 mb-1.5 text-cyan-400">Tactical Quick Actions</div>
             <div className="space-y-1">
               <button
-                onClick={() => handleAction('Dispatch Anti-Smog Cannons', () => {
-                  addToast('Dispatched', '4 Anti-Smog Water Cannons deployed to Anand Vihar', 'green');
-                  logAudit('Command Officer', 'Emergency dispatch of 4 anti-smog water cannons', 'Anand Vihar', 'human');
-                  setPage('alerts');
+                onClick={() => handleAction('Activate Corsi Box', () => {
+                  toggleHack('corsi_rosenthal');
+                  setPage('hacks');
                 })}
                 className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-slate-200 hover:bg-cyan-400/10 hover:text-cyan-200 transition cursor-pointer"
               >
-                <Zap className="h-4 w-4 text-cyan-400" />
-                <span>Deploy Anti-Smog Water Cannon Flotilla</span>
-                <span className="ml-auto font-mono text-[10px] text-slate-500">GRAP-IV</span>
+                <Sparkles className="h-4 w-4 text-emerald-400" />
+                <span>Toggle DIY Corsi-Rosenthal Box Filtration</span>
+                <span className="ml-auto font-mono text-[10px] text-emerald-300">92% PM2.5 Shield</span>
               </button>
               
               <button
@@ -175,7 +185,7 @@ export default function CommandPalette() {
         {/* Footer info */}
         <div className="flex items-center justify-between border-t border-cyan-400/10 bg-black/40 px-4 py-2 text-xs font-mono text-slate-500">
           <span>Press ESC to close</span>
-          <span>AURA System v4.2.1</span>
+          <span>AURA Family Smog Defense v4.2.1</span>
         </div>
       </div>
     </div>

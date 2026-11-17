@@ -150,13 +150,13 @@ export default function Header() {
         {/* User Profile */}
         <div className="flex items-center gap-2 rounded-lg border border-cyan-400/15 bg-[#08101e] py-1 pl-1 pr-3">
           <div className="grid h-8 w-8 place-items-center rounded-md bg-gradient-to-br from-cyan-400 to-indigo-500 text-xs font-bold text-[#030712]">
-            AK
+            PF
           </div>
           <div className="hidden leading-tight sm:block text-left">
-            <div className="text-xs font-semibold text-white">Analyst Akshith</div>
+            <div className="text-xs font-semibold text-white">Priya Family Lead</div>
             <div className="flex items-center gap-1 font-mono text-[9px] text-cyan-300/70">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
-              L3 Environmental SOC
+              2 Children + Asthmatic Senior
             </div>
           </div>
         </div>
