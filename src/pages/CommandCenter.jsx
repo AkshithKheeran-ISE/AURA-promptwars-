@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { 
-  AlertTriangle, 
-  ShieldCheck, 
-  Wind, 
-  Thermometer, 
-  Droplets, 
-  Sparkles, 
-  ExternalLink, 
-  Zap, 
-  CheckCircle2, 
+import {
+  AlertTriangle,
+  ShieldCheck,
+  Wind,
+  Thermometer,
+  Droplets,
+  Sparkles,
+  ExternalLink,
+  Zap,
+  CheckCircle2,
   TrendingUp,
   Cpu,
   Layers,
@@ -19,26 +19,26 @@ import {
 } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
 import { useApp } from '../context/AppContext';
-import { 
-  WARDS_DATA, 
-  HOURLY_TRENDS, 
-  SYSTEM_HEALTH_METRICS 
+import {
+  WARDS_DATA,
+  HOURLY_TRENDS,
+  SYSTEM_HEALTH_METRICS
 } from '../data/airData';
 import { FAMILY_ARCHETYPES } from '../services/routineEngine';
 
 export default function CommandCenter() {
-  const { 
-    setPage, 
-    selectedWard, 
-    setSelectedWardId, 
+  const {
+    setPage,
+    selectedWard,
+    setSelectedWardId,
     familyArchetype,
     setFamilyArchetype,
     exposureCalc,
     communitySavings,
     healthRisk,
-    alerts, 
+    alerts,
     activeHacks,
-    addToast 
+    addToast
   } = useApp();
 
   const [activePollutant, setActivePollutant] = useState('pm25');
@@ -161,11 +161,10 @@ export default function CommandCenter() {
                 setFamilyArchetype(arch.id);
                 addToast('Profile Switched', `Active calculations adjusted for ${arch.label}`, 'cyan');
               }}
-              className={`px-3 py-1 rounded-lg border transition cursor-pointer text-xs ${
-                familyArchetype === arch.id
-                  ? 'bg-cyan-400/20 border-cyan-400 text-cyan-200 font-bold'
-                  : 'border-cyan-400/10 text-slate-400 hover:bg-white/5'
-              }`}
+              className={`px-3 py-1 rounded-lg border transition cursor-pointer text-xs ${familyArchetype === arch.id
+                ? 'bg-cyan-400/20 border-cyan-400 text-cyan-200 font-bold'
+                : 'border-cyan-400/10 text-slate-400 hover:bg-white/5'
+                }`}
             >
               {arch.label}
             </button>
@@ -217,11 +216,11 @@ export default function CommandCenter() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {WARDS_DATA.map((w) => {
               const isSelected = selectedWard.id === w.id;
-              const statusBg = 
+              const statusBg =
                 w.status === 'Critical' ? 'border-rose-500/40 bg-rose-500/5 hover:border-rose-500' :
-                w.status === 'High' ? 'border-orange-500/40 bg-orange-500/5 hover:border-orange-500' :
-                w.status === 'Moderate' ? 'border-amber-400/30 bg-amber-400/5 hover:border-amber-400' :
-                'border-emerald-400/30 bg-emerald-400/5 hover:border-emerald-400';
+                  w.status === 'High' ? 'border-orange-500/40 bg-orange-500/5 hover:border-orange-500' :
+                    w.status === 'Moderate' ? 'border-amber-400/30 bg-amber-400/5 hover:border-amber-400' :
+                      'border-emerald-400/30 bg-emerald-400/5 hover:border-emerald-400';
 
               return (
                 <button
@@ -230,9 +229,8 @@ export default function CommandCenter() {
                     setSelectedWardId(w.id);
                     addToast('Ward Focused', `Active telemetry switched to ${w.name}`, 'cyan');
                   }}
-                  className={`p-3 rounded-lg border text-left transition cursor-pointer relative overflow-hidden ${statusBg} ${
-                    isSelected ? 'ring-1 ring-cyan-400 bg-cyan-400/10' : ''
-                  }`}
+                  className={`p-3 rounded-lg border text-left transition cursor-pointer relative overflow-hidden ${statusBg} ${isSelected ? 'ring-1 ring-cyan-400 bg-cyan-400/10' : ''
+                    }`}
                 >
                   {isSelected && (
                     <span className="absolute top-0 right-0 h-2 w-2 bg-cyan-400 rounded-bl" />
@@ -366,7 +364,7 @@ export default function CommandCenter() {
                   return { x, y, val, time: pt.time };
                 });
 
-                const pathD = points.reduce((acc, p, i) => 
+                const pathD = points.reduce((acc, p, i) =>
                   i === 0 ? `M ${p.x} ${p.y}` : `${acc} L ${p.x} ${p.y}`, ''
                 );
                 const areaD = `${pathD} L 500 165 L 0 165 Z`;

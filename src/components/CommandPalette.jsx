@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Search, 
-  X, 
-  LayoutDashboard, 
-  MapPin, 
-  AlertTriangle, 
-  Zap, 
-  ShieldAlert, 
-  Radio, 
+import {
+  Search,
+  X,
+  LayoutDashboard,
+  MapPin,
+  AlertTriangle,
+  Zap,
+  ShieldAlert,
+  Radio,
   FileText,
   Clock,
   Sparkles,
@@ -17,10 +17,10 @@ import { useApp, NAV_ITEMS } from '../context/AppContext';
 import { WARDS_DATA } from '../data/airData';
 
 export default function CommandPalette() {
-  const { 
-    commandPaletteOpen, 
-    setCommandPaletteOpen, 
-    setPage, 
+  const {
+    commandPaletteOpen,
+    setCommandPaletteOpen,
+    setPage,
     setSelectedWardId,
     addToast,
     logAudit,
@@ -39,12 +39,12 @@ export default function CommandPalette() {
 
   if (!commandPaletteOpen) return null;
 
-  const filteredPages = NAV_ITEMS.filter(item => 
-    item.label.toLowerCase().includes(query.toLowerCase()) || 
+  const filteredPages = NAV_ITEMS.filter(item =>
+    item.label.toLowerCase().includes(query.toLowerCase()) ||
     item.id.toLowerCase().includes(query.toLowerCase())
   );
 
-  const filteredWards = WARDS_DATA.filter(ward => 
+  const filteredWards = WARDS_DATA.filter(ward =>
     ward.name.toLowerCase().includes(query.toLowerCase()) ||
     ward.id.toLowerCase().includes(query.toLowerCase()) ||
     ward.status.toLowerCase().includes(query.toLowerCase())
@@ -68,13 +68,13 @@ export default function CommandPalette() {
   };
 
   return (
-    <div 
+    <div
       role="dialog"
       aria-modal="true"
       aria-label="Command Palette"
       className="fixed inset-0 z-[3000] grid place-items-start justify-center bg-black/70 p-4 pt-20 backdrop-blur-sm"
     >
-      <div 
+      <div
         className="w-full max-w-2xl panel panel-corners border-cyan-400/30 bg-[#08101e] shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
@@ -90,7 +90,7 @@ export default function CommandPalette() {
             aria-label="Search modules and actions"
             className="flex-1 bg-transparent text-sm text-white placeholder:text-slate-500 focus:outline-none"
           />
-          <button 
+          <button
             onClick={() => setCommandPaletteOpen(false)}
             aria-label="Close command palette"
             className="rounded p-1 text-slate-400 hover:text-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-cyan-400"
@@ -116,7 +116,7 @@ export default function CommandPalette() {
                 <span>Toggle DIY Corsi-Rosenthal Box Filtration</span>
                 <span className="ml-auto font-mono text-[10px] text-emerald-300">92% PM2.5 Shield</span>
               </button>
-              
+
               <button
                 onClick={() => handleAction('Simulate Tamper', simulateTamper)}
                 className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-slate-200 hover:bg-rose-500/10 hover:text-rose-200 transition cursor-pointer"
