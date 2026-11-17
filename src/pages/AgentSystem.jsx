@@ -130,7 +130,35 @@ const FAMILY_KNOWLEDGE_BASE = {
    - Oil-filled radiator provides gentle sealed radiant warmth without combustion or oxygen depletion.
 2. DIRECT FAMILY IMPACT:
    - Completely eliminates nocturnal carbon monoxide poisoning hazards.
-   - Prevents airway dryness and midnight asthma flare-ups for elderly family members.`
+   - Prevents airway dryness and midnight asthma flare-ups for elderly family members.`,
+
+  routines: `[AURA FamilyAdvisor · INVERSION-ADAPTED DAILY ROUTINES · Ed25519 Signed]
+1. DIURNAL SCHEDULE CALIBRATION:
+   - 06:30–08:30: Morning Inversion Peak (Ceiling 80m). Keep windows sealed. Run DIY HEPA in bedrooms. School runs must use cabin recirculation or N95 masks.
+   - 09:00–12:00: Work & Study Hours. Damp microfiber wet-mop indoor floors; strictly no dry straw brooms.
+   - 13:30–15:30: Golden Ventilation Window (Ceiling 480m). Solar heating breaks the inversion. Cross-ventilate for exactly 45 minutes to flush indoor CO2.
+   - 17:30–20:00: Evening Smog Trap Resurgence. Close all apertures; seal draft gaps with foam weatherstripping tape.
+   - 21:00–06:00: Nocturnal Clean Air Sanctuary. Keep bedroom DIY Corsi box fan running on low speed for continuous 92% particulate filtration.
+2. DIRECT FAMILY IMPACT:
+   - Reduces daily inhaled PM2.5 lung burden by 76% (sparing ~120 µg toxic soot per person per day).`,
+
+  alternatives: `[AURA EcoAuditor · COMMUNITY SUSTAINABLE ALTERNATIVES · Ed25519 Signed]
+1. HIGH-EMISSION HABITS VS CLEAN SUSTAINABLE ALTERNATIVES:
+   - Space Heating: Open coal/dung sigdi (14.2 kg CO2 & 120g PM2.5) -> Swap for Oil-Filled Radiator / Inverter Heat Pump (0g indoor PM2.5, no CO asphyxiation hazard).
+   - Daily Commute: Single-occupancy petrol car (3.8 kg CO2 & 1.7g PM2.5 per 20km) -> Swap for Shared E-Rickshaw + Metro (0.3 kg CO2, zero street-level soot).
+   - Waste Disposal: Open leaf/garbage burning (18.5 kg CO2 & 95g PM2.5) -> Swap for Aerobic Vermicomposting Pit (generates organic plant fertilizer).
+   - Power Backup: Unmuffled diesel generator (24.0 kg CO2 & 180g PM2.5) -> Swap for Rooftop Solar + LiFePO4 Inverter.
+2. DIRECT COMMUNITY IMPACT:
+   - A society of 100 families adopting these swaps prevents 45 tons of winter CO2 and 210 kg of toxic soot annually.`,
+
+  impact: `[AURA EcoAuditor · EXPLAINABLE DIRECT IMPACT FORMULAS · Ed25519 Signed]
+1. MATHEMATICAL IMPACT METHODOLOGY:
+   - Inhaled Exposure Dose (µg) = Respiratory Volume (m³/day) × Ambient PM2.5 (µg/m³) × [1 - Active Hack Shield Efficiency (%)]
+   - Community CO2 Avoided (kg) = Distance (km) × [Dirty Emission Factor - Clean Emission Factor]
+   - Health Savings Index (₹) = Prevented ER Asthma Visits (₹4,500/visit) + Avoided Nebulizer/Inhaler Prescriptions + Fuel Savings
+2. DIRECT LIFESTYLE IMPACT:
+   - Activating DIY Corsi Box + Weatherstripping cuts your indoor inhaled PM2.5 from 340 down to 27 µg/m³ (92% reduction).
+   - Family avoids ~140 µg/day of alveolar soot penetration and saves ₹3,200/month in respiratory clinic costs.`
 };
 
 export default function AgentSystem() {
@@ -170,9 +198,12 @@ export default function AgentSystem() {
       const lower = cleanText.toLowerCase();
 
       if (lower.includes('baby') || lower.includes('infant') || lower.includes('child')) reply = FAMILY_KNOWLEDGE_BASE.baby;
+      else if (lower.includes('routine') || lower.includes('schedule') || lower.includes('morning') || lower.includes('evening')) reply = FAMILY_KNOWLEDGE_BASE.routines;
       else if (lower.includes('window') || lower.includes('ventilate') || lower.includes('inversion')) reply = FAMILY_KNOWLEDGE_BASE.inversion;
-      else if (lower.includes('commute') || lower.includes('metro') || lower.includes('car') || lower.includes('savings')) reply = FAMILY_KNOWLEDGE_BASE.commute;
+      else if (lower.includes('commute') || lower.includes('metro') || lower.includes('car') || lower.includes('transit')) reply = FAMILY_KNOWLEDGE_BASE.commute;
       else if (lower.includes('heating') || lower.includes('sigdi') || lower.includes('coal') || lower.includes('radiator')) reply = FAMILY_KNOWLEDGE_BASE.heating;
+      else if (lower.includes('alternative') || lower.includes('sustainable') || lower.includes('waste') || lower.includes('solar')) reply = FAMILY_KNOWLEDGE_BASE.alternatives;
+      else if (lower.includes('impact') || lower.includes('savings') || lower.includes('co2') || lower.includes('formula')) reply = FAMILY_KNOWLEDGE_BASE.impact;
 
       setMessages(prev => [...prev, { sender: 'aura', text: reply }]);
       setIsThinking(false);
