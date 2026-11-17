@@ -19,18 +19,16 @@ import { sanitizeInput, sha256 } from '../utils/sanitize';
  * @returns {Promise<{ text: string, model: string, latencyMs: number } | null>}
  */
 async function callSecureGeminiProxy(prompt) {
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 7500);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 7500);
 
+  try {
     const response = await fetch('/api/gemini', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       signal: controller.signal,
       body: JSON.stringify({ prompt })
     });
-
-    clearTimeout(timeoutId);
 
     if (response.ok) {
       const data = await response.json();
@@ -44,6 +42,8 @@ async function callSecureGeminiProxy(prompt) {
     }
   } catch {
     // Graceful offline fallback
+  } finally {
+    clearTimeout(timeoutId);
   }
   return null;
 }

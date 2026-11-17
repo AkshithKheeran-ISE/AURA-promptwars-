@@ -356,9 +356,13 @@ export function repairLedgerChain(chain, canonicalStore) {
         block.location = canonicalRecord.location;
         block.reporter = canonicalRecord.reporter;
         block.urgency = canonicalRecord.urgency;
+        block.isAuthenticRestored = true;
+        block.recoveryProvenance = 'VERIFIED_CANONICAL_BASELINE';
         restoredCount++;
       } else {
-        block.issue = `[RECOVERED EVIDENCE] ${block.issue.replace(/\[TAMPERED[^\]]*\]\s*/gi, '')}`;
+        block.issue = `[UNVERIFIED RECOVERED EVIDENCE] ${block.issue.replace(/\[TAMPERED[^\]]*\]\s*/gi, '')}`;
+        block.isAuthenticRestored = false;
+        block.recoveryProvenance = 'UNVERIFIED_EVIDENCE_ISOLATED';
       }
 
       block.prevHash = expectedPrev;

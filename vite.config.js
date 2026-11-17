@@ -10,7 +10,7 @@ export default defineConfig({
     tailwindcss(),
   ],
   test: {
-    exclude: ['**/node_modules/**', '**/dist/**', 'e2e/**'],
+    exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**'],
   },
   server: {
     port: 3000,

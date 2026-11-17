@@ -5,7 +5,7 @@
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](#)
 [![Vulnerabilities](https://img.shields.io/badge/vulnerabilities-0_zero-brightgreen)](#)
-[![Tests](https://img.shields.io/badge/tests-63%2F63_passing-brightgreen)](#)
+[![Tests](https://img.shields.io/badge/tests-75%2F75_passing-brightgreen)](#)
 [![E2E](https://img.shields.io/badge/E2E_Tests-Playwright_Passing-blue)](#)
 [![CI](https://img.shields.io/badge/CI-GitHub_Actions_Passing-blue)](#)
 [![WCAG](https://img.shields.io/badge/WCAG_2.1-AA_Compliant-cyan)](#)
@@ -158,18 +158,19 @@ npm test
 ```
 
 ```
+ ✓ tests/geminiProxy.test.js (9 tests)
  ✓ tests/sanitize.test.js (15 tests)
  ✓ tests/impactCalculator.test.js (6 tests)
- ✓ tests/aiService.test.js (11 tests)
- ✓ tests/navigationAndRoutes.test.js (3 tests)
+ ✓ tests/aiService.test.js (13 tests)
  ✓ tests/airData.test.js (7 tests)
  ✓ tests/e2eWorkflows.test.js (4 tests)
- ✓ tests/cryptographicLedger.test.js (12 tests)
+ ✓ tests/cryptographicLedger.test.js (13 tests)
  ✓ tests/routineEngine.test.js (3 tests)
  ✓ tests/iaqHacks.test.js (2 tests)
+ ✓ tests/navigationAndRoutes.test.js (3 tests)
 
- Test Files  9 passed (9)
-      Tests  63 passed (63)
+ Test Files  10 passed (10)
+      Tests  75 passed (75)
 ```
 
 Playwright End-to-End Suite:

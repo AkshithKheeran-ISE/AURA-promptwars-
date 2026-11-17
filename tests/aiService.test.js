@@ -123,5 +123,21 @@ describe('AURA Verifiable GenAI & Multi-Agent Orchestration Service', () => {
       expect(res.text).not.toContain('<script>');
       expect(res.attestationToken.length).toBe(64);
     });
+
+    it('gracefully handles empty, null, or malformed prompt payloads', async () => {
+      const emptyRes = await orchestrateAgentWorkflow('');
+      expect(emptyRes.agentId).toBe('family_advisor');
+      expect(emptyRes.attestationToken.length).toBe(64);
+
+      const nullRes = await orchestrateAgentWorkflow(null);
+      expect(nullRes.agentId).toBe('family_advisor');
+      expect(nullRes.attestationToken.length).toBe(64);
+    });
+
+    it('generates distinct cryptographic attestation tokens for different queries', async () => {
+      const res1 = await orchestrateAgentWorkflow('Corsi-Rosenthal box filter specs');
+      const res2 = await orchestrateAgentWorkflow('Elderly asthma airway safety directives');
+      expect(res1.attestationToken).not.toBe(res2.attestationToken);
+    });
   });
 });

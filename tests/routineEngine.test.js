@@ -29,5 +29,9 @@ describe('Routine Engine Service', () => {
     const seniorAdvice = generatePersonalizedGuidance('asthma_seniors', 280);
     expect(seniorAdvice.title).toContain('Senior Bronchial Shield Protocol');
     expect(seniorAdvice.keyRule).toContain('morning balcony walks');
+
+    const defaultAdvice = generatePersonalizedGuidance('unknown_archetype', 150);
+    expect(defaultAdvice.title).toContain('Community Clean Commute Protocol');
+    expect(defaultAdvice.keyRule).toContain('Metro / electric carpool');
   });
 });

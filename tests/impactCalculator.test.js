@@ -90,6 +90,9 @@ describe('Impact Calculator Service (Scientific & Financial Accuracy)', () => {
       const severeSmog = calculateHealthRiskIndex(300, true, true);
       expect(severeSmog.riskTier).toBe('Severe Environmental Hazard');
       expect(severeSmog.whoTargetExceedance).toBe('20× WHO Target');
+
+      const negativePm = calculateHealthRiskIndex(-20, false, false);
+      expect(negativePm.whoTargetExceedance).toBe('0× WHO Target');
     });
   });
 

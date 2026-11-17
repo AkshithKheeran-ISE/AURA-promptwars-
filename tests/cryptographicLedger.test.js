@@ -144,11 +144,30 @@ describe('Cryptographic Hash-Chain Ledger & SHA-256 Primitives', () => {
       expect(repairedChain[1].issue).toBe(
         'Dense Chemical Fumes & Black Smoke from Fabrication Chimney'
       );
+      expect(repairedChain[1].isAuthenticRestored).toBe(true);
+      expect(repairedChain[1].recoveryProvenance).toBe('VERIFIED_CANONICAL_BASELINE');
+
       // Blocks 5 and 6 are intact with original content!
       expect(repairedChain[4].id).toBe('REP-AURA-8105');
       expect(repairedChain[4].issue).toBe('Illegal rubber incineration behind metro depot');
       expect(repairedChain[5].id).toBe('REP-AURA-8106');
       expect(repairedChain[5].reporter).toBe('Resident Priya');
+    });
+
+    it('explicitly labels unverified recovered blocks without canonical baseline as isolated evidence', () => {
+      const chain = INITIAL_CITIZEN_REPORTS.map((r) => ({ ...r }));
+      // Corrupt block 2 and omit from canonicalStore
+      chain[1].issue = '[TAMPERED] Fabricated report without canonical snapshot';
+      chain[1].hash = 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef';
+
+      const emptyStore = {}; // No canonical baseline
+      const recovery = repairLedgerChain(chain, emptyStore);
+
+      expect(recovery.success).toBe(true);
+      const repairedBlock = recovery.repairedChain[1];
+      expect(repairedBlock.isAuthenticRestored).toBe(false);
+      expect(repairedBlock.recoveryProvenance).toBe('UNVERIFIED_EVIDENCE_ISOLATED');
+      expect(repairedBlock.issue).toContain('[UNVERIFIED RECOVERED EVIDENCE]');
     });
   });
 

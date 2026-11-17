@@ -190,11 +190,11 @@ export default function SustainableAlternatives() {
           </div>
 
           <div className="rounded-xl bg-[#030712] p-3.5 border border-cyan-400/15">
-            <div className="text-slate-500 text-[10px]">Asthma Emergencies Avoided</div>
+            <div className="text-slate-500 text-[10px]">High-Risk Exposure Mitigated</div>
             <div className="font-display text-2xl font-bold text-rose-400 mt-1">
-              {asthmaCasesPrevented} Children & Seniors
+              ~{asthmaCasesPrevented} Vulnerable Days
             </div>
-            <div className="text-[10px] text-slate-400 mt-0.5">pediatric ER visits averted</div>
+            <div className="text-[10px] text-slate-400 mt-0.5">WHO 2021 model (illustrative)</div>
           </div>
 
           <div className="rounded-xl bg-[#030712] p-3.5 border border-cyan-400/15">

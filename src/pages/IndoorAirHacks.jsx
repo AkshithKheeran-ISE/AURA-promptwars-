@@ -84,6 +84,8 @@ export default function IndoorAirHacks() {
 
                   <button
                     onClick={() => toggleHack(hack.id)}
+                    aria-pressed={isActive}
+                    aria-label={`${isActive ? 'Deactivate' : 'Activate'} ${hack.title}`}
                     className={`px-3 py-1 rounded text-xs font-mono font-bold transition cursor-pointer flex items-center gap-1.5 ${
                       isActive
                         ? 'bg-emerald-400 text-black hover:bg-emerald-300 shadow-glow-green'
@@ -131,6 +133,8 @@ export default function IndoorAirHacks() {
                 {/* Accordion Toggle */}
                 <button
                   onClick={() => setExpandedHackId(isExpanded ? null : hack.id)}
+                  aria-expanded={isExpanded}
+                  aria-controls={`hack-blueprint-${hack.id}`}
                   className="w-full flex items-center justify-between text-xs font-mono text-cyan-300 hover:text-cyan-200 pt-2 border-t border-cyan-400/10 cursor-pointer"
                 >
                   <span>
@@ -145,7 +149,10 @@ export default function IndoorAirHacks() {
 
                 {/* Expanded Steps */}
                 {isExpanded && (
-                  <div className="space-y-3 pt-2 text-xs font-sans text-slate-300 border-t border-cyan-400/10">
+                  <div
+                    id={`hack-blueprint-${hack.id}`}
+                    className="space-y-3 pt-2 text-xs font-sans text-slate-300 border-t border-cyan-400/10"
+                  >
                     <div>
                       <div className="font-mono text-[10px] text-cyan-300 font-bold mb-1 uppercase">
                         Required Materials:

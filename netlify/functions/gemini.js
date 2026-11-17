@@ -47,6 +47,15 @@ export async function handler(event) {
     };
   }
 
+  // Check request payload size limit (max 10 KB)
+  if (event.body && typeof event.body === 'string' && event.body.length > 10240) {
+    return {
+      statusCode: 413,
+      headers,
+      body: JSON.stringify({ error: 'Payload exceeds 10KB limit.' })
+    };
+  }
+
   // Parse and validate request body
   let body;
   try {
@@ -104,8 +113,6 @@ export async function handler(event) {
       })
     });
 
-    clearTimeout(timeoutId);
-
     if (!response.ok) {
       return {
         statusCode: 502,
@@ -138,13 +145,12 @@ export async function handler(event) {
       headers,
       body: JSON.stringify({
         success: true,
-        text: candidateText.trim(),
+        text: candidateText.trim().slice(0, 4000),
         model: 'gemini-2.0-flash',
         latencyMs: Date.now() - startTime
       })
     };
   } catch (err) {
-    clearTimeout(timeoutId);
     const isTimeout = err.name === 'AbortError';
     return {
       statusCode: isTimeout ? 504 : 500,
@@ -157,5 +163,7 @@ export async function handler(event) {
           : 'Inference request failed. Using offline expert protocol.'
       })
     };
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
