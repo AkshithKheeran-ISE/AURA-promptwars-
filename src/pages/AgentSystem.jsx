@@ -543,9 +543,7 @@ export default function AgentSystem() {
                     {m.trace && m.trace.length > 0 && (
                       <div className="mt-2.5 pt-2 border-t border-cyan-400/15 text-[10px]">
                         <button
-                          onClick={() =>
-                            setExpandedTraceIdx(expandedTraceIdx === idx ? null : idx)
-                          }
+                          onClick={() => setExpandedTraceIdx(expandedTraceIdx === idx ? null : idx)}
                           className="text-cyan-400 hover:text-cyan-200 flex items-center gap-1 cursor-pointer font-bold"
                         >
                           {expandedTraceIdx === idx ? (
@@ -664,7 +662,9 @@ export default function AgentSystem() {
 
                 <div className="pt-2 border-t border-cyan-400/10 flex items-center justify-between text-[10px]">
                   <span className="text-slate-500">
-                    {metrics.lastLatencyMs ? `Latency: ${metrics.lastLatencyMs}ms` : 'Status: Ready'}
+                    {metrics.lastLatencyMs
+                      ? `Latency: ${metrics.lastLatencyMs}ms`
+                      : 'Status: Ready'}
                   </span>
                   <button
                     onClick={() => handleSend(agent.sampleQuery, agent.id)}

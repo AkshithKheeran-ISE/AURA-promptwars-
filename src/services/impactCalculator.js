@@ -14,9 +14,9 @@ export const EMISSION_FACTORS = {
   // Transit (per passenger-km)
   transit: {
     petrolCar: { co2Kg: 0.192, pm25G: 0.045, costPerKmInr: 7.44 }, // 13 km/L @ ₹96.72/L
-    dieselCar: { co2Kg: 0.171, pm25G: 0.085, costPerKmInr: 5.60 }, // 16 km/L @ ₹89.62/L
+    dieselCar: { co2Kg: 0.171, pm25G: 0.085, costPerKmInr: 5.6 }, // 16 km/L @ ₹89.62/L
     twoWheelerPetrol: { co2Kg: 0.065, pm25G: 0.035, costPerKmInr: 2.15 }, // 45 km/L @ ₹96.72/L
-    eRickshawMetro: { co2Kg: 0.015, pm25G: 0.002, costPerKmInr: 1.80 }, // Average DMRC metro fare
+    eRickshawMetro: { co2Kg: 0.015, pm25G: 0.002, costPerKmInr: 1.8 }, // Average DMRC metro fare
     walkingCycling: { co2Kg: 0.0, pm25G: 0.0, costPerKmInr: 0.0 }
   },
   // Heating (per evening - 4 hours combustion)
@@ -75,25 +75,24 @@ export function calculateInhaledExposure(
 
   // Infiltration Factor without active filtration
   // Weatherstripped: 0.35; Standard unsealed: 0.70 (CPCB / EPA Infiltration Baseline)
-  const infiltrationFactor = weatherstripped ? 0.35 : 0.70;
+  const infiltrationFactor = weatherstripped ? 0.35 : 0.7;
 
   // Indoor PM2.5 calculation
   let indoorPm25 = safePm25 * infiltrationFactor;
   if (usesHEPA) {
     // Verified 88%–92% removal via Corsi-Rosenthal / HEPA filtration
-    indoorPm25 = indoorPm25 * 0.10;
+    indoorPm25 = indoorPm25 * 0.1;
   }
 
   // Respiration rate based on physiology
   const respirationRateM3Hr =
-    archetype === 'school_infant' ? 0.35 : archetype === 'asthma_seniors' ? 0.50 : 0.60;
+    archetype === 'school_infant' ? 0.35 : archetype === 'asthma_seniors' ? 0.5 : 0.6;
 
   // Mask penetration factor
   const maskPenetration = maskType === 'n95' ? 0.05 : maskType === 'surgical' ? 0.65 : 1.0;
 
   const standardInhaledMicrograms = safePm25 * safeHours * respirationRateM3Hr;
-  const optimizedInhaledMicrograms =
-    indoorPm25 * safeHours * respirationRateM3Hr * maskPenetration;
+  const optimizedInhaledMicrograms = indoorPm25 * safeHours * respirationRateM3Hr * maskPenetration;
 
   const reductionMicrograms = Math.max(0, standardInhaledMicrograms - optimizedInhaledMicrograms);
   const percentageReduction =
@@ -152,9 +151,11 @@ export function calculateCommunitySavings(
   let pm25HeatingG = 0;
   if (avoidedBiomassHeating) {
     co2HeatingKg =
-      EMISSION_FACTORS.heating.woodCoalSigdi.co2Kg - EMISSION_FACTORS.heating.electricRadiator.co2Kg;
+      EMISSION_FACTORS.heating.woodCoalSigdi.co2Kg -
+      EMISSION_FACTORS.heating.electricRadiator.co2Kg;
     pm25HeatingG =
-      EMISSION_FACTORS.heating.woodCoalSigdi.pm25G - EMISSION_FACTORS.heating.electricRadiator.pm25G;
+      EMISSION_FACTORS.heating.woodCoalSigdi.pm25G -
+      EMISSION_FACTORS.heating.electricRadiator.pm25G;
   }
 
   // 3. Waste Category Savings (only if user explicitly selected composting)
@@ -199,11 +200,7 @@ export function calculateCommunitySavings(
  * @param {boolean} [hasInfant=false]
  * @returns {object} Vulnerability index and WHO exceedance multiplier
  */
-export function calculateHealthRiskIndex(
-  indoorPm25,
-  hasAsthmaSenior = false,
-  hasInfant = false
-) {
+export function calculateHealthRiskIndex(indoorPm25, hasAsthmaSenior = false, hasInfant = false) {
   const safeIndoorPm25 = sanitizeNumber(indoorPm25, 25, 0, 1000);
   const WHO_TARGET_PM25 = 15; // WHO 24-hr guideline target
 
@@ -229,7 +226,7 @@ export function calculateHealthRiskIndex(
   // Vulnerability weighting
   let vulnerabilityWeight = 1.0;
   if (hasAsthmaSenior) vulnerabilityWeight += 0.25;
-  if (hasInfant) vulnerabilityWeight += 0.20;
+  if (hasInfant) vulnerabilityWeight += 0.2;
 
   const scaledRiskScore = Number(
     Math.min(10, Math.max(1, (safeIndoorPm25 / 30) * vulnerabilityWeight)).toFixed(1)

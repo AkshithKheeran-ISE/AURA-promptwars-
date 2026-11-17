@@ -380,4 +380,3 @@ export function repairLedgerChain(chain, canonicalStore) {
     quarantinedEvidence
   };
 }
-

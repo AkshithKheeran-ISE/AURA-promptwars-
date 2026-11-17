@@ -16,6 +16,15 @@ describe('AURA Verifiable GenAI & Multi-Agent Orchestration Service', () => {
       expect(status).toHaveProperty('provider');
       expect(typeof status.isLiveConfigured).toBe('boolean');
     });
+
+    it('executes backward-compatible queryAiAssistant wrapper', async () => {
+      const res = await queryAiAssistant('Corsi Rosenthal box for 200 sq ft');
+      expect(res).toHaveProperty('text');
+      expect(res).toHaveProperty('engine');
+      expect(res).toHaveProperty('agent');
+      expect(res).toHaveProperty('attestationToken');
+      expect(res.attestationToken.length).toBe(64);
+    });
   });
 
   describe('Intent Resolution & Task Routing', () => {
@@ -25,7 +34,9 @@ describe('AURA Verifiable GenAI & Multi-Agent Orchestration Service', () => {
       expect(resolveAgentIntent('Thermal boundary inversion window')).toBe('meteo_forecaster');
       expect(resolveAgentIntent('Calculate petrol car vs metro savings')).toBe('eco_auditor');
       expect(resolveAgentIntent('Verify community report ledger hash')).toBe('community_watch');
-      expect(resolveAgentIntent('General daily schedule for school commute')).toBe('family_advisor');
+      expect(resolveAgentIntent('General daily schedule for school commute')).toBe(
+        'family_advisor'
+      );
     });
 
     it('honors explicit preferredAgentId override regardless of query keywords', () => {
@@ -70,7 +81,7 @@ describe('AURA Verifiable GenAI & Multi-Agent Orchestration Service', () => {
       );
       expect(res.agentId).toBe('meteo_forecaster');
       expect(res.text).toContain('13:30 and 15:30');
-      expect(res.text).toContain('Inversion');
+      expect(res.text).toMatch(/inversion/i);
       expect(res.attestationToken.length).toBe(64);
     });
 

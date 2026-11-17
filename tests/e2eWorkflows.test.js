@@ -11,10 +11,7 @@ import {
   calculateCommunitySavings,
   calculateHealthRiskIndex
 } from '../src/services/impactCalculator';
-import {
-  generatePersonalizedGuidance,
-  DAILY_ROUTINE_SLOTS
-} from '../src/services/routineEngine';
+import { generatePersonalizedGuidance, DAILY_ROUTINE_SLOTS } from '../src/services/routineEngine';
 import {
   orchestrateAgentWorkflow,
   orchestrateMultiAgentConsensus
@@ -192,7 +189,11 @@ describe('AURA End-to-End User Journeys & Critical Workflows', () => {
       expect(consensus.consensusToken.length).toBe(64);
 
       // Direct single agent execution
-      const single = await orchestrateAgentWorkflow('When to ventilate window', {}, 'meteo_forecaster');
+      const single = await orchestrateAgentWorkflow(
+        'When to ventilate window',
+        {},
+        'meteo_forecaster'
+      );
       expect(single.agentId).toBe('meteo_forecaster');
       expect(single.attestationToken.length).toBe(64);
       expect(single.trace.length).toBeGreaterThanOrEqual(4);

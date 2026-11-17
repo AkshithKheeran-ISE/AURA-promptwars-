@@ -114,7 +114,7 @@ function executePediatricShield(query, context = {}) {
   const text = `[AURA PediatricShield · CLINICAL PROTOCOL · Verifiable Execution]
 Target Vulnerability: Pediatric & Geriatric Airway Protection (Ambient PM2.5: ${ambientPm25} µg/m³)
 1. PHYSIOLOGICAL VULNERABILITY ANALYSIS:
-   - Respiratory Frequency: Infants breathe 40–50 bpm (${infantBreathsPerMin} bpm vs adult ~16 bpm), receiving 2.4× more pollutant dose per kg body weight.
+   - Respiratory Frequency: Infants breathe 40–50 bpm (${infantBreathsPerMin} bpm vs adult ~16 bpm, minute volume ~${infantMinuteVolLiters} L/min), receiving 2.4× more pollutant dose per kg body weight.
    - Floor Zone Trapping: Resuspended soot particles from dry brooms settle at <0.8m height directly into toddler breathing zones.
 2. CLINICAL ACTION DIRECTIVES:
    - Eliminate dry straw brooms completely: Damp microfiber wet-mop twice daily to capture settled particulate matter.
@@ -134,7 +134,7 @@ Target Vulnerability: Pediatric & Geriatric Airway Protection (Ambient PM2.5: ${
 /**
  * 4. MeteoForecaster: Atmospheric Inversion & Dispersion Forecaster
  */
-function executeMeteoForecaster(query, context = {}) {
+function executeMeteoForecaster(query, _context = {}) {
   const currentHour = new Date().getHours();
   const inversionCeilingMeters = currentHour >= 12 && currentHour <= 16 ? 480 : 85;
   const isGoldenWindow = currentHour >= 13 && currentHour <= 15;
@@ -186,7 +186,7 @@ Analyzed Scope: 20 km Daily Commute Shift (Petrol Car -> Metro + E-Rickshaw) & C
 /**
  * 6. CommunityWatch: Tamper-Evident Ledger & Hazard Auditor
  */
-function executeCommunityWatch(query, context = {}) {
+function executeCommunityWatch(query, _context = {}) {
   const text = `[AURA CommunityWatch · IMMUTABLE LEDGER PROTOCOL · Verifiable Execution]
 Cryptographic Standard: FIPS 180-4 SHA-256 Hash-Chaining & Merkle Tree Verification
 1. INCIDENT REPORT ACCOUNTABILITY:
@@ -265,8 +265,15 @@ export function resolveAgentIntent(prompt, preferredAgentId = null) {
   }
   if (
     lower.includes('impact') ||
-    lower.includes('savings') ||
+    lower.includes('saving') ||
+    lower.includes('save') ||
     lower.includes('co2') ||
+    lower.includes('emission') ||
+    lower.includes('fuel') ||
+    lower.includes('transit') ||
+    lower.includes('metro') ||
+    lower.includes('roi') ||
+    lower.includes('cost') ||
     lower.includes('rupees') ||
     lower.includes('financial') ||
     lower.includes('sigdi') ||

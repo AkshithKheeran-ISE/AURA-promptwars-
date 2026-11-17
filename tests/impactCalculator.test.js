@@ -68,7 +68,13 @@ describe('Impact Calculator Service (Scientific & Financial Accuracy)', () => {
       expect(transitOnly.co2SavedKg).toBe(transitOnly.breakdown.co2TransitKg);
 
       // When distance is 0 or modes are identical, transit savings must be strictly 0
-      const zeroDistance = calculateCommunitySavings(0, 'petrolCar', 'eRickshawMetro', false, false);
+      const zeroDistance = calculateCommunitySavings(
+        0,
+        'petrolCar',
+        'eRickshawMetro',
+        false,
+        false
+      );
       expect(zeroDistance.co2SavedKg).toBe(0);
       expect(zeroDistance.pm25SavedG).toBe(0);
       expect(zeroDistance.totalFinancialSavingsInr).toBe(0);
