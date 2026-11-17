@@ -1,7 +1,8 @@
 /**
  * @file sanitize.js
  * Security utility for input sanitization, XSS neutralization,
- * HTML escaping, and input validation.
+ * HTML escaping, cryptographic SHA-256 hashing, Merkle tree computation,
+ * and immutable ledger integrity verification.
  */
 
 const HTML_ENTITY_MAP = {
@@ -21,7 +22,7 @@ const HTML_ENTITY_MAP = {
  */
 export function escapeHtml(str) {
   if (typeof str !== 'string') return '';
-  return str.replace(/[&<>"'`/]/g, char => HTML_ENTITY_MAP[char] || char);
+  return str.replace(/[&<>"'`/]/g, (char) => HTML_ENTITY_MAP[char] || char);
 }
 
 /**
@@ -50,14 +51,12 @@ export function stripHtmlTags(str) {
  */
 export function sanitizeInput(input, maxLength = 500) {
   if (!input || typeof input !== 'string') return '';
-  
-  // Strip tags and dangerous URI schemes
+
   let clean = stripHtmlTags(input)
     .replace(/(?:javascript|vbscript|data):/gi, '')
     .replace(/on\w+\s*=/gi, '')
     .trim();
 
-  // Enforce max length constraint
   if (clean.length > maxLength) {
     clean = clean.slice(0, maxLength);
   }
@@ -80,8 +79,8 @@ export function validateCitizenReport(report) {
   const location = sanitizeInput(report.location || '', 100);
   const issue = sanitizeInput(report.issue || '', 300);
   const reporter = sanitizeInput(report.reporter || '', 80);
-  const urgency = ['Critical', 'High', 'Medium', 'Low'].includes(report.urgency) 
-    ? report.urgency 
+  const urgency = ['Critical', 'High', 'Medium', 'Low'].includes(report.urgency)
+    ? report.urgency
     : 'Medium';
 
   if (!location || location.length < 3) {
@@ -105,29 +104,192 @@ export function validateCitizenReport(report) {
 }
 
 /**
- * Deterministic cryptographic hash function simulation with 40-character hex output.
- * @param {string} str - Content to hash
- * @returns {string} 40-character cryptographic digest
+ * Standard FIPS 180-4 SHA-256 cryptographic hash function.
+ * Outputs genuine 64-character lowercase hexadecimal digest.
+ * @param {string} input - Raw string or object to hash
+ * @returns {string} 64-character SHA-256 hexadecimal string
  */
-export function generateDeterministicHash(str) {
-  if (typeof str !== 'string') str = String(str);
-  let h1 = 0xdeadbeef ^ str.length;
-  let h2 = 0x41c6ce57 ^ str.length;
+export function sha256(input) {
+  const raw = typeof input !== 'string' ? String(input ?? '') : input;
+  // Convert Unicode string to UTF-8 byte stream
+  const ascii = unescape(encodeURIComponent(raw));
 
-  for (let i = 0; i < str.length; i++) {
-    const ch = str.charCodeAt(i);
-    h1 = Math.imul(h1 ^ ch, 2654435761);
-    h2 = Math.imul(h2 ^ ch, 1597334677);
+  function rightRotate(value, amount) {
+    return (value >>> amount) | (value << (32 - amount));
   }
 
-  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  const mathPow = Math.pow;
+  const maxWord = mathPow(2, 32);
+  const words = [];
+  const asciiBitLength = ascii.length * 8;
+  const hash = [];
+  const k = [];
+  let primeCounter = 0;
+  const isComposite = {};
 
-  const hex1 = (h1 >>> 0).toString(16).padStart(8, '0');
-  const hex2 = (h2 >>> 0).toString(16).padStart(8, '0');
-  const hex3 = Math.imul(h1 ^ h2, 31).toString(16).replace('-', '').padStart(8, '0');
-  const hex4 = Math.imul(h1 + h2, 17).toString(16).replace('-', '').padStart(8, '0');
-  const hex5 = Math.imul(h1 ^ 0x5a5a5a5a, 13).toString(16).replace('-', '').padStart(8, '0');
+  for (let candidate = 2; primeCounter < 64; candidate++) {
+    if (!isComposite[candidate]) {
+      for (let i = 0; i < 313; i += candidate) {
+        isComposite[i] = candidate;
+      }
+      hash[primeCounter] = (mathPow(candidate, 0.5) * maxWord) | 0;
+      k[primeCounter++] = (mathPow(candidate, 1 / 3) * maxWord) | 0;
+    }
+  }
 
-  return `${hex1}${hex2}${hex3}${hex4}${hex5}`.slice(0, 40);
+  let padded = ascii + '\x80';
+  while ((padded.length % 64) - 56) padded += '\x00';
+  for (let i = 0; i < padded.length; i++) {
+    const j = padded.charCodeAt(i);
+    words[i >> 2] |= j << ((3 - (i % 4)) * 8);
+  }
+  words[words.length] = (asciiBitLength / maxWord) | 0;
+  words[words.length] = asciiBitLength;
+
+  for (let j = 0; j < words.length;) {
+    const w = words.slice(j, (j += 16));
+    const oldHash = hash.slice(0, 8);
+
+    for (let i = 0; i < 64; i++) {
+      const w15 = w[i - 15];
+      const w2 = w[i - 2];
+      const a = hash[0];
+      const e = hash[4];
+      const temp1 =
+        hash[7] +
+        (rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25)) +
+        ((e & hash[5]) ^ (~e & hash[6])) +
+        k[i] +
+        (w[i] =
+          i < 16
+            ? w[i]
+            : (w[i - 16] +
+                (rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3)) +
+                w[i - 7] +
+                (rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10))) |
+              0);
+      const temp2 =
+        (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22)) +
+        ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));
+
+      hash.unshift((temp1 + temp2) | 0);
+      hash.length = 8;
+      hash[4] = (hash[4] + temp1) | 0;
+    }
+
+    for (let i = 0; i < 8; i++) {
+      hash[i] = (hash[i] + oldHash[i]) | 0;
+    }
+  }
+
+  let result = '';
+  for (let i = 0; i < 8; i++) {
+    for (let j = 3; j >= 0; j--) {
+      const b = (hash[i] >> (8 * j)) & 255;
+      result += (b < 16 ? '0' : '') + b.toString(16);
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Asynchronous Web Crypto SHA-256 implementation using native browser crypto.subtle.
+ * Falls back to synchronous FIPS 180-4 sha256 when subtle is unavailable.
+ * @param {string} message - String to hash
+ * @returns {Promise<string>} 64-character hex digest
+ */
+export async function sha256Async(message) {
+  if (typeof crypto !== 'undefined' && crypto.subtle) {
+    try {
+      const msgUint8 = new TextEncoder().encode(String(message ?? ''));
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+    } catch {
+      // Fallback
+    }
+  }
+  return sha256(message);
+}
+
+/**
+ * Backward-compatible alias for sha256.
+ * Guarantees standard 64-character SHA-256 hex output across the application.
+ */
+export const generateDeterministicHash = sha256;
+
+/**
+ * Computes a genuine SHA-256 block hash for an immutable citizen report ledger entry.
+ * @param {object} block - { id, issue, location, reporter, urgency, prevHash }
+ * @param {string} [prevHash] - Optional override for previous block hash
+ * @returns {string} 64-character SHA-256 hash
+ */
+export function computeBlockHash(block, prevHash = block.prevHash) {
+  const safePrev = prevHash || '0'.repeat(64);
+  const payload = `${safePrev}|${block.id}|${block.issue}|${block.location}|${block.reporter}|${block.urgency}`;
+  return sha256(payload);
+}
+
+/**
+ * Cryptographically verifies every block in a citizen reporting ledger chain.
+ * Recalculates each block's SHA-256 hash and verifies pointer consistency.
+ * @param {Array<object>} chain - Array of chained report blocks
+ * @returns {{ valid: boolean, brokenIndex: number, reason: string | null }}
+ */
+export function verifyLedgerIntegrity(chain) {
+  if (!Array.isArray(chain) || chain.length === 0) {
+    return { valid: true, brokenIndex: -1, reason: null };
+  }
+
+  const GENESIS_PREV_HASH = '0'.repeat(64);
+
+  for (let i = 0; i < chain.length; i++) {
+    const block = chain[i];
+    const expectedPrev = i === 0 ? GENESIS_PREV_HASH : chain[i - 1].hash;
+
+    if (block.prevHash !== expectedPrev) {
+      return {
+        valid: false,
+        brokenIndex: i,
+        reason: `Block #${i + 1} (${block.id}) chain link broken. Expected prevHash ${expectedPrev.slice(0, 16)}..., found ${block.prevHash ? block.prevHash.slice(0, 16) : 'null'}...`
+      };
+    }
+
+    const computed = computeBlockHash(block, block.prevHash);
+    if (block.hash !== computed) {
+      return {
+        valid: false,
+        brokenIndex: i,
+        reason: `Block #${i + 1} (${block.id}) hash mismatch. Stored: ${block.hash ? block.hash.slice(0, 16) : 'null'}..., Computed: ${computed.slice(0, 16)}...`
+      };
+    }
+  }
+
+  return { valid: true, brokenIndex: -1, reason: null };
+}
+
+/**
+ * Computes a binary Merkle tree root from an array of block hashes.
+ * @param {string[]} hashes - Array of hexadecimal hash strings
+ * @returns {string} 64-character SHA-256 Merkle root
+ */
+export function computeMerkleRoot(hashes) {
+  if (!Array.isArray(hashes) || hashes.length === 0) {
+    return '0'.repeat(64);
+  }
+
+  let currentLevel = hashes.map((h) => (h && h.length === 64 ? h : sha256(String(h))));
+
+  while (currentLevel.length > 1) {
+    const nextLevel = [];
+    for (let i = 0; i < currentLevel.length; i += 2) {
+      const left = currentLevel[i];
+      const right = i + 1 < currentLevel.length ? currentLevel[i + 1] : left;
+      nextLevel.push(sha256(left + right));
+    }
+    currentLevel = nextLevel;
+  }
+
+  return currentLevel[0];
 }

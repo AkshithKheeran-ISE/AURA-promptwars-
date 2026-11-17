@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Search, 
-  AlertOctagon, 
-  ShieldCheck, 
-  Bell 
-} from 'lucide-react';
+import { Search, AlertOctagon, ShieldCheck, Bell } from 'lucide-react';
 import { useApp, NAV_ITEMS } from '../context/AppContext';
 
 function LiveClock() {
@@ -24,23 +19,16 @@ function LiveClock() {
         <span>{ist}</span>
         <span className="text-[10px] text-slate-500 font-normal">IST</span>
       </div>
-      <div className="text-[10px] text-slate-500">
-        {utc} UTC
-      </div>
+      <div className="text-[10px] text-slate-500">{utc} UTC</div>
     </div>
   );
 }
 
 export default function Header() {
-  const { 
-    page, 
-    setPage, 
-    setCommandPaletteOpen, 
-    alerts 
-  } = useApp();
-  
+  const { page, setPage, setCommandPaletteOpen, alerts } = useApp();
+
   const [notifOpen, setNotifOpen] = useState(false);
-  const criticalCount = alerts.filter(a => a.severity === 'critical').length;
+  const criticalCount = alerts.filter((a) => a.severity === 'critical').length;
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-cyan-400/10 bg-[#030712]/85 px-4 backdrop-blur-md md:px-6">
@@ -84,12 +72,10 @@ export default function Header() {
           </span>
         </div>
 
-        {/* E2E Encrypted Badge */}
+        {/* Cryptographic Ledger Integrity Badge */}
         <div className="hidden xl:flex items-center gap-1.5 rounded-lg border border-emerald-400/30 bg-emerald-400/5 px-2.5 py-1.5">
           <ShieldCheck className="h-3.5 w-3.5 text-emerald-300" />
-          <span className="font-mono text-[10px] text-emerald-300">
-            E2E ENCRYPTED TELEMETRY
-          </span>
+          <span className="font-mono text-[10px] text-emerald-300">SHA-256 VERIFIED LEDGER</span>
         </div>
 
         {/* Live Clock */}
@@ -109,7 +95,7 @@ export default function Header() {
           </button>
 
           {notifOpen && (
-            <div 
+            <div
               className="absolute right-0 mt-2 w-80 panel p-3 z-50 shadow-2xl"
               onMouseLeave={() => setNotifOpen(false)}
             >
@@ -119,22 +105,32 @@ export default function Header() {
               </div>
               <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
                 {alerts.slice(0, 4).map((alr) => (
-                  <div 
-                    key={alr.id} 
-                    onClick={() => { setPage('alerts'); setNotifOpen(false); }}
+                  <div
+                    key={alr.id}
+                    onClick={() => {
+                      setPage('alerts');
+                      setNotifOpen(false);
+                    }}
                     className="rounded-lg p-2 hover:bg-white/5 cursor-pointer border border-transparent hover:border-cyan-400/20 transition"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-mono text-[10px] text-rose-300 font-bold">{alr.id}</span>
+                      <span className="font-mono text-[10px] text-rose-300 font-bold">
+                        {alr.id}
+                      </span>
                       <span className="text-[10px] text-slate-500">{alr.timestamp}</span>
                     </div>
-                    <div className="text-xs font-semibold text-slate-200 mt-0.5 truncate">{alr.title}</div>
+                    <div className="text-xs font-semibold text-slate-200 mt-0.5 truncate">
+                      {alr.title}
+                    </div>
                     <div className="text-[10px] text-slate-400 truncate">{alr.ward}</div>
                   </div>
                 ))}
               </div>
               <button
-                onClick={() => { setPage('alerts'); setNotifOpen(false); }}
+                onClick={() => {
+                  setPage('alerts');
+                  setNotifOpen(false);
+                }}
                 className="mt-2 block w-full text-center text-xs text-cyan-300 hover:underline pt-2 border-t border-cyan-400/10 cursor-pointer"
               >
                 Open Alert Center &rarr;
@@ -151,8 +147,8 @@ export default function Header() {
           <div className="hidden leading-tight sm:block text-left">
             <div className="text-xs font-semibold text-white">Priya Family Lead</div>
             <div className="flex items-center gap-1 font-mono text-[9px] text-cyan-300/70">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
-              2 Children + Asthmatic Senior
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>2 Children +
+              Asthmatic Senior
             </div>
           </div>
         </div>

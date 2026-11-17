@@ -66,7 +66,7 @@ export default function App() {
       <Sidebar />
 
       {/* Main Content Area */}
-      <div 
+      <div
         className={`min-h-full transition-all duration-300 ${
           sidebarCollapsed ? 'md:pl-[72px]' : 'md:pl-64'
         }`}
@@ -86,7 +86,8 @@ export default function App() {
 
         {/* High-Tech Footer */}
         <footer className="border-t border-cyan-400/10 px-6 py-4 text-center font-mono text-[10px] text-slate-500 bg-[#030712]">
-          AURA · GenAI Family & Community Smog Defense Assistant · Low-emission daily routines, indoor air quality hacks & sustainable alternatives for urban winter smog.
+          AURA · GenAI Family & Community Smog Defense Assistant · Low-emission daily routines,
+          indoor air quality hacks & sustainable alternatives for urban winter smog.
         </footer>
       </div>
 

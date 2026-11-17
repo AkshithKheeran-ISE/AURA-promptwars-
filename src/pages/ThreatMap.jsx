@@ -1,28 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
-import { 
-  Layers, 
-  MapPin, 
-  ShieldCheck, 
-  AlertTriangle, 
-  Wind, 
-  Thermometer, 
-  Droplets, 
-  Activity,
-  Compass,
-  Zap
-} from 'lucide-react';
+import { Layers, AlertTriangle, Compass } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
 import { useApp } from '../context/AppContext';
 import { WARDS_DATA } from '../data/airData';
 
 export default function ThreatMap() {
-  const { 
-    selectedWard, 
-    setSelectedWardId, 
-    alerts, 
-    addToast 
-  } = useApp();
+  const { selectedWard, setSelectedWardId, addToast } = useApp();
 
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -38,7 +22,7 @@ export default function ThreatMap() {
   });
 
   const toggleLayer = (layerKey) => {
-    setLayers(prev => ({ ...prev, [layerKey]: !prev[layerKey] }));
+    setLayers((prev) => ({ ...prev, [layerKey]: !prev[layerKey] }));
   };
 
   // Initialize Leaflet Map
@@ -48,7 +32,7 @@ export default function ThreatMap() {
 
     // Center on Delhi urban basin
     const map = L.map(mapContainerRef.current, {
-      center: [28.63, 77.20],
+      center: [28.63, 77.2],
       zoom: 11,
       zoomControl: true,
       attributionControl: false
@@ -74,17 +58,21 @@ export default function ThreatMap() {
     if (!map) return;
 
     // Clear existing markers
-    Object.values(markersRef.current).forEach(m => m.remove());
+    Object.values(markersRef.current).forEach((m) => m.remove());
     markersRef.current = {};
 
     if (!layers.sensors) return;
 
-    WARDS_DATA.forEach(ward => {
+    WARDS_DATA.forEach((ward) => {
       const isSelected = selectedWard.id === ward.id;
-      const color = 
-        ward.status === 'Critical' ? '#f43f5e' :
-        ward.status === 'High' ? '#fb923c' :
-        ward.status === 'Moderate' ? '#fbbf24' : '#34d399';
+      const color =
+        ward.status === 'Critical'
+          ? '#f43f5e'
+          : ward.status === 'High'
+            ? '#fb923c'
+            : ward.status === 'Moderate'
+              ? '#fbbf24'
+              : '#34d399';
 
       const customIcon = L.divIcon({
         className: 'aura-marker',
@@ -125,7 +113,7 @@ export default function ThreatMap() {
         [28.53, 77.16],
         [28.53, 77.27],
         [28.61, 77.26],
-        [28.70, 77.17]
+        [28.7, 77.17]
       ];
       const trafficLine = L.polyline(ringRoad, {
         color: '#f43f5e',
@@ -138,8 +126,8 @@ export default function ThreatMap() {
 
     // Draw simulated industrial smoke plume zones if toggled
     if (layers.plumes) {
-      const plumeWards = WARDS_DATA.filter(w => w.status === 'Critical');
-      plumeWards.forEach(w => {
+      const plumeWards = WARDS_DATA.filter((w) => w.status === 'Critical');
+      plumeWards.forEach((w) => {
         const circle = L.circle([w.lat, w.lng], {
           color: '#f43f5e',
           fillColor: '#f43f5e',
@@ -151,7 +139,6 @@ export default function ThreatMap() {
         markersRef.current[`plume_${w.id}`] = circle;
       });
     }
-
   }, [selectedWard.id, layers, setSelectedWardId, addToast]);
 
   return (
@@ -160,7 +147,7 @@ export default function ThreatMap() {
       <SectionHeader
         eyebrow="02 · Spatial Telemetry"
         title="Urban AQI Threat Heatmap & Sensor Mesh"
-        desc="Satellite imagery fused with IoT micro-sensor telemetry, traffic congestion corridors, and industrial emission plumes mapped in real time."
+        desc="Geospatial visualization of Delhi CAAQMS monitoring stations, traffic corridors, and industrial emission hotspots mapped with interactive tactical filters."
         right={
           <div className="flex items-center gap-2">
             <span className="rounded border border-cyan-400/30 bg-[#0c182c] px-3 py-1 font-mono text-xs text-cyan-300">
@@ -185,7 +172,10 @@ export default function ThreatMap() {
             </div>
 
             <div className="flex flex-wrap items-center gap-3 text-xs font-mono">
-              <label htmlFor="layer-sensors" className="flex items-center gap-1.5 cursor-pointer text-slate-300 hover:text-white">
+              <label
+                htmlFor="layer-sensors"
+                className="flex items-center gap-1.5 cursor-pointer text-slate-300 hover:text-white"
+              >
                 <input
                   id="layer-sensors"
                   type="checkbox"
@@ -196,7 +186,10 @@ export default function ThreatMap() {
                 <span>Micro-Sensors</span>
               </label>
 
-              <label htmlFor="layer-plumes" className="flex items-center gap-1.5 cursor-pointer text-rose-300 hover:text-white">
+              <label
+                htmlFor="layer-plumes"
+                className="flex items-center gap-1.5 cursor-pointer text-rose-300 hover:text-white"
+              >
                 <input
                   id="layer-plumes"
                   type="checkbox"
@@ -207,7 +200,10 @@ export default function ThreatMap() {
                 <span>Industrial Plumes</span>
               </label>
 
-              <label htmlFor="layer-traffic" className="flex items-center gap-1.5 cursor-pointer text-amber-300 hover:text-white">
+              <label
+                htmlFor="layer-traffic"
+                className="flex items-center gap-1.5 cursor-pointer text-amber-300 hover:text-white"
+              >
                 <input
                   id="layer-traffic"
                   type="checkbox"
@@ -218,7 +214,10 @@ export default function ThreatMap() {
                 <span>Freight Corridors</span>
               </label>
 
-              <label htmlFor="layer-sensitive" className="flex items-center gap-1.5 cursor-pointer text-emerald-300 hover:text-white">
+              <label
+                htmlFor="layer-sensitive"
+                className="flex items-center gap-1.5 cursor-pointer text-emerald-300 hover:text-white"
+              >
                 <input
                   id="layer-sensitive"
                   type="checkbox"
@@ -238,15 +237,16 @@ export default function ThreatMap() {
             {/* Tactical Map Floating Overlay */}
             <div className="absolute top-3 left-3 z-[400] panel p-2.5 font-mono text-[11px] space-y-1 bg-[#08101e]/90 shadow-xl">
               <div className="text-cyan-300 font-bold flex items-center gap-1.5">
-                <Compass className="h-3.5 w-3.5 animate-spin" style={{ animationDuration: '10s' }} />
+                <Compass
+                  className="h-3.5 w-3.5 animate-spin"
+                  style={{ animationDuration: '10s' }}
+                />
                 <span>DELHI NCR BASIN · GRID-4</span>
               </div>
-              <div className="text-slate-400 text-[10px]">
-                Lat 28.6138° N · Long 77.2090° E
-              </div>
+              <div className="text-slate-400 text-[10px]">Lat 28.6138° N · Long 77.2090° E</div>
               <div className="text-emerald-400 text-[10px] flex items-center gap-1">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span>INSAT-3DR Downlink Synced</span>
+                <span>CPCB Delhi CAAQMS Baseline</span>
               </div>
             </div>
 
@@ -279,22 +279,41 @@ export default function ThreatMap() {
             <span className="label text-cyan-300">Sector Dossier</span>
             <h2 className="text-xl font-bold text-white mt-0.5">{selectedWard.name}</h2>
             <div className="font-mono text-xs text-slate-400 mt-1">
-              Station {selectedWard.sensorId} · {selectedWard.lat.toFixed(3)}°N, {selectedWard.lng.toFixed(3)}°E
+              Station {selectedWard.sensorId} · {selectedWard.lat.toFixed(3)}°N,{' '}
+              {selectedWard.lng.toFixed(3)}°E
             </div>
           </div>
 
           {/* Big AQI Status Display */}
           <div className="rounded-xl border border-cyan-400/15 bg-[#030712]/70 p-4 text-center space-y-1">
-            <div className="font-mono text-[11px] text-slate-400">INSTANTANEOUS AIR QUALITY INDEX</div>
-            <div className="font-display text-4xl font-extrabold" style={{ 
-              color: selectedWard.status === 'Critical' ? '#f43f5e' : selectedWard.status === 'High' ? '#fb923c' : selectedWard.status === 'Moderate' ? '#fbbf24' : '#34d399'
-            }}>
+            <div className="font-mono text-[11px] text-slate-400">
+              INSTANTANEOUS AIR QUALITY INDEX
+            </div>
+            <div
+              className="font-display text-4xl font-extrabold"
+              style={{
+                color:
+                  selectedWard.status === 'Critical'
+                    ? '#f43f5e'
+                    : selectedWard.status === 'High'
+                      ? '#fb923c'
+                      : selectedWard.status === 'Moderate'
+                        ? '#fbbf24'
+                        : '#34d399'
+              }}
+            >
               {selectedWard.aqi}
             </div>
-            <div className="inline-block px-2.5 py-0.5 rounded font-mono text-xs font-bold uppercase tracking-widest" style={{
-              backgroundColor: selectedWard.status === 'Critical' ? 'rgba(244,63,94,0.15)' : 'rgba(52,211,153,0.15)',
-              color: selectedWard.status === 'Critical' ? '#f43f5e' : '#34d399'
-            }}>
+            <div
+              className="inline-block px-2.5 py-0.5 rounded font-mono text-xs font-bold uppercase tracking-widest"
+              style={{
+                backgroundColor:
+                  selectedWard.status === 'Critical'
+                    ? 'rgba(244,63,94,0.15)'
+                    : 'rgba(52,211,153,0.15)',
+                color: selectedWard.status === 'Critical' ? '#f43f5e' : '#34d399'
+              }}
+            >
               {selectedWard.status} HAZARD LEVEL
             </div>
           </div>
@@ -332,7 +351,10 @@ export default function ThreatMap() {
             <span className="label text-slate-400">Primary Source Fingerprints</span>
             <div className="space-y-1">
               {selectedWard.sources.map((src, i) => (
-                <div key={i} className="flex items-center gap-2 rounded bg-[#030712] p-2 text-xs text-slate-300 font-mono border border-cyan-400/10">
+                <div
+                  key={i}
+                  className="flex items-center gap-2 rounded bg-[#030712] p-2 text-xs text-slate-300 font-mono border border-cyan-400/10"
+                >
                   <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
                   <span>{src}</span>
                 </div>
@@ -347,7 +369,8 @@ export default function ThreatMap() {
               Atmospheric Inversion Risk
             </div>
             <div className="text-xs text-slate-300 leading-snug">
-              Thermal ceiling trapped at {selectedWard.inversion}. Stagnant surface winds preventing dispersion of heavy combustion aerosols.
+              Thermal ceiling trapped at {selectedWard.inversion}. Stagnant surface winds preventing
+              dispersion of heavy combustion aerosols.
             </div>
           </div>
         </div>

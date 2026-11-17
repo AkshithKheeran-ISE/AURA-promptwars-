@@ -8,8 +8,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "lint": "node -e \"console.log('Lint check: 0 errors, 0 warnings')\"",
-    "format": "node -e \"console.log('Format check: all files compliant')\""
+    "lint": "eslint src tests",
+    "format": "prettier --check \"src/**/*.{js,jsx}\" \"tests/**/*.{js,jsx}\"",
+    "format:fix": "prettier --write \"src/**/*.{js,jsx}\" \"tests/**/*.{js,jsx}\""
   },
   "dependencies": {
     "leaflet": "^1.9.4",
@@ -18,10 +19,16 @@
     "react-dom": "^19.3.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.20.0",
     "@tailwindcss/vite": "^4.3.5",
     "@vitejs/plugin-react": "^6.3.0",
     "autoprefixer": "^10.6.2",
+    "eslint": "^9.20.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.14.0",
     "postcss": "^8.5.33",
+    "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "vite": "^8.3.8",
     "vitest": "^5.1.0"

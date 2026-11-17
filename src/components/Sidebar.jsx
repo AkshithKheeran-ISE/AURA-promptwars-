@@ -35,21 +35,16 @@ const ICON_MAP = {
 };
 
 export default function Sidebar() {
-  const {
-    page,
-    setPage,
-    sidebarCollapsed,
-    setSidebarCollapsed,
-    alerts
-  } = useApp();
+  const { page, setPage, sidebarCollapsed, setSidebarCollapsed, alerts } = useApp();
 
-  const criticalCount = alerts.filter(a => a.severity === 'critical').length;
+  const criticalCount = alerts.filter((a) => a.severity === 'critical').length;
 
   return (
     <aside
       aria-label="Application Navigation"
-      className={`fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-cyan-400/10 bg-[#08101e]/95 backdrop-blur-md transition-all duration-300 md:flex ${sidebarCollapsed ? 'w-[72px]' : 'w-64'
-        }`}
+      className={`fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-cyan-400/10 bg-[#08101e]/95 backdrop-blur-md transition-all duration-300 md:flex ${
+        sidebarCollapsed ? 'w-[72px]' : 'w-64'
+      }`}
     >
       {/* Brand Header */}
       <div className="flex h-16 items-center justify-between px-4 border-b border-cyan-400/10">
@@ -86,27 +81,30 @@ export default function Sidebar() {
               onClick={() => setPage(item.id)}
               title={item.label}
               aria-current={isActive ? 'page' : undefined}
-              className={`group relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-400 ${isActive
-                ? 'bg-cyan-400/10 text-cyan-200 shadow-[inset_0_0_0_1px_rgba(34,211,238,0.3)]'
-                : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'
-                }`}
+              className={`group relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-400 ${
+                isActive
+                  ? 'bg-cyan-400/10 text-cyan-200 shadow-[inset_0_0_0_1px_rgba(34,211,238,0.3)]'
+                  : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'
+              }`}
             >
               {isActive && (
                 <span className="absolute left-0 top-2 bottom-2 w-0.5 rounded bg-cyan-300 shadow-glow" />
               )}
               <IconComponent
                 aria-hidden="true"
-                className={`h-[18px] w-[18px] shrink-0 transition-colors ${isActive ? 'text-cyan-300' : 'group-hover:text-cyan-300'
-                  }`}
+                className={`h-[18px] w-[18px] shrink-0 transition-colors ${
+                  isActive ? 'text-cyan-300' : 'group-hover:text-cyan-300'
+                }`}
               />
-              {!sidebarCollapsed && (
-                <span className="truncate">{item.label}</span>
-              )}
+              {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
               {!sidebarCollapsed && badgeValue && (
-                <span className={`ml-auto rounded px-1.5 py-0.5 font-mono text-[10px] font-bold border ${item.id === 'alerts'
-                  ? 'bg-rose-500/20 text-rose-300 border-rose-500/30'
-                  : 'bg-cyan-400/20 text-cyan-300 border-cyan-400/30'
-                  }`}>
+                <span
+                  className={`ml-auto rounded px-1.5 py-0.5 font-mono text-[10px] font-bold border ${
+                    item.id === 'alerts'
+                      ? 'bg-rose-500/20 text-rose-300 border-rose-500/30'
+                      : 'bg-cyan-400/20 text-cyan-300 border-cyan-400/30'
+                  }`}
+                >
                   {badgeValue}
                 </span>
               )}

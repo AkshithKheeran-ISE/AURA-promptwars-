@@ -1,13 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Search,
-  X,
-  LayoutDashboard,
-  MapPin,
-  Zap,
-  ShieldAlert,
-  Sparkles
-} from 'lucide-react';
+import { Search, X, LayoutDashboard, MapPin, Zap, ShieldAlert, Sparkles } from 'lucide-react';
 import { useApp, NAV_ITEMS } from '../context/AppContext';
 import { WARDS_DATA } from '../data/airData';
 
@@ -33,15 +25,17 @@ export default function CommandPalette() {
 
   if (!commandPaletteOpen) return null;
 
-  const filteredPages = NAV_ITEMS.filter(item =>
-    item.label.toLowerCase().includes(query.toLowerCase()) ||
-    item.id.toLowerCase().includes(query.toLowerCase())
+  const filteredPages = NAV_ITEMS.filter(
+    (item) =>
+      item.label.toLowerCase().includes(query.toLowerCase()) ||
+      item.id.toLowerCase().includes(query.toLowerCase())
   );
 
-  const filteredWards = WARDS_DATA.filter(ward =>
-    ward.name.toLowerCase().includes(query.toLowerCase()) ||
-    ward.id.toLowerCase().includes(query.toLowerCase()) ||
-    ward.status.toLowerCase().includes(query.toLowerCase())
+  const filteredWards = WARDS_DATA.filter(
+    (ward) =>
+      ward.name.toLowerCase().includes(query.toLowerCase()) ||
+      ward.id.toLowerCase().includes(query.toLowerCase()) ||
+      ward.status.toLowerCase().includes(query.toLowerCase())
   );
 
   const handleSelectPage = (id) => {
@@ -100,15 +94,19 @@ export default function CommandPalette() {
             <div className="label px-2 mb-1.5 text-cyan-400">Tactical Quick Actions</div>
             <div className="space-y-1">
               <button
-                onClick={() => handleAction('Activate Corsi Box', () => {
-                  toggleHack('corsi_rosenthal');
-                  setPage('hacks');
-                })}
+                onClick={() =>
+                  handleAction('Activate Corsi Box', () => {
+                    toggleHack('corsi_rosenthal');
+                    setPage('hacks');
+                  })
+                }
                 className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-slate-200 hover:bg-cyan-400/10 hover:text-cyan-200 transition cursor-pointer"
               >
                 <Sparkles className="h-4 w-4 text-emerald-400" />
                 <span>Toggle DIY Corsi-Rosenthal Box Filtration</span>
-                <span className="ml-auto font-mono text-[10px] text-emerald-300">92% PM2.5 Shield</span>
+                <span className="ml-auto font-mono text-[10px] text-emerald-300">
+                  92% PM2.5 Shield
+                </span>
               </button>
 
               <button
@@ -164,7 +162,15 @@ export default function CommandPalette() {
                       <span>{ward.name}</span>
                     </div>
                     <div className="flex items-center gap-2 font-mono text-xs">
-                      <span className={ward.aqi > 300 ? 'text-rose-400' : ward.aqi > 200 ? 'text-amber-400' : 'text-emerald-400'}>
+                      <span
+                        className={
+                          ward.aqi > 300
+                            ? 'text-rose-400'
+                            : ward.aqi > 200
+                              ? 'text-amber-400'
+                              : 'text-emerald-400'
+                        }
+                      >
                         AQI {ward.aqi}
                       </span>
                       <span className="text-[10px] text-slate-500 uppercase">({ward.status})</span>

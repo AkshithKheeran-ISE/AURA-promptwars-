@@ -1,41 +1,109 @@
 import { describe, it, expect } from 'vitest';
-import { generateDeterministicHash } from '../src/utils/sanitize';
+import {
+  sha256,
+  sha256Async,
+  computeBlockHash,
+  verifyLedgerIntegrity,
+  computeMerkleRoot
+} from '../src/utils/sanitize';
+import { INITIAL_CITIZEN_REPORTS } from '../src/data/airData';
 
-function validateChain(chain) {
-  for (let i = 1; i < chain.length; i++) {
-    const current = chain[i];
-    const prev = chain[i - 1];
-    if (current.prevHash !== prev.hash) {
-      return { valid: false, brokenIndex: i };
-    }
-  }
-  return { valid: true, brokenIndex: -1 };
-}
+describe('Cryptographic Hash-Chain Ledger & SHA-256 Primitives', () => {
+  describe('FIPS 180-4 Standard SHA-256 Vectors', () => {
+    it('matches NIST test vector for empty string', () => {
+      expect(sha256('')).toBe('e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855');
+    });
 
-describe('Cryptographic Hash-Chain Ledger', () => {
-  it('verifies integrity of un-tampered sequential blocks', () => {
-    const b0 = { id: 0, text: 'Genesis Block', prevHash: '0000000000000000', hash: generateDeterministicHash('genesis') };
-    const b1 = { id: 1, text: 'Report 1: Biomass burning', prevHash: b0.hash, hash: generateDeterministicHash(`${b0.hash}-b1`) };
-    const b2 = { id: 2, text: 'Report 2: Generator noise', prevHash: b1.hash, hash: generateDeterministicHash(`${b1.hash}-b2`) };
+    it('matches NIST test vector for "abc"', () => {
+      expect(sha256('abc')).toBe(
+        'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad'
+      );
+    });
 
-    const chain = [b0, b1, b2];
-    const result = validateChain(chain);
-    expect(result.valid).toBe(true);
-    expect(result.brokenIndex).toBe(-1);
+    it('matches NIST test vector for "The quick brown fox jumps over the lazy dog"', () => {
+      expect(sha256('The quick brown fox jumps over the lazy dog')).toBe(
+        'd7a8fbb307d7809469ca9abcb0082e4f8d5651e46d3cdb762d02d0bf37c9e592'
+      );
+    });
+
+    it('produces identical output with async Web Crypto sha256Async', async () => {
+      const text = 'AURA-COMMUNITY-LEDGER-VERIFICATION';
+      const syncHash = sha256(text);
+      const asyncHash = await sha256Async(text);
+      expect(asyncHash).toBe(syncHash);
+      expect(asyncHash.length).toBe(64);
+    });
   });
 
-  it('detects tampering when an adversary modifies an intermediate block', () => {
-    const b0 = { id: 0, text: 'Genesis Block', prevHash: '0000000000000000', hash: generateDeterministicHash('genesis') };
-    const b1 = { id: 1, text: 'Report 1: Biomass burning', prevHash: b0.hash, hash: generateDeterministicHash(`${b0.hash}-b1`) };
-    const b2 = { id: 2, text: 'Report 2: Generator noise', prevHash: b1.hash, hash: generateDeterministicHash(`${b1.hash}-b2`) };
+  describe('Immutable Citizen Reports Ledger Integrity', () => {
+    it('verifies 100% cryptographic integrity of INITIAL_CITIZEN_REPORTS', () => {
+      const result = verifyLedgerIntegrity(INITIAL_CITIZEN_REPORTS);
+      expect(result.valid).toBe(true);
+      expect(result.brokenIndex).toBe(-1);
+      expect(result.reason).toBe(null);
+    });
 
-    const chain = [b0, b1, b2];
+    it('detects tampering when an adversary modifies an intermediate block issue', () => {
+      const tamperedChain = JSON.parse(JSON.stringify(INITIAL_CITIZEN_REPORTS));
+      tamperedChain[1].issue = '[MODIFIED] Concealing illegal rubber chimney burning';
 
-    // Adversary tampers with block 1
-    chain[1].hash = 'TAMPERED_HASH_9999999999999999999999999';
+      const result = verifyLedgerIntegrity(tamperedChain);
+      expect(result.valid).toBe(false);
+      expect(result.brokenIndex).toBe(1);
+      expect(result.reason).toContain('hash mismatch');
+    });
 
-    const result = validateChain(chain);
-    expect(result.valid).toBe(false);
-    expect(result.brokenIndex).toBe(2); // Block 2 prevHash doesn't match block 1's tampered hash
+    it('detects tampering when an adversary alters prevHash pointer', () => {
+      const tamperedChain = JSON.parse(JSON.stringify(INITIAL_CITIZEN_REPORTS));
+      tamperedChain[2].prevHash =
+        '000000000000000000000000000000000000000000000000000000000000dead';
+
+      const result = verifyLedgerIntegrity(tamperedChain);
+      expect(result.valid).toBe(false);
+      expect(result.brokenIndex).toBe(2);
+      expect(result.reason).toContain('chain link broken');
+    });
+
+    it('successfully computes new block hash and preserves chain integrity upon appending', () => {
+      const chain = [...INITIAL_CITIZEN_REPORTS];
+      const lastBlock = chain[chain.length - 1];
+      const newBlock = {
+        id: 'REP-AURA-8105',
+        issue: 'New biomass smoldering incident at Okhla Phase 2',
+        location: 'Okhla Phase 2',
+        reporter: 'Citizen Ritu',
+        urgency: 'High',
+        prevHash: lastBlock.hash
+      };
+      newBlock.hash = computeBlockHash(newBlock, lastBlock.hash);
+      chain.push(newBlock);
+
+      const verification = verifyLedgerIntegrity(chain);
+      expect(verification.valid).toBe(true);
+      expect(chain.length).toBe(5);
+    });
+  });
+
+  describe('Merkle Tree Root Computation', () => {
+    it('computes 64-character SHA-256 Merkle root from block hashes', () => {
+      const hashes = INITIAL_CITIZEN_REPORTS.map((r) => r.hash);
+      const root = computeMerkleRoot(hashes);
+      expect(root.length).toBe(64);
+      expect(/^[0-9a-f]{64}$/.test(root)).toBe(true);
+    });
+
+    it('dynamically changes root if any single leaf hash is altered', () => {
+      const hashes1 = INITIAL_CITIZEN_REPORTS.map((r) => r.hash);
+      const hashes2 = [...hashes1];
+      hashes2[0] = '1111111111111111111111111111111111111111111111111111111111111111';
+
+      const root1 = computeMerkleRoot(hashes1);
+      const root2 = computeMerkleRoot(hashes2);
+      expect(root1).not.toBe(root2);
+    });
+
+    it('returns 64 zeros for empty hash array', () => {
+      expect(computeMerkleRoot([])).toBe('0'.repeat(64));
+    });
   });
 });

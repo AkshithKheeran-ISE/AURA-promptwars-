@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { 
-  escapeHtml, 
-  stripHtmlTags, 
-  sanitizeInput, 
-  validateCitizenReport, 
-  generateDeterministicHash 
+import {
+  escapeHtml,
+  stripHtmlTags,
+  sanitizeInput,
+  validateCitizenReport,
+  generateDeterministicHash
 } from '../src/utils/sanitize';
 
 describe('Security & Sanitization Utilities', () => {
@@ -118,20 +118,22 @@ describe('Security & Sanitization Utilities', () => {
     });
   });
 
-  describe('generateDeterministicHash', () => {
-    it('generates consistent 40-character hex hash for the same input', () => {
+  describe('generateDeterministicHash & sha256', () => {
+    it('generates consistent standard 64-character SHA-256 hex hash for the same input', () => {
       const input = 'AURA-RECORD-2026-WZP';
       const hash1 = generateDeterministicHash(input);
       const hash2 = generateDeterministicHash(input);
       expect(hash1).toBe(hash2);
-      expect(hash1.length).toBe(40);
-      expect(/^[0-9a-f]{40}$/i.test(hash1)).toBe(true);
+      expect(hash1.length).toBe(64);
+      expect(/^[0-9a-f]{64}$/i.test(hash1)).toBe(true);
     });
 
-    it('generates distinctly different hashes for modified inputs', () => {
+    it('generates distinctly different hashes for modified inputs (avalanche effect)', () => {
       const hashA = generateDeterministicHash('block-1-clean');
       const hashB = generateDeterministicHash('block-1-tampered');
       expect(hashA).not.toBe(hashB);
+      expect(hashA.length).toBe(64);
+      expect(hashB.length).toBe(64);
     });
   });
 });

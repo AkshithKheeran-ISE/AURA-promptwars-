@@ -1,22 +1,11 @@
 import React, { useState } from 'react';
-import { 
-  Sparkles, 
-  Check, 
-  Plus, 
-  ChevronDown,
-  ChevronUp
-} from 'lucide-react';
+import { Check, Plus, ChevronDown, ChevronUp } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
 import { useApp } from '../context/AppContext';
 import { IAQ_HACKS } from '../services/iaqHacks';
 
 export default function IndoorAirHacks() {
-  const { 
-    activeHacks, 
-    toggleHack, 
-    exposureCalc, 
-    selectedWard 
-  } = useApp();
+  const { activeHacks, toggleHack, exposureCalc, selectedWard } = useApp();
 
   const [expandedHackId, setExpandedHackId] = useState('corsi_rosenthal');
 
@@ -44,8 +33,12 @@ export default function IndoorAirHacks() {
             Real-Time Indoor Particulate Reduction
           </h2>
           <p className="text-xs text-slate-300 mt-1 max-w-xl">
-            Outdoor Ambient: <span className="text-rose-400 font-mono font-bold">{selectedWard.pm25} µg/m³</span> ({selectedWard.name}) &rarr; Your Protected Indoor Air:{' '}
-            <span className="text-emerald-400 font-mono font-bold">{exposureCalc.indoorPm25} µg/m³</span>
+            Outdoor Ambient:{' '}
+            <span className="text-rose-400 font-mono font-bold">{selectedWard.pm25} µg/m³</span> (
+            {selectedWard.name}) &rarr; Your Protected Indoor Air:{' '}
+            <span className="text-emerald-400 font-mono font-bold">
+              {exposureCalc.indoorPm25} µg/m³
+            </span>
           </p>
         </div>
 
@@ -70,20 +63,20 @@ export default function IndoorAirHacks() {
             <div
               key={hack.id}
               className={`panel panel-corners p-5 space-y-4 transition flex flex-col justify-between ${
-                isActive 
-                  ? 'border-cyan-400/50 bg-[#08101e] shadow-[inset_0_0_0_1px_rgba(34,211,238,0.25)]' 
+                isActive
+                  ? 'border-cyan-400/50 bg-[#08101e] shadow-[inset_0_0_0_1px_rgba(34,211,238,0.25)]'
                   : 'border-cyan-400/10 bg-[#060d1b] opacity-85 hover:opacity-100'
               }`}
             >
               <div className="space-y-3">
                 {/* Header of Hack Card */}
                 <div className="flex items-start justify-between gap-2 border-b border-cyan-400/10 pb-2.5">
-                  <span 
+                  <span
                     className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider border truncate max-w-[200px]"
-                    style={{ 
-                      color: hack.badgeColor, 
-                      borderColor: `${hack.badgeColor}55`, 
-                      backgroundColor: `${hack.badgeColor}15` 
+                    style={{
+                      color: hack.badgeColor,
+                      borderColor: `${hack.badgeColor}55`,
+                      backgroundColor: `${hack.badgeColor}15`
                     }}
                   >
                     {hack.badge}
@@ -117,12 +110,16 @@ export default function IndoorAirHacks() {
                   <div className="rounded bg-[#030712] p-2 border border-cyan-400/10">
                     <span className="text-slate-500 text-[10px]">DIY Cost:</span>
                     <div className="font-bold text-emerald-400 mt-0.5">₹ {hack.costInr}</div>
-                    <span className="text-slate-500 text-[9px] line-through">₹ {hack.commercialAlternativeInr}</span>
+                    <span className="text-slate-500 text-[9px] line-through">
+                      ₹ {hack.commercialAlternativeInr}
+                    </span>
                   </div>
 
                   <div className="rounded bg-[#030712] p-2 border border-cyan-400/10">
                     <span className="text-slate-500 text-[10px]">Filtration Efficacy:</span>
-                    <div className="font-bold text-white mt-0.5">{hack.pm25ReductionPct}% PM2.5</div>
+                    <div className="font-bold text-white mt-0.5">
+                      {hack.pm25ReductionPct}% PM2.5
+                    </div>
                     <span className="text-cyan-300 text-[9px]">{hack.difficulty}</span>
                   </div>
                 </div>
@@ -136,8 +133,14 @@ export default function IndoorAirHacks() {
                   onClick={() => setExpandedHackId(isExpanded ? null : hack.id)}
                   className="w-full flex items-center justify-between text-xs font-mono text-cyan-300 hover:text-cyan-200 pt-2 border-t border-cyan-400/10 cursor-pointer"
                 >
-                  <span>{isExpanded ? 'Hide Blueprint & Steps' : 'View Blueprint & Instructions'}</span>
-                  {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  <span>
+                    {isExpanded ? 'Hide Blueprint & Steps' : 'View Blueprint & Instructions'}
+                  </span>
+                  {isExpanded ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
                 </button>
 
                 {/* Expanded Steps */}
@@ -166,7 +169,8 @@ export default function IndoorAirHacks() {
                     </div>
 
                     <div className="p-2.5 rounded bg-[#030712] border border-cyan-400/10 font-mono text-[10px] text-slate-400">
-                      <strong className="text-cyan-300">Physical Principle:</strong> {hack.scientificExplanation}
+                      <strong className="text-cyan-300">Physical Principle:</strong>{' '}
+                      {hack.scientificExplanation}
                     </div>
                   </div>
                 )}

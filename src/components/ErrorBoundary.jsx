@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertOctagon, RotateCcw, ShieldAlert } from 'lucide-react';
+import { RotateCcw, ShieldAlert } from 'lucide-react';
 
 export default class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -26,8 +26,8 @@ export default class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div 
-          role="alert" 
+        <div
+          role="alert"
           aria-live="assertive"
           className="grid-bg min-h-[400px] w-full grid place-items-center rounded-2xl border border-rose-500/40 bg-[#08101e] p-8 text-center shadow-2xl"
         >
@@ -42,7 +42,8 @@ export default class ErrorBoundary extends React.Component {
                 Module Telemetry Recovered
               </h2>
               <p className="text-xs text-slate-300 font-sans leading-relaxed">
-                An isolated client-side rendering exception was caught by AURA's zero-trust safety boundary. Your session and immutable ledger integrity remain intact.
+                An isolated client-side rendering exception was caught by AURA&apos;s zero-trust
+                safety boundary. Your session and immutable ledger integrity remain intact.
               </p>
             </div>
 

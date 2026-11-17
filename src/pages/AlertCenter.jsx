@@ -41,18 +41,14 @@ const PLAYBOOK_ICONS = {
 };
 
 export default function AlertCenter() {
-  const {
-    alerts,
-    executePlaybookAction,
-    boostAlertPriority
-  } = useApp();
+  const { alerts, executePlaybookAction, boostAlertPriority } = useApp();
 
   const [selectedAlertId, setSelectedAlertId] = useState(alerts[0]?.id || 'ALR-DEL-901');
   const [filterSeverity, setFilterSeverity] = useState('all');
 
-  const selectedAlert = alerts.find(a => a.id === selectedAlertId) || alerts[0];
+  const selectedAlert = alerts.find((a) => a.id === selectedAlertId) || alerts[0];
 
-  const filteredAlerts = alerts.filter(a => {
+  const filteredAlerts = alerts.filter((a) => {
     if (filterSeverity === 'all') return true;
     return a.severity === filterSeverity;
   });
@@ -67,7 +63,7 @@ export default function AlertCenter() {
         right={
           <div className="flex items-center gap-2">
             <span className="rounded border border-rose-500/40 bg-rose-500/10 px-3 py-1 font-mono text-xs text-rose-300">
-              {alerts.filter(a => a.severity === 'critical').length} Critical Incidents
+              {alerts.filter((a) => a.severity === 'critical').length} Critical Incidents
             </span>
           </div>
         }
@@ -80,12 +76,14 @@ export default function AlertCenter() {
           <button
             key={sev}
             onClick={() => setFilterSeverity(sev)}
-            className={`px-3 py-1.5 rounded-lg border transition cursor-pointer uppercase ${filterSeverity === sev
-              ? 'bg-cyan-400/15 border-cyan-400 text-cyan-200'
-              : 'border-cyan-400/10 text-slate-400 hover:bg-white/5'
-              }`}
+            className={`px-3 py-1.5 rounded-lg border transition cursor-pointer uppercase ${
+              filterSeverity === sev
+                ? 'bg-cyan-400/15 border-cyan-400 text-cyan-200'
+                : 'border-cyan-400/10 text-slate-400 hover:bg-white/5'
+            }`}
           >
-            {sev} ({sev === 'all' ? alerts.length : alerts.filter(a => a.severity === sev).length})
+            {sev} ({sev === 'all' ? alerts.length : alerts.filter((a) => a.severity === sev).length}
+            )
           </button>
         ))}
       </div>
@@ -103,34 +101,35 @@ export default function AlertCenter() {
             {filteredAlerts.map((alr) => {
               const isSelected = alr.id === selectedAlertId;
               const sevBadge =
-                alr.severity === 'critical' ? 'border-rose-500/50 bg-rose-500/20 text-rose-200' :
-                  alr.severity === 'high' ? 'border-orange-400/40 bg-orange-400/15 text-orange-200' :
-                    'border-amber-400/30 bg-amber-400/10 text-amber-200';
+                alr.severity === 'critical'
+                  ? 'border-rose-500/50 bg-rose-500/20 text-rose-200'
+                  : alr.severity === 'high'
+                    ? 'border-orange-400/40 bg-orange-400/15 text-orange-200'
+                    : 'border-amber-400/30 bg-amber-400/10 text-amber-200';
 
               return (
                 <div
                   key={alr.id}
                   onClick={() => setSelectedAlertId(alr.id)}
-                  className={`p-3.5 rounded-xl border text-left transition cursor-pointer space-y-2 ${isSelected
-                    ? 'border-cyan-400/60 bg-[#0c182c] shadow-[inset_0_0_0_1px_rgba(34,211,238,0.4)]'
-                    : 'border-cyan-400/10 bg-[#060d1b] hover:bg-white/5'
-                    }`}
+                  className={`p-3.5 rounded-xl border text-left transition cursor-pointer space-y-2 ${
+                    isSelected
+                      ? 'border-cyan-400/60 bg-[#0c182c] shadow-[inset_0_0_0_1px_rgba(34,211,238,0.4)]'
+                      : 'border-cyan-400/10 bg-[#060d1b] hover:bg-white/5'
+                  }`}
                 >
                   <div className="flex items-center justify-between font-mono text-xs">
                     <span className="font-bold text-cyan-300">{alr.id}</span>
                     <span className="text-slate-500 text-[10px]">{alr.timestamp}</span>
                   </div>
 
-                  <div className="text-sm font-semibold text-white leading-snug">
-                    {alr.title}
-                  </div>
+                  <div className="text-sm font-semibold text-white leading-snug">{alr.title}</div>
 
-                  <div className="text-xs text-slate-400 truncate">
-                    {alr.ward}
-                  </div>
+                  <div className="text-xs text-slate-400 truncate">{alr.ward}</div>
 
                   <div className="flex items-center justify-between pt-1 border-t border-cyan-400/10 font-mono text-[11px]">
-                    <span className={`px-2 py-0.5 rounded border uppercase text-[10px] font-bold ${sevBadge}`}>
+                    <span
+                      className={`px-2 py-0.5 rounded border uppercase text-[10px] font-bold ${sevBadge}`}
+                    >
                       {alr.severity}
                     </span>
                     <span className="text-slate-300">
@@ -149,7 +148,9 @@ export default function AlertCenter() {
           <div className="flex flex-wrap items-start justify-between gap-4 border-b border-cyan-400/10 pb-4">
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-mono text-xs font-bold text-cyan-300">{selectedAlert.id}</span>
+                <span className="font-mono text-xs font-bold text-cyan-300">
+                  {selectedAlert.id}
+                </span>
                 <span className="h-2 w-2 rounded-full bg-rose-500 animate-pulse shadow-glow-red" />
                 <span className="font-mono text-xs uppercase tracking-wider text-rose-400 font-bold">
                   {selectedAlert.severity} HAZARD
@@ -180,7 +181,9 @@ export default function AlertCenter() {
             </div>
             <div className="rounded-lg bg-[#030712] p-3 border border-cyan-400/10">
               <span className="text-slate-500">Exceedance Scale:</span>
-              <div className="text-sm font-semibold text-rose-400 mt-1">{selectedAlert.exceedance}</div>
+              <div className="text-sm font-semibold text-rose-400 mt-1">
+                {selectedAlert.exceedance}
+              </div>
             </div>
           </div>
 
@@ -194,7 +197,9 @@ export default function AlertCenter() {
             <div className="flex items-center justify-between">
               <div>
                 <span className="label text-cyan-300">Automated Remediation Protocol</span>
-                <h3 className="text-base font-bold text-white mt-0.5">Municipal Environmental SOP</h3>
+                <h3 className="text-base font-bold text-white mt-0.5">
+                  Municipal Environmental SOP
+                </h3>
               </div>
               <span className="font-mono text-xs text-emerald-400">AURA Agent Verified</span>
             </div>
@@ -208,16 +213,17 @@ export default function AlertCenter() {
                     key={action.id}
                     onClick={() => executePlaybookAction(selectedAlert.id, action.id, action.label)}
                     disabled={action.done}
-                    className={`flex items-center gap-3 p-3 rounded-lg border text-left transition font-mono text-xs cursor-pointer ${action.done
-                      ? 'border-emerald-400/40 bg-emerald-400/10 text-emerald-300 cursor-default'
-                      : 'border-cyan-400/20 bg-[#0c182c] text-slate-200 hover:border-cyan-400/60 hover:bg-cyan-400/10'
-                      }`}
+                    className={`flex items-center gap-3 p-3 rounded-lg border text-left transition font-mono text-xs cursor-pointer ${
+                      action.done
+                        ? 'border-emerald-400/40 bg-emerald-400/10 text-emerald-300 cursor-default'
+                        : 'border-cyan-400/20 bg-[#0c182c] text-slate-200 hover:border-cyan-400/60 hover:bg-cyan-400/10'
+                    }`}
                   >
-                    <ActionIcon className={`h-4 w-4 shrink-0 ${action.done ? 'text-emerald-400' : 'text-cyan-400'}`} />
+                    <ActionIcon
+                      className={`h-4 w-4 shrink-0 ${action.done ? 'text-emerald-400' : 'text-cyan-400'}`}
+                    />
                     <span className="truncate flex-1">{action.label}</span>
-                    {action.done && (
-                      <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
-                    )}
+                    {action.done && <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />}
                   </button>
                 );
               })}
@@ -227,7 +233,10 @@ export default function AlertCenter() {
           {/* Action Log / Escalation status banner */}
           <div className="rounded-lg border border-cyan-400/20 bg-[#0c182c] p-3 flex items-center justify-between text-xs font-mono">
             <span className="text-slate-400">
-              Current Playbook State: <strong className="text-white">{selectedAlert.activeAction || 'Awaiting Incident Commander Execution'}</strong>
+              Current Playbook State:{' '}
+              <strong className="text-white">
+                {selectedAlert.activeAction || 'Awaiting Incident Commander Execution'}
+              </strong>
             </span>
             <span className="text-cyan-300 flex items-center gap-1">
               <Share2 className="h-3.5 w-3.5" /> Synced to CPCB Gateway

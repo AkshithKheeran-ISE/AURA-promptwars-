@@ -8,10 +8,13 @@ export default function ToastContainer() {
     <div className="fixed bottom-4 right-4 z-[1000] space-y-2 pointer-events-none">
       {toasts.map((toast) => {
         const borderClass =
-          (toast.tone === 'red' || toast.tone === 'rose') ? 'border-l-rose-500 bg-[#0c182c]/95' :
-            (toast.tone === 'green' || toast.tone === 'emerald') ? 'border-l-emerald-400 bg-[#0c182c]/95' :
-              (toast.tone === 'amber' || toast.tone === 'yellow') ? 'border-l-amber-400 bg-[#0c182c]/95' :
-                'border-l-cyan-400 bg-[#0c182c]/95';
+          toast.tone === 'red' || toast.tone === 'rose'
+            ? 'border-l-rose-500 bg-[#0c182c]/95'
+            : toast.tone === 'green' || toast.tone === 'emerald'
+              ? 'border-l-emerald-400 bg-[#0c182c]/95'
+              : toast.tone === 'amber' || toast.tone === 'yellow'
+                ? 'border-l-amber-400 bg-[#0c182c]/95'
+                : 'border-l-cyan-400 bg-[#0c182c]/95';
 
         return (
           <div
@@ -22,9 +25,7 @@ export default function ToastContainer() {
               <span>{toast.title}</span>
               <span className="font-mono text-[9px] text-slate-500">AURA NOTIF</span>
             </div>
-            <div className="mt-1 text-xs text-slate-300 leading-relaxed">
-              {toast.body}
-            </div>
+            <div className="mt-1 text-xs text-slate-300 leading-relaxed">{toast.body}</div>
           </div>
         );
       })}

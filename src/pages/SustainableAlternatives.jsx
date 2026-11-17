@@ -1,18 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Leaf,
-  Car,
-  Flame,
-  Trash2,
-  Zap,
-  TrendingDown,
-  ShieldCheck,
-  CheckCircle2,
-  Users,
-  DollarSign,
-  Heart,
-  Layers
-} from 'lucide-react';
+import { Leaf, CheckCircle2 } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
 import { useApp } from '../context/AppContext';
 
@@ -94,20 +81,35 @@ export default function SustainableAlternatives() {
 
   const handlePledge = (id, title) => {
     if (adoptedPledges.includes(id)) {
-      setAdoptedPledges(prev => prev.filter(p => p !== id));
+      setAdoptedPledges((prev) => prev.filter((p) => p !== id));
       addToast('Pledge Removed', `De-selected ${title}`, 'amber');
     } else {
-      setAdoptedPledges(prev => [...prev, id]);
-      addToast('Alternative Adopted', `Pledged to use ${title} for household smog defense!`, 'green');
-      logAudit('Household Member', `Adopted sustainable clean alternative: ${title}`, 'Community Action', 'human');
+      setAdoptedPledges((prev) => [...prev, id]);
+      addToast(
+        'Alternative Adopted',
+        `Pledged to use ${title} for household smog defense!`,
+        'green'
+      );
+      logAudit(
+        'Household Member',
+        `Adopted sustainable clean alternative: ${title}`,
+        'Community Action',
+        'human'
+      );
     }
   };
 
   // Scaled calculations based on society size
-  const totalCo2PreventedTons = Number(((householdScale * 1.8 * adoptedPledges.length) / 4).toFixed(1));
-  const totalPm25PreventedKg = Number(((householdScale * 8.4 * adoptedPledges.length) / 4).toFixed(1));
+  const totalCo2PreventedTons = Number(
+    ((householdScale * 1.8 * adoptedPledges.length) / 4).toFixed(1)
+  );
+  const totalPm25PreventedKg = Number(
+    ((householdScale * 8.4 * adoptedPledges.length) / 4).toFixed(1)
+  );
   const asthmaCasesPrevented = Math.round(householdScale * 0.42 * adoptedPledges.length);
-  const fuelSavingsLakhsInr = Number(((householdScale * 24000 * adoptedPledges.length) / 400000).toFixed(2));
+  const fuelSavingsLakhsInr = Number(
+    ((householdScale * 24000 * adoptedPledges.length) / 400000).toFixed(2)
+  );
 
   return (
     <div className="space-y-6">
@@ -134,12 +136,15 @@ export default function SustainableAlternatives() {
               Simulate Community-Wide Winter Transition
             </h2>
             <p className="text-xs text-slate-300 mt-1">
-              Slide to observe how community collective action eliminates toxic smog plumes across your housing society or ward.
+              Slide to observe how community collective action eliminates toxic smog plumes across
+              your housing society or ward.
             </p>
           </div>
 
           <div className="flex items-center gap-3 font-mono text-xs">
-            <label htmlFor="society-scale-slider" className="text-slate-400">Society Scale:</label>
+            <label htmlFor="society-scale-slider" className="text-slate-400">
+              Society Scale:
+            </label>
             <span className="font-display text-xl font-bold text-cyan-300 px-3 py-1 rounded bg-[#030712] border border-cyan-400/20">
               {householdScale} Families
             </span>
@@ -210,19 +215,19 @@ export default function SustainableAlternatives() {
           return (
             <div
               key={item.id}
-              className={`panel panel-corners p-5 space-y-4 transition ${isAdopted
-                ? 'border-emerald-400/40 bg-[#08101e]'
-                : 'border-cyan-400/10 bg-[#060d1b]'
-                }`}
+              className={`panel panel-corners p-5 space-y-4 transition ${
+                isAdopted ? 'border-emerald-400/40 bg-[#08101e]' : 'border-cyan-400/10 bg-[#060d1b]'
+              }`}
             >
               <div className="flex items-center justify-between border-b border-cyan-400/10 pb-2.5">
                 <h3 className="text-base font-bold text-white font-sans">{item.title}</h3>
                 <button
                   onClick={() => handlePledge(item.id, item.clean.title)}
-                  className={`px-3 py-1 rounded text-xs font-mono font-bold transition cursor-pointer flex items-center gap-1.5 ${isAdopted
-                    ? 'bg-emerald-400 text-black hover:bg-emerald-300'
-                    : 'bg-[#0c182c] border border-cyan-400/30 text-cyan-300 hover:bg-cyan-400/20'
-                    }`}
+                  className={`px-3 py-1 rounded text-xs font-mono font-bold transition cursor-pointer flex items-center gap-1.5 ${
+                    isAdopted
+                      ? 'bg-emerald-400 text-black hover:bg-emerald-300'
+                      : 'bg-[#0c182c] border border-cyan-400/30 text-cyan-300 hover:bg-cyan-400/20'
+                  }`}
                 >
                   {isAdopted ? (
                     <>

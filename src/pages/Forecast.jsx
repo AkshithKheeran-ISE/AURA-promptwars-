@@ -41,17 +41,21 @@ export default function Forecast() {
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-6 2xl:grid-cols-10">
           {THIRTY_DAY_FORECAST.map((item, idx) => {
             const isSelected = idx === selectedDayIndex;
-            const cardColor = 
-              item.risk === 'Critical' ? 'border-rose-500/50 bg-rose-500/15 text-rose-300' :
-              item.risk === 'High' ? 'border-amber-400/40 bg-amber-400/10 text-amber-300' :
-              'border-emerald-400/40 bg-emerald-400/10 text-emerald-300';
+            const cardColor =
+              item.risk === 'Critical'
+                ? 'border-rose-500/50 bg-rose-500/15 text-rose-300'
+                : item.risk === 'High'
+                  ? 'border-amber-400/40 bg-amber-400/10 text-amber-300'
+                  : 'border-emerald-400/40 bg-emerald-400/10 text-emerald-300';
 
             return (
               <button
                 key={item.day}
                 onClick={() => setSelectedDayIndex(idx)}
                 className={`p-2.5 rounded-lg border text-left font-mono transition cursor-pointer relative ${cardColor} ${
-                  isSelected ? 'ring-2 ring-cyan-300 scale-102 bg-cyan-400/20' : 'hover:brightness-125'
+                  isSelected
+                    ? 'ring-2 ring-cyan-300 scale-102 bg-cyan-400/20'
+                    : 'hover:brightness-125'
                 }`}
               >
                 <div className="flex items-center justify-between text-[10px]">
@@ -59,13 +63,9 @@ export default function Forecast() {
                   <span className="text-slate-400">{item.dateStr.split(' ')[0]}</span>
                 </div>
 
-                <div className="font-display text-lg font-bold text-white mt-1">
-                  {item.aqi}
-                </div>
+                <div className="font-display text-lg font-bold text-white mt-1">{item.aqi}</div>
 
-                <div className="text-[9px] uppercase font-bold truncate mt-0.5">
-                  {item.risk}
-                </div>
+                <div className="text-[9px] uppercase font-bold truncate mt-0.5">{item.risk}</div>
               </button>
             );
           })}
@@ -86,9 +86,7 @@ export default function Forecast() {
 
           <div className="rounded-xl border border-cyan-400/15 bg-[#030712] p-4 text-center font-mono space-y-1">
             <div className="text-[10px] text-slate-400">EXPECTED BASIN AVERAGE AQI</div>
-            <div className="font-display text-4xl font-extrabold text-white">
-              {selectedDay.aqi}
-            </div>
+            <div className="font-display text-4xl font-extrabold text-white">{selectedDay.aqi}</div>
             <div className="text-xs text-cyan-300 font-bold">{selectedDay.peakPollutant}</div>
           </div>
 
@@ -112,7 +110,9 @@ export default function Forecast() {
           </div>
 
           <div className="rounded-lg bg-[#030712] p-3 border border-cyan-400/10 space-y-1 text-xs">
-            <div className="font-mono text-cyan-300 font-bold text-[11px]">Meteorological Analysis:</div>
+            <div className="font-mono text-cyan-300 font-bold text-[11px]">
+              Meteorological Analysis:
+            </div>
             <p className="text-slate-300 leading-relaxed font-sans">{selectedDay.briefing}</p>
           </div>
         </div>
@@ -122,7 +122,9 @@ export default function Forecast() {
           <div className="border-b border-cyan-400/10 pb-2 flex items-center justify-between">
             <div>
               <span className="label text-cyan-300">Predictive Progression</span>
-              <h2 className="text-lg font-bold text-white">30-Day Air Quality & Wind Velocity Trajectory</h2>
+              <h2 className="text-lg font-bold text-white">
+                30-Day Air Quality & Wind Velocity Trajectory
+              </h2>
             </div>
             <div className="flex items-center gap-3 text-xs font-mono text-slate-400">
               <span className="flex items-center gap-1.5 text-cyan-300">
@@ -136,7 +138,11 @@ export default function Forecast() {
 
           {/* Forecast Trend SVG Area Chart */}
           <div className="relative h-64 w-full pt-4">
-            <svg className="h-full w-full overflow-visible" viewBox="0 0 600 180" preserveAspectRatio="none">
+            <svg
+              className="h-full w-full overflow-visible"
+              viewBox="0 0 600 180"
+              preserveAspectRatio="none"
+            >
               <defs>
                 <linearGradient id="forecastGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.4" />
@@ -159,8 +165,9 @@ export default function Forecast() {
                   return { x, y };
                 });
 
-                const pathD = points.reduce((acc, p, i) => 
-                  i === 0 ? `M ${p.x} ${p.y}` : `${acc} L ${p.x} ${p.y}`, ''
+                const pathD = points.reduce(
+                  (acc, p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `${acc} L ${p.x} ${p.y}`),
+                  ''
                 );
                 const areaD = `${pathD} L 600 170 L 0 170 Z`;
 
@@ -170,22 +177,29 @@ export default function Forecast() {
                   const y = 170 - (item.windSpeed / 15) * 80;
                   return { x, y };
                 });
-                const windPathD = windPoints.reduce((acc, p, i) => 
-                  i === 0 ? `M ${p.x} ${p.y}` : `${acc} L ${p.x} ${p.y}`, ''
+                const windPathD = windPoints.reduce(
+                  (acc, p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `${acc} L ${p.x} ${p.y}`),
+                  ''
                 );
 
                 return (
                   <>
                     <path d={areaD} fill="url(#forecastGrad)" />
                     <path d={pathD} fill="none" stroke="#22d3ee" strokeWidth="2.5" />
-                    <path d={windPathD} fill="none" stroke="#fbbf24" strokeWidth="1.8" strokeDasharray="4 2" />
+                    <path
+                      d={windPathD}
+                      fill="none"
+                      stroke="#fbbf24"
+                      strokeWidth="1.8"
+                      strokeDasharray="4 2"
+                    />
                     {points.map((p, idx) => (
                       <circle
                         key={idx}
                         cx={p.x}
                         cy={p.y}
-                        r={idx === selectedDayIndex ? "5" : "2"}
-                        fill={idx === selectedDayIndex ? "#f43f5e" : "#22d3ee"}
+                        r={idx === selectedDayIndex ? '5' : '2'}
+                        fill={idx === selectedDayIndex ? '#f43f5e' : '#22d3ee'}
                         stroke="#030712"
                         strokeWidth="1.5"
                       />

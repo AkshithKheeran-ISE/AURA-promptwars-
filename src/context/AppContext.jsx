@@ -10,10 +10,7 @@ import {
   calculateCommunitySavings,
   calculateHealthRiskIndex
 } from '../services/impactCalculator';
-import {
-  generateDeterministicHash,
-  validateCitizenReport
-} from '../utils/sanitize';
+import { computeBlockHash, verifyLedgerIntegrity, sha256 } from '../utils/sanitize';
 
 const AppContext = createContext();
 
@@ -35,7 +32,7 @@ export function AppProvider({ children }) {
     try {
       if (typeof window === 'undefined' || !window.location) return 'command';
       const hash = window.location.hash.replace('#/', '').replace('#', '');
-      return NAV_ITEMS.some(item => item.id === hash) ? hash : 'command';
+      return NAV_ITEMS.some((item) => item.id === hash) ? hash : 'command';
     } catch {
       return 'command';
     }
@@ -49,7 +46,11 @@ export function AppProvider({ children }) {
   // Family & Lifestyle Customization State
   const [familyArchetype, setFamilyArchetype] = useState('school_infant');
   const [dwellingType, setDwellingType] = useState('apartment_high');
-  const [activeHacks, setActiveHacks] = useState(['corsi_rosenthal', 'weatherstrip_seals', 'wet_mopping_protocol']);
+  const [activeHacks, setActiveHacks] = useState([
+    'corsi_rosenthal',
+    'weatherstrip_seals',
+    'wet_mopping_protocol'
+  ]);
   const [transitChoice, setTransitChoice] = useState('eRickshawMetro');
 
   // Application Data State
@@ -77,7 +78,7 @@ export function AppProvider({ children }) {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
-        setCommandPaletteOpen(prev => !prev);
+        setCommandPaletteOpen((prev) => !prev);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -86,31 +87,39 @@ export function AppProvider({ children }) {
 
   const addToast = (title, body, tone = 'cyan') => {
     const id = Date.now() + Math.random();
-    setToasts(prev => [...prev, { id, title, body, tone }]);
+    setToasts((prev) => [...prev, { id, title, body, tone }]);
     setTimeout(() => {
-      setToasts(prev => prev.filter(t => t.id !== id));
+      setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 4500);
   };
 
   const logAudit = (actor, action, target, type = 'human') => {
+    const id = `AUD-${Math.floor(1000 + Math.random() * 9000)}`;
+    const ts = Date.now();
     const newEntry = {
-      id: `AUD-${Math.floor(1000 + Math.random() * 9000)}`,
-      ts: Date.now(),
+      id,
+      ts,
       actor,
       action,
       target,
       type,
-      hash: generateDeterministicHash(`${actor}-${action}-${target}-${Date.now()}`)
+      hash: sha256(`${id}|${actor}|${action}|${target}|${ts}`)
     };
-    setAuditLogs(prev => [newEntry, ...prev]);
+    setAuditLogs((prev) => [newEntry, ...prev]);
   };
 
-  const selectedWard = WARDS_DATA.find(w => w.id === selectedWardId) || WARDS_DATA[0];
+  const selectedWard = WARDS_DATA.find((w) => w.id === selectedWardId) || WARDS_DATA[0];
 
   // Calculated Real-Time Family Impact
   const usesHEPA = activeHacks.includes('corsi_rosenthal');
   const weatherstripped = activeHacks.includes('weatherstrip_seals');
-  const exposureCalc = calculateInhaledExposure(selectedWard.pm25, 24, usesHEPA, weatherstripped, 'n95');
+  const exposureCalc = calculateInhaledExposure(
+    selectedWard.pm25,
+    24,
+    usesHEPA,
+    weatherstripped,
+    'n95'
+  );
   const communitySavings = calculateCommunitySavings(18, 'petrolCar', transitChoice, true, true);
   const healthRisk = calculateHealthRiskIndex(
     exposureCalc.indoorPm25,
@@ -119,47 +128,60 @@ export function AppProvider({ children }) {
   );
 
   const toggleHack = (hackId) => {
-    setActiveHacks(prev => {
+    setActiveHacks((prev) => {
       const exists = prev.includes(hackId);
-      const next = exists ? prev.filter(h => h !== hackId) : [...prev, hackId];
+      const next = exists ? prev.filter((h) => h !== hackId) : [...prev, hackId];
       addToast(
         exists ? 'Hack Deactivated' : 'Hack Activated',
-        exists ? `Removed ${hackId} from active household defense` : `Applied ${hackId} — updated IAQ recalculation`,
+        exists
+          ? `Removed ${hackId} from active household defense`
+          : `Applied ${hackId} — updated IAQ recalculation`,
         exists ? 'amber' : 'green'
       );
-      logAudit('Household Member', `${exists ? 'Deactivated' : 'Activated'} IAQ hack: ${hackId}`, 'Household Defense', 'human');
+      logAudit(
+        'Household Member',
+        `${exists ? 'Deactivated' : 'Activated'} IAQ hack: ${hackId}`,
+        'Household Defense',
+        'human'
+      );
       return next;
     });
   };
 
   const executePlaybookAction = (alertId, actionId, actionLabel) => {
-    setAlerts(prev => prev.map(alr => {
-      if (alr.id === alertId) {
-        const updatedPlaybook = alr.playbook.map(act => act.id === actionId ? { ...act, done: true } : act);
-        return { ...alr, playbook: updatedPlaybook, activeAction: actionLabel };
-      }
-      return alr;
-    }));
+    setAlerts((prev) =>
+      prev.map((alr) => {
+        if (alr.id === alertId) {
+          const updatedPlaybook = alr.playbook.map((act) =>
+            act.id === actionId ? { ...act, done: true } : act
+          );
+          return { ...alr, playbook: updatedPlaybook, activeAction: actionLabel };
+        }
+        return alr;
+      })
+    );
     addToast('Action Executed', `${actionLabel} dispatched for ${alertId}`, 'green');
     logAudit('Family Lead', `Executed emergency safety action: ${actionLabel}`, alertId, 'human');
   };
 
   const boostAlertPriority = (alertId) => {
-    setAlerts(prev => prev.map(alr => {
-      if (alr.id === alertId) {
-        const newScore = Math.min(10, alr.score + 0.5);
-        return { ...alr, score: newScore, severity: 'critical' };
-      }
-      return alr;
-    }));
+    setAlerts((prev) =>
+      prev.map((alr) => {
+        if (alr.id === alertId) {
+          const newScore = Math.min(10, alr.score + 0.5);
+          return { ...alr, score: newScore, severity: 'critical' };
+        }
+        return alr;
+      })
+    );
     addToast('Priority Boosted', `Alert ${alertId} escalated to highest severity tier`, 'rose');
     logAudit('Incident Commander', `Escalated alert priority for ${alertId}`, alertId, 'human');
   };
 
   const addCitizenReport = (newReportData) => {
-    const lastHash = citizenReports.length > 0 ? citizenReports[citizenReports.length - 1].hash : '0000000000000000';
+    const lastHash =
+      citizenReports.length > 0 ? citizenReports[citizenReports.length - 1].hash : '0'.repeat(64);
     const newId = `REP-AURA-${Math.floor(8200 + Math.random() * 800)}`;
-    const newHash = generateDeterministicHash(`${lastHash}-${newId}-${newReportData.issue}-${Date.now()}`);
 
     const completeReport = {
       id: newId,
@@ -168,17 +190,23 @@ export function AppProvider({ children }) {
       reporter: newReportData.reporter || 'Priya Family Member',
       urgency: newReportData.urgency || 'High',
       lat: 28.65 + (Math.random() - 0.5) * 0.1,
-      lng: 77.20 + (Math.random() - 0.5) * 0.1,
+      lng: 77.2 + (Math.random() - 0.5) * 0.1,
       timestamp: 'Just now',
       prevHash: lastHash,
-      hash: newHash,
+      hash: '',
       stage: 1,
       statusText: 'Hashed to Community Ledger'
     };
+    completeReport.hash = computeBlockHash(completeReport, lastHash);
 
-    setCitizenReports(prev => [...prev, completeReport]);
+    setCitizenReports((prev) => [...prev, completeReport]);
     addToast('Report Secured', `Hazard report ${newId} chained to immutable ledger`, 'cyan');
-    logAudit('Community Reporter', `Logged community smog report: ${newReportData.issue.slice(0, 30)}...`, newId, 'human');
+    logAudit(
+      'Community Reporter',
+      `Logged community smog report: ${newReportData.issue.slice(0, 30)}...`,
+      newId,
+      'human'
+    );
   };
 
   const advanceReportStage = (reportId) => {
@@ -187,39 +215,75 @@ export function AppProvider({ children }) {
       2: { next: 3, text: 'Municipal Flying Squad Dispatched' },
       3: { next: 4, text: 'Hazard Doused & Fine Issued' }
     };
-    setCitizenReports(prev => prev.map(rep => {
-      if (rep.id === reportId && rep.stage < 4) {
-        const nextInfo = stageMap[rep.stage];
-        return { ...rep, stage: nextInfo.next, statusText: nextInfo.text };
-      }
-      return rep;
-    }));
-    addToast('Workflow Advanced', `Report ${reportId} progressed to next operational tier`, 'green');
+    setCitizenReports((prev) =>
+      prev.map((rep) => {
+        if (rep.id === reportId && rep.stage < 4) {
+          const nextInfo = stageMap[rep.stage];
+          return { ...rep, stage: nextInfo.next, statusText: nextInfo.text };
+        }
+        return rep;
+      })
+    );
+    addToast(
+      'Workflow Advanced',
+      `Report ${reportId} progressed to next operational tier`,
+      'green'
+    );
     logAudit('RWA Committee', `Advanced community action stage for ${reportId}`, reportId, 'human');
   };
 
   const simulateTamper = () => {
     if (citizenReports.length > 1) {
-      setCitizenReports(prev => {
+      setCitizenReports((prev) => {
         const copy = [...prev];
         copy[1] = {
           ...copy[1],
           issue: '[TAMPERED BY POLLUTER] Falsified report to conceal industrial burning',
-          hash: '0000_TAMPERED_HASH_INVALID_CHAIN_BREAK_9921'
+          hash: '000000000000000000000000000000000000000000000000000000000000dead'
         };
         return copy;
       });
       setLedgerTampered(true);
       addToast('SECURITY ALARM', 'Cryptographic hash mismatch! Block #2 chain broken!', 'red');
-      logAudit('IDS Watchdog', 'Flagged unauthorized tampering attempt on community report ledger', 'REP-AURA-8102', 'system');
+      logAudit(
+        'IDS Watchdog',
+        'Flagged unauthorized tampering attempt on community report ledger',
+        'REP-AURA-8102',
+        'system'
+      );
     }
   };
 
   const verifyLedger = () => {
-    setCitizenReports(INITIAL_CITIZEN_REPORTS);
-    setLedgerTampered(false);
-    addToast('Ledger Validated', 'All SHA-256 blocks re-verified. 100% integrity restored.', 'green');
-    logAudit('Validator Agent (AI)', 'Cryptographically verified all hash chains on reporting ledger', 'Ledger Root', 'agent');
+    const result = verifyLedgerIntegrity(citizenReports);
+    if (!result.valid) {
+      setCitizenReports(INITIAL_CITIZEN_REPORTS);
+      setLedgerTampered(false);
+      addToast(
+        'Tamper Detected & Repaired',
+        `Block integrity error isolated at Block #${result.brokenIndex + 1}. Cryptographic state restored from genesis.`,
+        'green'
+      );
+      logAudit(
+        'Validator Agent (AI)',
+        `Cryptographic audit detected fault: ${result.reason}. Restored ledger consensus.`,
+        'Ledger Root',
+        'agent'
+      );
+    } else {
+      setLedgerTampered(false);
+      addToast(
+        'Ledger Verified',
+        `All ${citizenReports.length} blocks checked. SHA-256 hash chains 100% intact.`,
+        'green'
+      );
+      logAudit(
+        'Validator Agent (AI)',
+        `Cryptographically verified all ${citizenReports.length} hash chains on reporting ledger`,
+        'Ledger Root',
+        'agent'
+      );
+    }
   };
 
   return (

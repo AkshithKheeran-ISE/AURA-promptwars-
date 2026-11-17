@@ -27,7 +27,8 @@ export const IAQ_HACKS = [
       'Mount the box fan on top facing upward, pulling air through the 4 filters and blowing clean air up.',
       'Add a circular cardboard shroud around fan blades to eliminate corner air turbulence.'
     ],
-    scientificExplanation: 'By using 4 filters simultaneously, the surface area increases 4x. This lowers resistance, allowing the fan to move massive air volumes silently while trapping 92% of sub-micron soot particles.',
+    scientificExplanation:
+      'By using 4 filters simultaneously, the surface area increases 4x. This lowers resistance, allowing the fan to move massive air volumes silently while trapping 92% of sub-micron soot particles.',
     badge: 'TOP FAMILY HACK · 92% PM2.5 REDUCTION',
     badgeColor: '#34d399'
   },
@@ -51,7 +52,8 @@ export const IAQ_HACKS = [
       'Rinse microfiber pad after every single room to permanently trap soot.',
       'Clean horizontal surfaces (shelves, TV consoles, bed frames) with damp cloth before mopping floors.'
     ],
-    scientificExplanation: 'Particulates settled overnight have aerodynamic diameters of 2.5–10 µm. Wet mopping uses capillary action to bind particles to water droplets, preventing respiratory re-inhalation.',
+    scientificExplanation:
+      'Particulates settled overnight have aerodynamic diameters of 2.5–10 µm. Wet mopping uses capillary action to bind particles to water droplets, preventing respiratory re-inhalation.',
     badge: 'ZERO RESUSPENSION · INSTANT RELIEF',
     badgeColor: '#22d3ee'
   },
@@ -75,7 +77,8 @@ export const IAQ_HACKS = [
       'Install silicone sweep on main entryway door to block hallway dust drafts.',
       'Keep heavy thermal curtains drawn during night inversion to create insulating air buffer.'
     ],
-    scientificExplanation: 'Urban apartments leak 0.8–1.5 air changes per hour through micro-cracks. Sealing drafts reduces outdoor smoke infiltration from 70% down to under 25%.',
+    scientificExplanation:
+      'Urban apartments leak 0.8–1.5 air changes per hour through micro-cracks. Sealing drafts reduces outdoor smoke infiltration from 70% down to under 25%.',
     badge: 'INFILTRATION BARRIER · 65% SHIELD',
     badgeColor: '#fbbf24'
   },
@@ -99,7 +102,8 @@ export const IAQ_HACKS = [
       'Slightly crack the external kitchen utility balcony window by 2 inches to supply makeup air.',
       'Switch frying to boiling/steaming during Stage-IV smog emergency days.'
     ],
-    scientificExplanation: 'Cooking without makeup air creates positive indoor pressure, forcing toxic acrolein and ultrafine oil particulates into children bedrooms where they linger for 6+ hours.',
+    scientificExplanation:
+      'Cooking without makeup air creates positive indoor pressure, forcing toxic acrolein and ultrafine oil particulates into children bedrooms where they linger for 6+ hours.',
     badge: 'ZERO COST · PEDIATRIC COUGH SHIELD',
     badgeColor: '#fb923c'
   },
@@ -123,7 +127,8 @@ export const IAQ_HACKS = [
       'Position Areca Palms in living areas: they act as natural humidifiers, transpiring 1 liter of moisture per 24 hours.',
       'Wipe plant leaves weekly with damp cotton cloth to remove dust blocking stomata pores.'
     ],
-    scientificExplanation: 'Rhizosphere microbes in plant roots break down benzene, formaldehyde, and carbon monoxide, while transpiration maintains healthy 50% relative mucosal humidity.',
+    scientificExplanation:
+      'Rhizosphere microbes in plant roots break down benzene, formaldehyde, and carbon monoxide, while transpiration maintains healthy 50% relative mucosal humidity.',
     badge: 'NATURAL OXYGEN & HUMIDITY',
     badgeColor: '#a855f7'
   },
@@ -147,7 +152,8 @@ export const IAQ_HACKS = [
       'Use an ear-saver strap behind neck to ensure snug perimeter seal against cheeks and chin.',
       'Perform user seal check: exhale gently; mask should puff slightly without air escaping edges.'
     ],
-    scientificExplanation: 'A loose mask with a 2% perimeter gap lets in over 50% of unfiltered ambient air via the path of least resistance. Perfect seal guarantees 95% particle capture.',
+    scientificExplanation:
+      'A loose mask with a 2% perimeter gap lets in over 50% of unfiltered ambient air via the path of least resistance. Perfect seal guarantees 95% particle capture.',
     badge: 'CLINICAL GRADE PERSONAL SEAL',
     badgeColor: '#f43f5e'
   }

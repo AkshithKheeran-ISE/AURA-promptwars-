@@ -1,19 +1,8 @@
 import React, { useState } from 'react';
-import {
-  FileText,
-  ShieldCheck,
-  ShieldAlert,
-  CheckCircle2,
-  Send,
-  ArrowRight,
-  RotateCcw,
-  AlertTriangle,
-  Lock,
-  Link as LinkIcon
-} from 'lucide-react';
+import { ShieldAlert, CheckCircle2, RotateCcw, Lock } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
 import { useApp } from '../context/AppContext';
-import { validateCitizenReport } from '../utils/sanitize';
+import { validateCitizenReport, computeMerkleRoot } from '../utils/sanitize';
 
 export default function CitizenReports() {
   const {
@@ -97,7 +86,8 @@ export default function CitizenReports() {
             <div>
               <div className="font-bold text-sm">SECURITY ALERT: Cryptographic Chain Broken!</div>
               <div className="text-xs font-mono text-rose-300">
-                Block #2 payload was modified out-of-band. The recalculated SHA-256 hash does not match next block's prevHash pointer.
+                Block #2 payload was modified out-of-band. The recalculated SHA-256 hash does not
+                match next block&apos;s prevHash pointer.
               </div>
             </div>
           </div>
@@ -121,7 +111,9 @@ export default function CitizenReports() {
 
           <form onSubmit={handleSubmit} className="space-y-3 text-xs font-mono">
             <div>
-              <label htmlFor="rep-location" className="text-slate-400 block mb-1">Ward / Location:</label>
+              <label htmlFor="rep-location" className="text-slate-400 block mb-1">
+                Ward / Location:
+              </label>
               <select
                 id="rep-location"
                 value={formData.location}
@@ -138,7 +130,9 @@ export default function CitizenReports() {
             </div>
 
             <div>
-              <label htmlFor="rep-issue-type" className="text-slate-400 block mb-1">Hazard Category:</label>
+              <label htmlFor="rep-issue-type" className="text-slate-400 block mb-1">
+                Hazard Category:
+              </label>
               <select
                 id="rep-issue-type"
                 value={formData.issueType}
@@ -146,16 +140,26 @@ export default function CitizenReports() {
                 className="w-full rounded-lg border border-cyan-400/20 bg-[#0c182c] px-3 py-2 text-white focus:outline-none"
               >
                 <option value="Open Waste & Garbage Burning">Open Waste & Garbage Burning</option>
-                <option value="Visible Black Factory Chimney Smoke">Visible Black Factory Chimney Smoke</option>
-                <option value="Uncovered Demolition & Construction Dust">Uncovered Demolition & Construction Dust</option>
-                <option value="Noxious Chemical / Acidic Odor">Noxious Chemical / Acidic Odor</option>
-                <option value="Illegal High-Capacity Diesel Genset">Illegal High-Capacity Diesel Genset</option>
+                <option value="Visible Black Factory Chimney Smoke">
+                  Visible Black Factory Chimney Smoke
+                </option>
+                <option value="Uncovered Demolition & Construction Dust">
+                  Uncovered Demolition & Construction Dust
+                </option>
+                <option value="Noxious Chemical / Acidic Odor">
+                  Noxious Chemical / Acidic Odor
+                </option>
+                <option value="Illegal High-Capacity Diesel Genset">
+                  Illegal High-Capacity Diesel Genset
+                </option>
               </select>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label htmlFor="rep-reporter" className="text-slate-400 block mb-1">Reporter Name/Role:</label>
+                <label htmlFor="rep-reporter" className="text-slate-400 block mb-1">
+                  Reporter Name/Role:
+                </label>
                 <input
                   id="rep-reporter"
                   type="text"
@@ -166,7 +170,9 @@ export default function CitizenReports() {
                 />
               </div>
               <div>
-                <label htmlFor="rep-urgency" className="text-slate-400 block mb-1">Urgency:</label>
+                <label htmlFor="rep-urgency" className="text-slate-400 block mb-1">
+                  Urgency:
+                </label>
                 <select
                   id="rep-urgency"
                   value={formData.urgency}
@@ -182,7 +188,9 @@ export default function CitizenReports() {
             </div>
 
             <div>
-              <label htmlFor="rep-description" className="text-slate-400 block mb-1">Observations & Specifics:</label>
+              <label htmlFor="rep-description" className="text-slate-400 block mb-1">
+                Observations & Specifics:
+              </label>
               <textarea
                 id="rep-description"
                 rows="3"
@@ -224,14 +232,17 @@ export default function CitizenReports() {
               return (
                 <div
                   key={rep.id}
-                  className={`w-72 shrink-0 p-3.5 rounded-xl border font-mono text-xs space-y-2 transition relative ${isCorrupt
-                    ? 'border-rose-500 bg-rose-500/20 shadow-glow-red animate-pulse'
-                    : 'border-cyan-400/20 bg-[#030712] hover:border-cyan-400/50'
-                    }`}
+                  className={`w-72 shrink-0 p-3.5 rounded-xl border font-mono text-xs space-y-2 transition relative ${
+                    isCorrupt
+                      ? 'border-rose-500 bg-rose-500/20 shadow-glow-red animate-pulse'
+                      : 'border-cyan-400/20 bg-[#030712] hover:border-cyan-400/50'
+                  }`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-cyan-300">BLOCK #{idx + 1}</span>
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded ${isCorrupt ? 'bg-rose-500 text-white' : 'bg-emerald-400/15 text-emerald-300'}`}>
+                    <span
+                      className={`text-[10px] px-1.5 py-0.5 rounded ${isCorrupt ? 'bg-rose-500 text-white' : 'bg-emerald-400/15 text-emerald-300'}`}
+                    >
                       {isCorrupt ? 'TAMPERED' : 'VALIDATED'}
                     </span>
                   </div>
@@ -241,7 +252,9 @@ export default function CitizenReports() {
                   </div>
 
                   <div className="text-[10px] text-slate-400">
-                    <div>{rep.reporter} · {rep.location}</div>
+                    <div>
+                      {rep.reporter} · {rep.location}
+                    </div>
                   </div>
 
                   {/* Hash readouts */}
@@ -249,7 +262,9 @@ export default function CitizenReports() {
                     <div className="truncate text-slate-500">
                       <span className="text-slate-400">prev:</span> {rep.prevHash.slice(0, 16)}...
                     </div>
-                    <div className={`truncate ${isCorrupt ? 'text-rose-400 font-bold' : 'text-cyan-300'}`}>
+                    <div
+                      className={`truncate ${isCorrupt ? 'text-rose-400 font-bold' : 'text-cyan-300'}`}
+                    >
                       <span className="text-slate-400">hash:</span> {rep.hash.slice(0, 16)}...
                     </div>
                   </div>
@@ -259,8 +274,10 @@ export default function CitizenReports() {
           </div>
 
           <div className="rounded-lg bg-[#030712] p-3 border border-cyan-400/10 flex items-center justify-between text-xs font-mono text-slate-400">
-            <span>Merkle Root: 0x9f81a742c0182746193850293847561029</span>
-            <span className="text-emerald-400 flex items-center gap-1">
+            <span className="truncate max-w-[60%]">
+              Merkle Root: 0x{computeMerkleRoot(citizenReports.map((r) => r.hash)).slice(0, 32)}...
+            </span>
+            <span className="text-emerald-400 flex items-center gap-1 shrink-0">
               <CheckCircle2 className="h-3.5 w-3.5" /> Immutable Audit Ledger Online
             </span>
           </div>
@@ -274,7 +291,9 @@ export default function CitizenReports() {
             <span className="label text-cyan-300">Workflow Tracker</span>
             <h2 className="text-lg font-bold text-white">Active Community Air Reports</h2>
           </div>
-          <span className="font-mono text-xs text-slate-400">Total Reports: {citizenReports.length}</span>
+          <span className="font-mono text-xs text-slate-400">
+            Total Reports: {citizenReports.length}
+          </span>
         </div>
 
         <div className="overflow-x-auto">
@@ -291,43 +310,49 @@ export default function CitizenReports() {
               </tr>
             </thead>
             <tbody className="divide-y divide-cyan-400/5">
-              {citizenReports.slice().reverse().map((rep) => (
-                <tr key={rep.id} className="hover:bg-white/5 transition">
-                  <td className="py-3 text-cyan-300 font-bold">{rep.id}</td>
-                  <td className="py-3 text-white font-sans max-w-xs truncate">{rep.issue}</td>
-                  <td className="py-3 text-slate-300">{rep.location}</td>
-                  <td className="py-3 text-slate-400">{rep.reporter}</td>
-                  <td className="py-3 text-slate-500 font-mono text-[10px]">
-                    {rep.hash.slice(0, 12)}...
-                  </td>
-                  <td className="py-3">
-                    <div className="flex items-center gap-1">
-                      {[1, 2, 3, 4].map((step) => (
-                        <div
-                          key={step}
-                          className={`h-2 w-5 rounded-sm ${step <= rep.stage ? 'bg-cyan-400' : 'bg-slate-700'
+              {citizenReports
+                .slice()
+                .reverse()
+                .map((rep) => (
+                  <tr key={rep.id} className="hover:bg-white/5 transition">
+                    <td className="py-3 text-cyan-300 font-bold">{rep.id}</td>
+                    <td className="py-3 text-white font-sans max-w-xs truncate">{rep.issue}</td>
+                    <td className="py-3 text-slate-300">{rep.location}</td>
+                    <td className="py-3 text-slate-400">{rep.reporter}</td>
+                    <td className="py-3 text-slate-500 font-mono text-[10px]">
+                      {rep.hash.slice(0, 12)}...
+                    </td>
+                    <td className="py-3">
+                      <div className="flex items-center gap-1">
+                        {[1, 2, 3, 4].map((step) => (
+                          <div
+                            key={step}
+                            className={`h-2 w-5 rounded-sm ${
+                              step <= rep.stage ? 'bg-cyan-400' : 'bg-slate-700'
                             }`}
-                        />
-                      ))}
-                      <span className="ml-2 text-[10px] text-slate-300 font-sans">{rep.statusText}</span>
-                    </div>
-                  </td>
-                  <td className="py-3">
-                    {rep.stage < 4 ? (
-                      <button
-                        onClick={() => advanceReportStage(rep.id)}
-                        className="text-cyan-300 hover:underline font-mono text-[11px] cursor-pointer flex items-center gap-1"
-                      >
-                        Advance &rarr;
-                      </button>
-                    ) : (
-                      <span className="text-emerald-400 text-[11px] flex items-center gap-1">
-                        <CheckCircle2 className="h-3 w-3" /> Resolved
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              ))}
+                          />
+                        ))}
+                        <span className="ml-2 text-[10px] text-slate-300 font-sans">
+                          {rep.statusText}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-3">
+                      {rep.stage < 4 ? (
+                        <button
+                          onClick={() => advanceReportStage(rep.id)}
+                          className="text-cyan-300 hover:underline font-mono text-[11px] cursor-pointer flex items-center gap-1"
+                        >
+                          Advance &rarr;
+                        </button>
+                      ) : (
+                        <span className="text-emerald-400 text-[11px] flex items-center gap-1">
+                          <CheckCircle2 className="h-3 w-3" /> Resolved
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>

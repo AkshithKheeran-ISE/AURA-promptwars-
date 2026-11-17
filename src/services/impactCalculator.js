@@ -12,7 +12,7 @@ export const EMISSION_FACTORS = {
     dieselCar: { co2Kg: 0.171, pm25G: 0.085, noxG: 0.65 },
     twoWheelerPetrol: { co2Kg: 0.065, pm25G: 0.035, noxG: 0.22 },
     eRickshawMetro: { co2Kg: 0.015, pm25G: 0.002, noxG: 0.03 },
-    walkingCycling: { co2Kg: 0.000, pm25G: 0.000, noxG: 0.00 }
+    walkingCycling: { co2Kg: 0.0, pm25G: 0.0, noxG: 0.0 }
   },
   // Heating (per evening - 4 hours)
   heating: {
@@ -41,10 +41,16 @@ export const EMISSION_FACTORS = {
  * @param {string} maskType - 'none' | 'surgical' | 'n95'
  * @returns {object} Calculated exposure and percentage reduction
  */
-export function calculateInhaledExposure(ambientPm25, hoursSpent, usesHEPA, weatherstripped, maskType = 'none') {
+export function calculateInhaledExposure(
+  ambientPm25,
+  hoursSpent,
+  usesHEPA,
+  weatherstripped,
+  maskType = 'none'
+) {
   // Infiltration factor without air purification
-  let infiltrationFactor = weatherstripped ? 0.35 : 0.70;
-  
+  let infiltrationFactor = weatherstripped ? 0.35 : 0.7;
+
   // Indoor PM2.5 calculation
   let indoorPm25 = ambientPm25 * infiltrationFactor;
   if (usesHEPA) {
@@ -57,10 +63,12 @@ export function calculateInhaledExposure(ambientPm25, hoursSpent, usesHEPA, weat
   // Average human respiration rate = ~0.6 m³ air per hour
   const respirationRateM3Hr = 0.6;
   const standardInhaledMicrograms = ambientPm25 * hoursSpent * respirationRateM3Hr;
-  const optimizedInhaledMicrograms = (indoorPm25 * hoursSpent * respirationRateM3Hr) * maskPenetration;
+  const optimizedInhaledMicrograms =
+    indoorPm25 * hoursSpent * respirationRateM3Hr * maskPenetration;
 
   const reductionMicrograms = Math.max(0, standardInhaledMicrograms - optimizedInhaledMicrograms);
-  const percentageReduction = Math.round((reductionMicrograms / standardInhaledMicrograms) * 100) || 0;
+  const percentageReduction =
+    Math.round((reductionMicrograms / standardInhaledMicrograms) * 100) || 0;
 
   return {
     standardInhaledMicrograms: Math.round(standardInhaledMicrograms),
@@ -88,23 +96,31 @@ export function calculateCommunitySavings(
   compostedWaste = true
 ) {
   const origTransit = EMISSION_FACTORS.transit[originalMode] || EMISSION_FACTORS.transit.petrolCar;
-  const cleanTransit = EMISSION_FACTORS.transit[cleanMode] || EMISSION_FACTORS.transit.eRickshawMetro;
+  const cleanTransit =
+    EMISSION_FACTORS.transit[cleanMode] || EMISSION_FACTORS.transit.eRickshawMetro;
 
   // Transit savings
   const co2TransitKg = (origTransit.co2Kg - cleanTransit.co2Kg) * roundTripDistanceKm;
   const pm25TransitG = (origTransit.pm25G - cleanTransit.pm25G) * roundTripDistanceKm;
 
   // Heating savings (per day)
-  const co2HeatingKg = avoidedBiomassHeating ? (EMISSION_FACTORS.heating.woodCoalSigdi.co2Kg - EMISSION_FACTORS.heating.electricRadiator.co2Kg) : 0;
-  const pm25HeatingG = avoidedBiomassHeating ? (EMISSION_FACTORS.heating.woodCoalSigdi.pm25G - EMISSION_FACTORS.heating.electricRadiator.pm25G) : 0;
+  const co2HeatingKg = avoidedBiomassHeating
+    ? EMISSION_FACTORS.heating.woodCoalSigdi.co2Kg - EMISSION_FACTORS.heating.electricRadiator.co2Kg
+    : 0;
+  const pm25HeatingG = avoidedBiomassHeating
+    ? EMISSION_FACTORS.heating.woodCoalSigdi.pm25G - EMISSION_FACTORS.heating.electricRadiator.pm25G
+    : 0;
 
   // Waste savings
-  const co2WasteKg = compostedWaste ? (EMISSION_FACTORS.waste.openBiomassBurning10Kg.co2Kg - EMISSION_FACTORS.waste.communityComposting10Kg.co2Kg) : 0;
+  const co2WasteKg = compostedWaste
+    ? EMISSION_FACTORS.waste.openBiomassBurning10Kg.co2Kg -
+      EMISSION_FACTORS.waste.communityComposting10Kg.co2Kg
+    : 0;
   const pm25WasteG = compostedWaste ? EMISSION_FACTORS.waste.openBiomassBurning10Kg.pm25G : 0;
 
   const totalCo2SavedKg = Number((co2TransitKg + co2HeatingKg + co2WasteKg).toFixed(2));
   const totalPm25SavedG = Number((pm25TransitG + pm25HeatingG + pm25WasteG).toFixed(2));
-  
+
   // Approximate financial savings on fuel & medicines
   const fuelSavingsInr = Math.round(roundTripDistanceKm * 8.5); // avg petrol savings
   const healthSavingsInr = Math.round(totalPm25SavedG * 12.0); // reduced medication/nebulizer costs
@@ -125,7 +141,7 @@ export function calculateCommunitySavings(
  */
 export function calculateHealthRiskIndex(indoorPm25, hasAsthmaSenior = true, hasInfant = true) {
   let riskScore = 1.0;
-  
+
   // Exponential scaling based on particulate concentration
   if (indoorPm25 <= 30) riskScore = 1.2;
   else if (indoorPm25 <= 60) riskScore = 2.8;
@@ -134,12 +150,16 @@ export function calculateHealthRiskIndex(indoorPm25, hasAsthmaSenior = true, has
   else riskScore = 9.8;
 
   if (hasAsthmaSenior) riskScore = Math.min(10, riskScore * 1.25);
-  if (hasInfant) riskScore = Math.min(10, riskScore * 1.20);
+  if (hasInfant) riskScore = Math.min(10, riskScore * 1.2);
 
-  const riskTier = 
-    riskScore <= 3 ? 'Low Risk' :
-    riskScore <= 6 ? 'Moderate Vulnerability' :
-    riskScore <= 8.5 ? 'High Alert' : 'Critical Hazard';
+  const riskTier =
+    riskScore <= 3
+      ? 'Low Risk'
+      : riskScore <= 6
+        ? 'Moderate Vulnerability'
+        : riskScore <= 8.5
+          ? 'High Alert'
+          : 'Critical Hazard';
 
   return {
     riskScore: Number(riskScore.toFixed(1)),

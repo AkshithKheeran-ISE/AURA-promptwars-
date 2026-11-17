@@ -13,17 +13,9 @@ export default function SectionHeader({ eyebrow, title, desc, right }) {
         <h1 className="mt-1 font-display text-2xl font-bold tracking-wide text-white md:text-3xl">
           {title}
         </h1>
-        {desc && (
-          <p className="mt-1 max-w-3xl text-sm text-slate-400">
-            {desc}
-          </p>
-        )}
+        {desc && <p className="mt-1 max-w-3xl text-sm text-slate-400">{desc}</p>}
       </div>
-      {right && (
-        <div className="flex flex-wrap items-center gap-2">
-          {right}
-        </div>
-      )}
+      {right && <div className="flex flex-wrap items-center gap-2">{right}</div>}
     </div>
   );
 }

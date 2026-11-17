@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { 
-  calculateInhaledExposure, 
-  calculateCommunitySavings, 
+import {
+  calculateInhaledExposure,
+  calculateCommunitySavings,
   calculateHealthRiskIndex,
-  EMISSION_FACTORS 
+  EMISSION_FACTORS
 } from '../src/services/impactCalculator';
 
 describe('Impact Calculator Service', () => {
@@ -22,7 +22,13 @@ describe('Impact Calculator Service', () => {
 
   it('calculates community emissions avoided when switching to clean transit and heating', () => {
     const roundTripKm = 20;
-    const savings = calculateCommunitySavings(roundTripKm, 'petrolCar', 'eRickshawMetro', true, true);
+    const savings = calculateCommunitySavings(
+      roundTripKm,
+      'petrolCar',
+      'eRickshawMetro',
+      true,
+      true
+    );
 
     expect(savings.co2SavedKg).toBeGreaterThan(15); // Transit + avoided sigdi + composted waste
     expect(savings.pm25SavedG).toBeGreaterThan(100); // Massive reduction vs open coal burning
@@ -37,5 +43,11 @@ describe('Impact Calculator Service', () => {
     const severeSmog = calculateHealthRiskIndex(280, true, true);
     expect(severeSmog.riskTier).toBe('Critical Hazard');
     expect(severeSmog.asthmaFlareUpProbability).toBeGreaterThan(80);
+  });
+
+  it('exposes baseline CPCB/EPA emission factors for transit, heating, and waste', () => {
+    expect(EMISSION_FACTORS.transit.petrolCar.co2Kg).toBeGreaterThan(0.1);
+    expect(EMISSION_FACTORS.heating.woodCoalSigdi.pm25G).toBe(120.0);
+    expect(EMISSION_FACTORS.waste.openBiomassBurning10Kg.co2Kg).toBe(18.5);
   });
 });

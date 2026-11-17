@@ -1,14 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import { 
-  FAMILY_ARCHETYPES, 
-  DAILY_ROUTINE_SLOTS, 
-  generatePersonalizedGuidance 
+import {
+  FAMILY_ARCHETYPES,
+  DAILY_ROUTINE_SLOTS,
+  generatePersonalizedGuidance
 } from '../src/services/routineEngine';
 
 describe('Routine Engine Service', () => {
   it('contains all 4 family archetypes with tailored vulnerabilities', () => {
     expect(FAMILY_ARCHETYPES.length).toBe(4);
-    const infantFamily = FAMILY_ARCHETYPES.find(a => a.id === 'school_infant');
+    const infantFamily = FAMILY_ARCHETYPES.find((a) => a.id === 'school_infant');
     expect(infantFamily).toBeDefined();
     expect(infantFamily.vulnerabilities.length).toBeGreaterThan(0);
   });
