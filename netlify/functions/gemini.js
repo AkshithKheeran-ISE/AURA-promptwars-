@@ -58,19 +58,22 @@ function getCorsOrigin(requestHeaders) {
   return 'null';
 }
 
-function validatePreconditions(event, headers) {
-  if (event.httpMethod !== 'POST') {
+function getClientIp(headers) {
+  return headers?.['client-ip'] || headers?.['x-forwarded-for']?.split(',')[0]?.trim() || 'global';
+}
+
+function checkMethodPrecondition(method, headers) {
+  if (method !== 'POST') {
     return {
       statusCode: 405,
       headers,
       body: JSON.stringify({ error: 'Method not allowed. Use POST.' })
     };
   }
+  return null;
+}
 
-  const clientIp =
-    event.headers?.['client-ip'] ||
-    event.headers?.['x-forwarded-for']?.split(',')[0]?.trim() ||
-    'global';
+function checkRateLimitPrecondition(clientIp, headers) {
   const rateLimitStatus = checkRateLimit(clientIp);
   if (rateLimitStatus.limited) {
     return {
@@ -87,9 +90,12 @@ function validatePreconditions(event, headers) {
       })
     };
   }
+  return null;
+}
 
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey || typeof apiKey !== 'string' || apiKey.length < 20) {
+function checkApiKeyPrecondition(apiKey, headers) {
+  const isValid = apiKey && typeof apiKey === 'string' && apiKey.length >= 20;
+  if (!isValid) {
     return {
       statusCode: 503,
       headers,
@@ -101,14 +107,35 @@ function validatePreconditions(event, headers) {
       })
     };
   }
+  return null;
+}
 
-  if (event.body && typeof event.body === 'string' && event.body.length > 10240) {
+function checkPayloadSizePrecondition(body, headers) {
+  const isTooLarge = typeof body === 'string' && body.length > 10240;
+  if (isTooLarge) {
     return {
       statusCode: 413,
       headers,
       body: JSON.stringify({ error: 'Payload exceeds 10KB limit.' })
     };
   }
+  return null;
+}
+
+function validatePreconditions(event, headers) {
+  const methodError = checkMethodPrecondition(event.httpMethod, headers);
+  if (methodError) return methodError;
+
+  const clientIp = getClientIp(event.headers);
+  const rateError = checkRateLimitPrecondition(clientIp, headers);
+  if (rateError) return rateError;
+
+  const apiKey = process.env.GEMINI_API_KEY;
+  const keyError = checkApiKeyPrecondition(apiKey, headers);
+  if (keyError) return keyError;
+
+  const sizeError = checkPayloadSizePrecondition(event.body, headers);
+  if (sizeError) return sizeError;
 
   return { apiKey };
 }
@@ -169,6 +196,47 @@ function parseAndSanitizePrompt(eventBody, headers) {
   return { cleanPrompt };
 }
 
+function formatGeminiSuccessResponse(data, startTime, headers) {
+  const candidateText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!candidateText || typeof candidateText !== 'string') {
+    return {
+      statusCode: 502,
+      headers,
+      body: JSON.stringify({
+        success: false,
+        fallback: true,
+        message: 'Empty response from model. Using offline expert protocol.'
+      })
+    };
+  }
+
+  return {
+    statusCode: 200,
+    headers,
+    body: JSON.stringify({
+      success: true,
+      text: candidateText.trim().slice(0, 4000),
+      model: 'gemini-2.0-flash',
+      latencyMs: Date.now() - startTime
+    })
+  };
+}
+
+function handleGeminiFetchError(err, headers) {
+  const isTimeout = err.name === 'AbortError';
+  return {
+    statusCode: isTimeout ? 504 : 500,
+    headers,
+    body: JSON.stringify({
+      success: false,
+      fallback: true,
+      message: isTimeout
+        ? 'Upstream inference timed out (7s). Using offline expert protocol.'
+        : 'Inference request failed. Using offline expert protocol.'
+    })
+  };
+}
+
 async function callGeminiApi(cleanPrompt, apiKey, headers) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 7000);
@@ -207,43 +275,9 @@ async function callGeminiApi(cleanPrompt, apiKey, headers) {
     }
 
     const data = await response.json();
-    const candidateText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-    if (!candidateText || typeof candidateText !== 'string') {
-      return {
-        statusCode: 502,
-        headers,
-        body: JSON.stringify({
-          success: false,
-          fallback: true,
-          message: 'Empty response from model. Using offline expert protocol.'
-        })
-      };
-    }
-
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({
-        success: true,
-        text: candidateText.trim().slice(0, 4000),
-        model: 'gemini-2.0-flash',
-        latencyMs: Date.now() - startTime
-      })
-    };
+    return formatGeminiSuccessResponse(data, startTime, headers);
   } catch (err) {
-    const isTimeout = err.name === 'AbortError';
-    return {
-      statusCode: isTimeout ? 504 : 500,
-      headers,
-      body: JSON.stringify({
-        success: false,
-        fallback: true,
-        message: isTimeout
-          ? 'Upstream inference timed out (7s). Using offline expert protocol.'
-          : 'Inference request failed. Using offline expert protocol.'
-      })
-    };
+    return handleGeminiFetchError(err, headers);
   } finally {
     clearTimeout(timeoutId);
   }

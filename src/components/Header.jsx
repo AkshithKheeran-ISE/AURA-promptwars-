@@ -24,6 +24,80 @@ function LiveClock() {
   );
 }
 
+function NotificationDropdown({ alerts, notifOpen, criticalCount, onToggle, onSelectAlert }) {
+  return (
+    <div className="relative">
+      <button
+        onClick={onToggle}
+        className="relative rounded-lg p-2 text-slate-400 hover:bg-white/5 hover:text-white transition cursor-pointer"
+        aria-label={`View notifications, ${criticalCount} critical alerts`}
+        aria-expanded={notifOpen}
+        title="Notifications"
+      >
+        <Bell className="h-5 w-5" aria-hidden="true" />
+        {criticalCount > 0 && (
+          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-rose-500 shadow-glow-red" />
+        )}
+      </button>
+
+      {notifOpen && (
+        <div
+          className="absolute right-0 mt-2 w-80 panel p-3 z-50 shadow-2xl"
+          onMouseLeave={onToggle}
+        >
+          <div className="flex items-center justify-between border-b border-cyan-400/10 pb-2 mb-2">
+            <span className="label text-cyan-300">Recent Incident Stream</span>
+            <span className="text-[10px] font-mono text-slate-400">{alerts.length} Active</span>
+          </div>
+          <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+            {alerts.slice(0, 4).map((alr) => (
+              <button
+                key={alr.id}
+                type="button"
+                onClick={onSelectAlert}
+                className="w-full text-left rounded-lg p-2 hover:bg-white/5 cursor-pointer border border-transparent hover:border-cyan-400/20 transition"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-[10px] text-rose-300 font-bold">{alr.id}</span>
+                  <span className="text-[10px] text-slate-500">{alr.timestamp}</span>
+                </div>
+                <div className="text-xs font-semibold text-slate-200 mt-0.5 truncate">
+                  {alr.title}
+                </div>
+                <div className="text-[10px] text-slate-400 truncate">{alr.ward}</div>
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={onSelectAlert}
+            className="mt-2 block w-full text-center text-xs text-cyan-300 hover:underline pt-2 border-t border-cyan-400/10 cursor-pointer"
+          >
+            Open Alert Center &rarr;
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function HeaderUserProfile() {
+  return (
+    <div className="flex items-center gap-2 rounded-lg border border-cyan-400/15 bg-[#08101e] py-1 pl-1 pr-3">
+      <div className="grid h-8 w-8 place-items-center rounded-md bg-gradient-to-br from-cyan-400 to-indigo-500 text-xs font-bold text-[#030712]">
+        PF
+      </div>
+      <div className="hidden leading-tight sm:block text-left">
+        <div className="text-xs font-semibold text-white">Priya Family Lead</div>
+        <div className="flex items-center gap-1 font-mono text-[9px] text-cyan-300/70">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>2 Children + Asthmatic
+          Senior
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Header() {
   const { page, setPage, setCommandPaletteOpen, alerts } = useApp();
 
@@ -87,80 +161,18 @@ export default function Header() {
         <LiveClock />
 
         {/* Notification Bell Dropdown */}
-        <div className="relative">
-          <button
-            onClick={() => setNotifOpen(!notifOpen)}
-            className="relative rounded-lg p-2 text-slate-400 hover:bg-white/5 hover:text-white transition cursor-pointer"
-            aria-label={`View notifications, ${criticalCount} critical alerts`}
-            aria-expanded={notifOpen}
-            title="Notifications"
-          >
-            <Bell className="h-5 w-5" aria-hidden="true" />
-            {criticalCount > 0 && (
-              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-rose-500 shadow-glow-red" />
-            )}
-          </button>
+        <NotificationDropdown
+          alerts={alerts}
+          notifOpen={notifOpen}
+          criticalCount={criticalCount}
+          onToggle={() => setNotifOpen(!notifOpen)}
+          onSelectAlert={() => {
+            setPage('alerts');
+            setNotifOpen(false);
+          }}
+        />
 
-          {notifOpen && (
-            <div
-              className="absolute right-0 mt-2 w-80 panel p-3 z-50 shadow-2xl"
-              onMouseLeave={() => setNotifOpen(false)}
-            >
-              <div className="flex items-center justify-between border-b border-cyan-400/10 pb-2 mb-2">
-                <span className="label text-cyan-300">Recent Incident Stream</span>
-                <span className="text-[10px] font-mono text-slate-400">{alerts.length} Active</span>
-              </div>
-              <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-                {alerts.slice(0, 4).map((alr) => (
-                  <button
-                    key={alr.id}
-                    type="button"
-                    onClick={() => {
-                      setPage('alerts');
-                      setNotifOpen(false);
-                    }}
-                    className="w-full text-left rounded-lg p-2 hover:bg-white/5 cursor-pointer border border-transparent hover:border-cyan-400/20 transition"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono text-[10px] text-rose-300 font-bold">
-                        {alr.id}
-                      </span>
-                      <span className="text-[10px] text-slate-500">{alr.timestamp}</span>
-                    </div>
-                    <div className="text-xs font-semibold text-slate-200 mt-0.5 truncate">
-                      {alr.title}
-                    </div>
-                    <div className="text-[10px] text-slate-400 truncate">{alr.ward}</div>
-                  </button>
-                ))}
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setPage('alerts');
-                  setNotifOpen(false);
-                }}
-                className="mt-2 block w-full text-center text-xs text-cyan-300 hover:underline pt-2 border-t border-cyan-400/10 cursor-pointer"
-              >
-                Open Alert Center &rarr;
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* User Profile */}
-        <div className="flex items-center gap-2 rounded-lg border border-cyan-400/15 bg-[#08101e] py-1 pl-1 pr-3">
-          <div className="grid h-8 w-8 place-items-center rounded-md bg-gradient-to-br from-cyan-400 to-indigo-500 text-xs font-bold text-[#030712]">
-            PF
-          </div>
-          <div className="hidden leading-tight sm:block text-left">
-            <div className="text-xs font-semibold text-white">Priya Family Lead</div>
-            <div className="flex items-center gap-1 font-mono text-[9px] text-cyan-300/70">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>2 Children +
-              Asthmatic Senior
-            </div>
-          </div>
-        </div>
+        <HeaderUserProfile />
       </div>
     </header>
   );

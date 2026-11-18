@@ -50,6 +50,12 @@ export default [
     }
   },
   {
+    files: ['tests/**', 'e2e/**', '**/*.test.{js,jsx}', '**/*.spec.{js,jsx}'],
+    rules: {
+      'max-lines-per-function': 'off'
+    }
+  },
+  {
     ignores: ['dist/**', 'node_modules/**', 'coverage/**', '*.cjs']
   }
 ];

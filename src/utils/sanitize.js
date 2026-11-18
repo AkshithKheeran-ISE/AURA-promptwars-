@@ -148,25 +148,12 @@ export function validateCitizenReport(report) {
   };
 }
 
-/**
- * Standard FIPS 180-4 SHA-256 cryptographic hash function.
- * Outputs genuine 64-character lowercase hexadecimal digest.
- * @param {string} input - Raw string or object to hash
- * @returns {string} 64-character SHA-256 hexadecimal string
- */
-export function sha256(input) {
-  const raw = typeof input !== 'string' ? String(input ?? '') : input;
-  // Convert Unicode string to UTF-8 byte stream
-  const ascii = unescape(encodeURIComponent(raw));
+function rightRotate(value, amount) {
+  return (value >>> amount) | (value << (32 - amount));
+}
 
-  function rightRotate(value, amount) {
-    return (value >>> amount) | (value << (32 - amount));
-  }
-
-  const mathPow = Math.pow;
-  const maxWord = mathPow(2, 32);
-  const words = [];
-  const asciiBitLength = ascii.length * 8;
+function buildSha256Constants() {
+  const maxWord = Math.pow(2, 32);
   const hash = [];
   const k = [];
   let primeCounter = 0;
@@ -177,11 +164,19 @@ export function sha256(input) {
       for (let i = 0; i < 313; i += candidate) {
         isComposite[i] = candidate;
       }
-      hash[primeCounter] = Math.trunc(mathPow(candidate, 0.5) * maxWord);
-      k[primeCounter++] = Math.trunc(mathPow(candidate, 1 / 3) * maxWord);
+      hash[primeCounter] = Math.trunc(Math.pow(candidate, 0.5) * maxWord);
+      k[primeCounter++] = Math.trunc(Math.pow(candidate, 1 / 3) * maxWord);
     }
   }
+  return { initialHash: hash.slice(0, 8), k };
+}
 
+const { initialHash: SHA256_INIT_HASH, k: SHA256_K } = buildSha256Constants();
+
+function padSha256Message(ascii) {
+  const maxWord = Math.pow(2, 32);
+  const words = [];
+  const asciiBitLength = ascii.length * 8;
   let padded = ascii + '\x80';
   while ((padded.length % 64) - 56) padded += '\x00';
   for (let i = 0; i < padded.length; i++) {
@@ -190,44 +185,51 @@ export function sha256(input) {
   }
   words[words.length] = Math.trunc(asciiBitLength / maxWord);
   words[words.length] = asciiBitLength;
+  return words;
+}
 
-  for (let j = 0; j < words.length;) {
-    const w = words.slice(j, (j += 16));
-    const oldHash = hash.slice(0, 8);
+function computeSha256Round(w, i, hash) {
+  const w15 = w[i - 15];
+  const w2 = w[i - 2];
+  const a = hash[0];
+  const e = hash[4];
+  const scheduleWord =
+    i < 16
+      ? w[i]
+      : Math.trunc(
+          w[i - 16] +
+            (rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3)) +
+            w[i - 7] +
+            (rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10))
+        ) & -1;
+  w[i] = scheduleWord;
 
-    for (let i = 0; i < 64; i++) {
-      const w15 = w[i - 15];
-      const w2 = w[i - 2];
-      const a = hash[0];
-      const e = hash[4];
-      const temp1 =
-        hash[7] +
-        (rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25)) +
-        ((e & hash[5]) ^ (~e & hash[6])) +
-        k[i] +
-        (w[i] =
-          i < 16
-            ? w[i]
-            : Math.trunc(
-                w[i - 16] +
-                  (rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3)) +
-                  w[i - 7] +
-                  (rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10))
-              ) & -1);
-      const temp2 =
-        (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22)) +
-        ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));
+  const temp1 =
+    hash[7] +
+    (rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25)) +
+    ((e & hash[5]) ^ (~e & hash[6])) +
+    SHA256_K[i] +
+    scheduleWord;
+  const temp2 =
+    (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22)) +
+    ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));
 
-      hash.unshift(Math.trunc(temp1 + temp2) & -1);
-      hash.length = 8;
-      hash[4] = Math.trunc(hash[4] + temp1) & -1;
-    }
+  hash.unshift(Math.trunc(temp1 + temp2) & -1);
+  hash.length = 8;
+  hash[4] = Math.trunc(hash[4] + temp1) & -1;
+}
 
-    for (let i = 0; i < 8; i++) {
-      hash[i] = Math.trunc(hash[i] + oldHash[i]) & -1;
-    }
+function processSha256Chunk(w, hash) {
+  const oldHash = hash.slice(0, 8);
+  for (let i = 0; i < 64; i++) {
+    computeSha256Round(w, i, hash);
   }
+  for (let i = 0; i < 8; i++) {
+    hash[i] = Math.trunc(hash[i] + oldHash[i]) & -1;
+  }
+}
 
+function formatSha256Digest(hash) {
   let result = '';
   for (let i = 0; i < 8; i++) {
     for (let j = 3; j >= 0; j--) {
@@ -235,8 +237,27 @@ export function sha256(input) {
       result += (b < 16 ? '0' : '') + b.toString(16);
     }
   }
-
   return result;
+}
+
+/**
+ * Standard FIPS 180-4 SHA-256 cryptographic hash function.
+ * Outputs genuine 64-character lowercase hexadecimal digest.
+ * @param {string} input - Raw string or object to hash
+ * @returns {string} 64-character SHA-256 hexadecimal string
+ */
+export function sha256(input) {
+  const raw = typeof input !== 'string' ? String(input ?? '') : input;
+  const ascii = unescape(encodeURIComponent(raw));
+  const words = padSha256Message(ascii);
+  const hash = SHA256_INIT_HASH.slice();
+
+  for (let j = 0; j < words.length;) {
+    const chunk = words.slice(j, (j += 16));
+    processSha256Chunk(chunk, hash);
+  }
+
+  return formatSha256Digest(hash);
 }
 
 /**

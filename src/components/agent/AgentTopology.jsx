@@ -2,6 +2,41 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FAMILY_AGENTS_ROSTER, SATELLITE_AGENTS_CONFIG } from './agentConstants';
 
+const TOPOLOGY_LINES = [
+  { x: 20, y: 20, stroke: '#22d3ee' },
+  { x: 80, y: 20, stroke: '#34d399' },
+  { x: 15, y: 50, stroke: '#f43f5e' },
+  { x: 85, y: 50, stroke: '#a855f7' },
+  { x: 25, y: 80, stroke: '#fbbf24' },
+  { x: 75, y: 80, stroke: '#38bdf8' }
+];
+
+function TopologyMeshLines() {
+  return (
+    <svg
+      className="absolute inset-0 h-full w-full pointer-events-none"
+      viewBox="0 0 100 100"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      {TOPOLOGY_LINES.map((l, idx) => (
+        <line
+          key={idx}
+          x1="50"
+          y1="50"
+          x2={l.x}
+          y2={l.y}
+          stroke={l.stroke}
+          strokeWidth="1"
+          strokeDasharray="2 2"
+          className="animate-dash"
+          opacity="0.6"
+        />
+      ))}
+    </svg>
+  );
+}
+
 /**
  * Animated SVG network topology map displaying multi-agent consensus core and satellite nodes.
  */
@@ -19,34 +54,7 @@ export default function AgentTopology({ agentMetrics, onRunConsensus, onExecuteA
       </div>
 
       <div className="relative h-[440px] w-full grid-bg rounded-xl border border-cyan-400/15 overflow-hidden">
-        <svg
-          className="absolute inset-0 h-full w-full pointer-events-none"
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-        >
-          {[
-            { x: 20, y: 20, stroke: '#22d3ee' },
-            { x: 80, y: 20, stroke: '#34d399' },
-            { x: 15, y: 50, stroke: '#f43f5e' },
-            { x: 85, y: 50, stroke: '#a855f7' },
-            { x: 25, y: 80, stroke: '#fbbf24' },
-            { x: 75, y: 80, stroke: '#38bdf8' }
-          ].map((l, idx) => (
-            <line
-              key={idx}
-              x1="50"
-              y1="50"
-              x2={l.x}
-              y2={l.y}
-              stroke={l.stroke}
-              strokeWidth="1"
-              strokeDasharray="2 2"
-              className="animate-dash"
-              opacity="0.6"
-            />
-          ))}
-        </svg>
+        <TopologyMeshLines />
 
         {/* Central Orchestrator Core */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center z-10">
