@@ -32,9 +32,10 @@ export function escapeHtml(str) {
  */
 export function stripHtmlTags(str) {
   if (typeof str !== 'string') return '';
-  return str
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+  const input = str.length > 50000 ? str.slice(0, 50000) : str;
+  return input
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '')
     .replace(/<[^>]+>/g, '')
     .trim();
 }
@@ -132,8 +133,8 @@ export function sha256(input) {
       for (let i = 0; i < 313; i += candidate) {
         isComposite[i] = candidate;
       }
-      hash[primeCounter] = (mathPow(candidate, 0.5) * maxWord) | 0;
-      k[primeCounter++] = (mathPow(candidate, 1 / 3) * maxWord) | 0;
+      hash[primeCounter] = Math.trunc(mathPow(candidate, 0.5) * maxWord);
+      k[primeCounter++] = Math.trunc(mathPow(candidate, 1 / 3) * maxWord);
     }
   }
 
@@ -143,7 +144,7 @@ export function sha256(input) {
     const j = padded.charCodeAt(i);
     words[i >> 2] |= j << ((3 - (i % 4)) * 8);
   }
-  words[words.length] = (asciiBitLength / maxWord) | 0;
+  words[words.length] = Math.trunc(asciiBitLength / maxWord);
   words[words.length] = asciiBitLength;
 
   for (let j = 0; j < words.length;) {
@@ -163,22 +164,23 @@ export function sha256(input) {
         (w[i] =
           i < 16
             ? w[i]
-            : (w[i - 16] +
-                (rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3)) +
-                w[i - 7] +
-                (rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10))) |
-              0);
+            : Math.trunc(
+                w[i - 16] +
+                  (rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3)) +
+                  w[i - 7] +
+                  (rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10))
+              ) & -1);
       const temp2 =
         (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22)) +
         ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));
 
-      hash.unshift((temp1 + temp2) | 0);
+      hash.unshift(Math.trunc(temp1 + temp2) & -1);
       hash.length = 8;
-      hash[4] = (hash[4] + temp1) | 0;
+      hash[4] = Math.trunc(hash[4] + temp1) & -1;
     }
 
     for (let i = 0; i < 8; i++) {
-      hash[i] = (hash[i] + oldHash[i]) | 0;
+      hash[i] = Math.trunc(hash[i] + oldHash[i]) & -1;
     }
   }
 

@@ -572,9 +572,9 @@ export default function AgentSystem() {
 
           {/* Terminal Input Bar */}
           <form
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
-              handleSend();
+              await handleSend();
             }}
             className="flex items-center gap-2 border-t border-cyan-400/10 pt-3"
           >

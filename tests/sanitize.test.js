@@ -46,6 +46,16 @@ describe('Security & Sanitization Utilities', () => {
       expect(stripHtmlTags('')).toBe('');
       expect(stripHtmlTags(null)).toBe('');
     });
+
+    it('processes very long inputs (50,000+ characters) in under 50 ms without ReDoS', () => {
+      const maliciousPayload = '<script ' + 'a="x" '.repeat(10000) + 'console.log(1);';
+      const start = performance.now();
+      const output = stripHtmlTags(maliciousPayload);
+      const elapsed = performance.now() - start;
+
+      expect(elapsed).toBeLessThan(50);
+      expect(output).toBeDefined();
+    });
   });
 
   describe('sanitizeInput', () => {

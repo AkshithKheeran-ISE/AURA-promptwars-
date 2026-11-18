@@ -61,7 +61,7 @@ const DEFAULT_MASK_PENETRATION = 1.0;
  */
 function sanitizeNumber(val, fallback = 0, min = 0, max = Infinity) {
   const num = Number(val);
-  if (isNaN(num) || !isFinite(num)) return fallback;
+  if (Number.isNaN(num) || !Number.isFinite(num)) return fallback;
   return Math.max(min, Math.min(max, num));
 }
 

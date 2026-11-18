@@ -77,11 +77,22 @@ export default function CommandPalette() {
       aria-modal="true"
       aria-label="Command Palette"
       onClick={() => setCommandPaletteOpen(false)}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') setCommandPaletteOpen(false);
+      }}
       className="fixed inset-0 z-[3000] grid place-items-start justify-center bg-black/70 p-4 pt-20 backdrop-blur-sm cursor-pointer"
     >
       <div
-        className="w-full max-w-2xl panel panel-corners border-cyan-400/30 bg-[#08101e] shadow-2xl overflow-hidden"
+        role="button"
+        tabIndex={0}
+        aria-label="Command Palette Content"
+        className="w-full max-w-2xl panel panel-corners border-cyan-400/30 bg-[#08101e] shadow-2xl overflow-hidden cursor-default text-left"
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.stopPropagation();
+          }
+        }}
       >
         {/* Search Input Bar */}
         <div className="flex items-center gap-3 border-b border-cyan-400/20 px-4 py-3">

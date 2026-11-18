@@ -139,6 +139,7 @@ function parseAndSanitizePrompt(eventBody, headers) {
   }
 
   const cleanPrompt = rawPrompt
+    .slice(0, 1000)
     .replace(/<[^>]*>/g, '')
     .trim()
     .slice(0, 600);
