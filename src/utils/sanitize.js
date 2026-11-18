@@ -26,18 +26,62 @@ export function escapeHtml(str) {
 }
 
 /**
- * Strips all HTML tags and script elements completely.
+ * Removes blocks delimited by openTag and closeTag in linear time using indexOf.
+ * If closeTag or the closing delimiter is not found, truncates to the end.
+ * @param {string} str - Input string
+ * @param {string} openTag - e.g. '<script'
+ * @param {string} closeTag - e.g. '</script'
+ * @returns {string} Cleaned string
+ */
+function removeBlock(str, openTag, closeTag) {
+  const lower = str.toLowerCase();
+  let result = '';
+  let startIdx = 0;
+
+  while (startIdx < str.length) {
+    const openIdx = lower.indexOf(openTag, startIdx);
+    if (openIdx === -1) {
+      result += str.slice(startIdx);
+      break;
+    }
+    result += str.slice(startIdx, openIdx);
+    const closeIdx = lower.indexOf(closeTag, openIdx + openTag.length);
+    if (closeIdx === -1) {
+      break;
+    }
+    const endOfClose = lower.indexOf('>', closeIdx + closeTag.length);
+    if (endOfClose === -1) {
+      break;
+    }
+    startIdx = endOfClose + 1;
+  }
+  return result;
+}
+
+/**
+ * Strips all HTML tags and script/style elements completely via linear string scan.
  * @param {string} str - Input with potential HTML
  * @returns {string} Plain text with tags removed
  */
 export function stripHtmlTags(str) {
   if (typeof str !== 'string') return '';
   const input = str.length > 50000 ? str.slice(0, 50000) : str;
-  return input
-    .replace(/<script\b[^<]*>[\s\S]*?<\/script>/gi, '')
-    .replace(/<style\b[^<]*>[\s\S]*?<\/style>/gi, '')
-    .replace(/<[^<>]*>/g, '')
-    .trim();
+  let text = removeBlock(input, '<script', '</script');
+  text = removeBlock(text, '<style', '</style');
+
+  let result = '';
+  let inTag = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (ch === '<') {
+      inTag = true;
+    } else if (ch === '>') {
+      inTag = false;
+    } else if (!inTag) {
+      result += ch;
+    }
+  }
+  return result.trim();
 }
 
 /**

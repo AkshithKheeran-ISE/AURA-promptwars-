@@ -138,11 +138,20 @@ function parseAndSanitizePrompt(eventBody, headers) {
     };
   }
 
-  const cleanPrompt = rawPrompt
-    .slice(0, 1000)
-    .replace(/<[^<>]*>/g, '')
-    .trim()
-    .slice(0, 600);
+  const cappedPrompt = rawPrompt.slice(0, 1000);
+  let strippedPrompt = '';
+  let inTag = false;
+  for (let i = 0; i < cappedPrompt.length; i++) {
+    const ch = cappedPrompt[i];
+    if (ch === '<') {
+      inTag = true;
+    } else if (ch === '>') {
+      inTag = false;
+    } else if (!inTag) {
+      strippedPrompt += ch;
+    }
+  }
+  const cleanPrompt = strippedPrompt.trim().slice(0, 600);
 
   return { cleanPrompt };
 }

@@ -59,36 +59,56 @@ describe('Security & Sanitization Utilities', () => {
       );
     });
 
-    it('processes 100,000-character adversarial inputs in stripHtmlTags in under 100 ms', () => {
-      const longA = 'a'.repeat(100000) + '!';
+    it('handles normal script and style tags', () => {
+      const input =
+        'Pre <script>console.log("bad")</script> Mid <style>.css{color:red}</style> Post';
+      expect(stripHtmlTags(input)).toBe('Pre  Mid  Post');
+    });
+
+    it('handles an unclosed <script tag by dropping to the end', () => {
+      const input = 'Valid report <script evilUnclosedPayload()';
+      expect(stripHtmlTags(input)).toBe('Valid report');
+    });
+
+    it('processes <<<<<< repeated 50,000 times in under 100 ms', () => {
+      const input = '<'.repeat(50000);
       const t0 = performance.now();
-      const resA = stripHtmlTags(longA);
-      const elapsedA = performance.now() - t0;
-      expect(elapsedA).toBeLessThan(100);
-      expect(typeof resA).toBe('string');
-      expect(resA.length).toBeLessThanOrEqual(50000);
+      const output = stripHtmlTags(input);
+      const elapsed = performance.now() - t0;
+      expect(elapsed).toBeLessThan(100);
+      expect(output).toBe('');
+    });
 
-      const longSpaces = ' '.repeat(100000) + 'x';
-      const t1 = performance.now();
-      const resSpaces = stripHtmlTags(longSpaces);
-      const elapsedSpaces = performance.now() - t1;
-      expect(elapsedSpaces).toBeLessThan(100);
-      expect(typeof resSpaces).toBe('string');
+    it('processes <script repeated 20,000 times in under 100 ms', () => {
+      const input = '<script'.repeat(20000);
+      const t0 = performance.now();
+      const output = stripHtmlTags(input);
+      const elapsed = performance.now() - t0;
+      expect(elapsed).toBeLessThan(100);
+      expect(output).toBe('');
+    });
 
-      const alternatingTags = '<'.repeat(50000) + '>'.repeat(50000);
-      const t2 = performance.now();
-      stripHtmlTags(alternatingTags);
-      const elapsedTags = performance.now() - t2;
-      expect(elapsedTags).toBeLessThan(100);
+    it('processes a 100,000-character string of spaces ending in x in under 100 ms', () => {
+      const input = ' '.repeat(100000) + 'x';
+      const t0 = performance.now();
+      const output = stripHtmlTags(input);
+      const elapsed = performance.now() - t0;
+      expect(elapsed).toBeLessThan(100);
+      expect(typeof output).toBe('string');
     });
 
     it('processes 100,000-character adversarial inputs in Gemini prompt sanitization in under 100 ms', () => {
-      const sanitizeGeminiPrompt = (rawPrompt) =>
-        rawPrompt
-          .slice(0, 1000)
-          .replace(/<[^<>]*>/g, '')
-          .trim()
-          .slice(0, 600);
+      const sanitizeGeminiPrompt = (rawPrompt) => {
+        const capped = rawPrompt.slice(0, 1000);
+        let stripped = '';
+        let inTag = false;
+        for (let i = 0; i < capped.length; i++) {
+          if (capped[i] === '<') inTag = true;
+          else if (capped[i] === '>') inTag = false;
+          else if (!inTag) stripped += capped[i];
+        }
+        return stripped.trim().slice(0, 600);
+      };
 
       const longA = 'a'.repeat(100000) + '!';
       const t0 = performance.now();
