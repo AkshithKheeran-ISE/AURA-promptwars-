@@ -4,11 +4,16 @@
 > _A GenAI-powered assistant helping families and communities navigate severe winter smog and urban air pollution with low-emission routines, DIY indoor air quality hacks, and sustainable alternatives tailored to location and lifestyle._
 
 [![CI Pipeline](https://github.com/akshithkheerankr/Urban-Air-Quality-Assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/akshithkheerankr/Urban-Air-Quality-Assistant/actions/workflows/ci.yml)
+[![Live Demo](https://img.shields.io/badge/Live_Deployment-auratheairqualityassistant.vercel.app-cyan?style=flat&logo=vercel)](https://auratheairqualityassistant.vercel.app/)
 [![Vulnerabilities](https://img.shields.io/badge/vulnerabilities-0_zero-brightgreen)](#)
 [![Tests](https://img.shields.io/badge/tests-110%2F110_passing-brightgreen)](#)
 [![Coverage](https://img.shields.io/badge/coverage-97.36%25_lines-brightgreen)](#)
 [![Accessibility](https://img.shields.io/badge/accessibility-axe--core_automated_scans-blue)](#)
 [![Design](https://img.shields.io/badge/UI_Aesthetic-ORCA_Tactical_Command-blue)](#)
+
+---
+
+> 🚀 **Live Production Application**: [https://auratheairqualityassistant.vercel.app/](https://auratheairqualityassistant.vercel.app/)
 
 ---
 
@@ -143,7 +148,7 @@ AURA provides transparent, explainable formulas directly in the interface with z
 - **Input Sanitization**: `src/utils/sanitize.js` escapes `<, >, &, ", ', /, \``, strips script/style tags, and neutralizes URI schemes (`javascript:`, `data:`).
 - **Cryptographic Chaining**: Every citizen hazard report is hashed with SHA-256 and linked to the previous block's digest, providing proof of tamper detection.
 - **Supply Chain**: `npm audit --omit=dev` returns **0 vulnerabilities**. Zero hardcoded credentials or API tokens.
-- **Universal Deployment**: Relative asset resolution (`base: './'`), `netlify.toml`, `public/_redirects`, and `vercel.json` ensure zero white-screen errors across GitHub Pages, Netlify, and Vercel.
+- **Universal Deployment**: Relative asset resolution (`base: './'`), `netlify.toml`, `public/_redirects`, and `vercel.json` ensure zero white-screen errors across GitHub Pages, Netlify, and Vercel. Live production deployment: [https://auratheairqualityassistant.vercel.app/](https://auratheairqualityassistant.vercel.app/).
 - **Accessibility**: Full WCAG 2.1 AA compliance including Skip to Main Content shortcut, visible keyboard focus rings, semantic `<button>` elements, and descriptive ARIA labels.
 
 ---

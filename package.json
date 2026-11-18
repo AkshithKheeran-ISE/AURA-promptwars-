@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "AURA — Atmospheric Understanding & Real-time Air Quality Intelligence Suite",
   "license": "MIT",
-  "homepage": "https://aura-the-urbanairqualityassistant.netlify.app/",
+  "homepage": "https://auratheairqualityassistant.vercel.app/",
   "engines": {
     "node": ">=20.0.0"
   },
