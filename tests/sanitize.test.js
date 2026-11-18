@@ -165,54 +165,47 @@ describe('Security & Sanitization Utilities', () => {
   });
 
   describe('validateCitizenReport', () => {
-    it('accepts valid citizen report payload and normalizes fields', () => {
-      const payload = {
-        location: 'Anand Vihar ISBT',
-        issue: 'Heavy diesel bus idling emitting dense plumes',
-        reporter: 'Citizen Watch',
-        urgency: 'Critical'
-      };
-      const result = validateCitizenReport(payload);
-      expect(result.isValid).toBe(true);
-      expect(result.errors.length).toBe(0);
-      expect(result.sanitized.location).toBe('Anand Vihar ISBT');
-      expect(result.sanitized.urgency).toBe('Critical');
-    });
-
-    it('rejects payload with invalid location length', () => {
-      const payload = {
-        location: 'A',
-        issue: 'Valid issue description here',
-        reporter: 'Tester',
-        urgency: 'Medium'
-      };
-      const result = validateCitizenReport(payload);
-      expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Location must be at least 3 characters.');
-    });
-
-    it('rejects payload with missing or short issue', () => {
-      const payload = {
-        location: 'Rohini Sector 14',
-        issue: 'Bad',
-        reporter: 'Tester',
-        urgency: 'Low'
-      };
-      const result = validateCitizenReport(payload);
-      expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Issue description must be at least 5 characters.');
-    });
-
-    it('defaults invalid urgency levels to Medium', () => {
-      const payload = {
-        location: 'Okhla Phase 3',
-        issue: 'Factory chimney smoke without scrubbers',
-        reporter: 'Resident',
-        urgency: 'UNKNOWN_URGENCY'
-      };
-      const result = validateCitizenReport(payload);
-      expect(result.isValid).toBe(true);
-      expect(result.sanitized.urgency).toBe('Medium');
+    it.each([
+      [
+        'accepts valid citizen report payload and normalizes fields',
+        [
+          'Anand Vihar ISBT',
+          'Heavy diesel bus idling emitting dense plumes',
+          'Citizen Watch',
+          'Critical'
+        ],
+        { isValid: true, errCount: 0, location: 'Anand Vihar ISBT', urgency: 'Critical' }
+      ],
+      [
+        'rejects payload with invalid location length',
+        ['A', 'Valid issue description here', 'Tester', 'Medium'],
+        { isValid: false, errText: 'Location must be at least 3 characters.' }
+      ],
+      [
+        'rejects payload with missing or short issue',
+        ['Rohini Sector 14', 'Bad', 'Tester', 'Low'],
+        { isValid: false, errText: 'Issue description must be at least 5 characters.' }
+      ],
+      [
+        'defaults invalid urgency levels to Medium',
+        ['Okhla Phase 3', 'Factory chimney smoke without scrubbers', 'Resident', 'UNKNOWN_URGENCY'],
+        { isValid: true, urgency: 'Medium' }
+      ]
+    ])('%s', (_, [location, issue, reporter, urgency], expected) => {
+      const result = validateCitizenReport({ location, issue, reporter, urgency });
+      expect(result.isValid).toBe(expected.isValid);
+      if (expected.errCount !== undefined) {
+        expect(result.errors.length).toBe(expected.errCount);
+      }
+      if (expected.errText) {
+        expect(result.errors).toContain(expected.errText);
+      }
+      if (expected.location) {
+        expect(result.sanitized.location).toBe(expected.location);
+      }
+      if (expected.urgency) {
+        expect(result.sanitized.urgency).toBe(expected.urgency);
+      }
     });
   });
 

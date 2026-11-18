@@ -19,9 +19,19 @@ import {
 import { useApp, NAV_ITEMS } from '../context/AppContext';
 
 const ICON_MAP = {
-  LayoutDashboard, Clock, Sparkles, Leaf, Map,
-  AlertTriangle, Factory, HeartPulse, FileText,
-  Bot, CalendarDays, Radio, ShieldCheck
+  LayoutDashboard,
+  Clock,
+  Sparkles,
+  Leaf,
+  Map,
+  AlertTriangle,
+  Factory,
+  HeartPulse,
+  FileText,
+  Bot,
+  CalendarDays,
+  Radio,
+  ShieldCheck
 };
 
 export default function Sidebar() {
