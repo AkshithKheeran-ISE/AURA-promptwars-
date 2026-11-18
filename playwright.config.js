@@ -13,7 +13,10 @@ export default defineConfig({
     trace: 'on-first-retry'
   },
   webServer: {
-    command: 'npm run dev -- --host 127.0.0.1 --port 3000',
+    command:
+      process.platform === 'win32'
+        ? 'cmd /c "npm run dev -- --host 127.0.0.1 --port 3000"'
+        : 'npm run dev -- --host 127.0.0.1 --port 3000',
     port: 3000,
     reuseExistingServer: true,
     timeout: 60000

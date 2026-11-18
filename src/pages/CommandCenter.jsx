@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
 import { useApp } from '../context/AppContext';
-import { WARDS_DATA, HOURLY_TRENDS } from '../data/airData';
+import { WARDS_DATA, HOURLY_TRENDS, DATA_PROVENANCE_TIERS } from '../data/airData';
 import { FAMILY_ARCHETYPES } from '../services/routineEngine';
 
 const WARD_STATUS_CLASSES = {
@@ -477,6 +477,44 @@ export default function CommandCenter() {
           >
             Explore All 6 Low-Cost IAQ Hacks &rarr;
           </button>
+        </div>
+      </div>
+
+      {/* Environmental Data Provenance & Science Transparency Bar */}
+      <div className="panel p-4 border border-cyan-400/20 bg-[#08101e]/80 space-y-3 font-mono text-xs">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-cyan-400/10 pb-2">
+          <div className="flex items-center gap-2 text-cyan-300 font-bold tracking-wide uppercase text-[11px]">
+            <Layers className="h-4 w-4 text-cyan-400" />
+            Environmental Data Provenance & Science Transparency
+          </div>
+          <span className="text-[10px] text-slate-400">
+            CPCB / EPA / WRF-Chem Atmospheric Calibrations
+          </span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {Object.values(DATA_PROVENANCE_TIERS).map((tier) => (
+            <div
+              key={tier.id}
+              className="p-3 rounded-lg bg-[#030712] border border-cyan-400/15 space-y-1"
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-white text-[11px]">{tier.label}</span>
+                <span
+                  className="px-1.5 py-0.5 rounded text-[9px] font-bold"
+                  style={{
+                    backgroundColor: `${tier.badgeColor}20`,
+                    color: tier.badgeColor
+                  }}
+                >
+                  {tier.isSimulation ? 'SIMULATION / MODEL' : 'STATUTORY REAL'}
+                </span>
+              </div>
+              <p className="text-[10px] text-slate-300 font-sans leading-relaxed">{tier.method}</p>
+              <div className="text-[9px] text-slate-500 pt-1 border-t border-cyan-400/10 truncate">
+                Source: {tier.source}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

@@ -345,6 +345,8 @@ export async function orchestrateAgentWorkflow(rawPrompt, context = {}, preferre
 
   let outputText = '';
   let engineUsed = '';
+  let isFallback = true;
+  let executionMode = 'DETERMINISTIC_SPECIALIST';
 
   // Step 3: Attempt Secure Gemini Proxy (if no explicit specialist override)
   if (!preferredAgentId && cleanPrompt.length > 5) {
@@ -358,6 +360,8 @@ export async function orchestrateAgentWorkflow(rawPrompt, context = {}, preferre
     if (liveResult) {
       outputText = liveResult.text;
       engineUsed = `Gemini 2.0 Flash (via Secure Server Proxy · ${liveResult.latencyMs}ms)`;
+      isFallback = false;
+      executionMode = 'LIVE_PROXY';
       trace.push({
         step: 'SERVER_PROXY_DISPATCH',
         status: 'SUCCESS',
@@ -405,6 +409,8 @@ export async function orchestrateAgentWorkflow(rawPrompt, context = {}, preferre
     role: agentResult.role,
     text: outputText,
     engine: engineUsed,
+    isFallback,
+    executionMode,
     durationMs,
     attestationToken,
     timestamp,
@@ -469,6 +475,8 @@ export async function queryAiAssistant(rawPrompt, context = {}) {
     agent: result.agentName,
     badge: result.attestationToken.slice(0, 12).toUpperCase(),
     trace: result.trace,
+    isFallback: result.isFallback,
+    executionMode: result.executionMode,
     attestationToken: result.attestationToken,
     durationMs: result.durationMs
   };

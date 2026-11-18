@@ -40,14 +40,20 @@ function checkRateLimit(clientIp) {
 function getCorsOrigin(requestHeaders) {
   const origin = requestHeaders?.origin || requestHeaders?.Origin || '';
   if (!origin) return '*';
-  if (
-    origin.includes('localhost') ||
-    origin.includes('127.0.0.1') ||
-    origin.endsWith('.netlify.app') ||
-    origin.endsWith('.vercel.app') ||
-    origin.includes('github.io')
-  ) {
-    return origin;
+  try {
+    const parsed = new URL(origin);
+    const hostname = parsed.hostname;
+    if (
+      hostname === 'localhost' ||
+      hostname === '127.0.0.1' ||
+      hostname.endsWith('.netlify.app') ||
+      hostname.endsWith('.vercel.app') ||
+      hostname.endsWith('.github.io')
+    ) {
+      return origin;
+    }
+  } catch {
+    // Malformed URL origin
   }
   return 'null';
 }
