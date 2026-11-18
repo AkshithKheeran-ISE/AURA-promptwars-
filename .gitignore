@@ -6,6 +6,9 @@ node_modules
 # Production build
 dist
 dist-ssr
+coverage
+test-results
+playwright-report
 
 # Local env files
 .env

@@ -2,16 +2,22 @@
   "name": "urban-air-quality-assistant",
   "version": "1.0.0",
   "description": "AURA — Atmospheric Understanding & Real-time Air Quality Intelligence Suite",
+  "license": "MIT",
+  "homepage": "https://aura-the-urbanairqualityassistant.netlify.app/",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "lint": "eslint src tests",
-    "format": "prettier --check \"src/**/*.{js,jsx}\" \"tests/**/*.{js,jsx}\"",
-    "format:fix": "prettier --write \"src/**/*.{js,jsx}\" \"tests/**/*.{js,jsx}\""
+    "lint": "eslint .",
+    "format": "prettier --check .",
+    "format:fix": "prettier --write ."
   },
   "dependencies": {
     "leaflet": "^1.9.4",
@@ -20,10 +26,12 @@
     "react-dom": "^19.3.1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@eslint/js": "^9.20.0",
     "@playwright/test": "^1.65.1",
     "@tailwindcss/vite": "^4.3.5",
     "@vitejs/plugin-react": "^6.3.0",
+    "@vitest/coverage-v8": "^5.1.1",
     "autoprefixer": "^10.6.2",
     "eslint": "^9.20.0",
     "eslint-plugin-react": "^7.37.5",

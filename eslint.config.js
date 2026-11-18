@@ -8,7 +8,7 @@ export default [
   reactPlugin.configs.flat.recommended,
   reactPlugin.configs.flat['jsx-runtime'],
   {
-    files: ['src/**/*.{js,jsx}', 'tests/**/*.{js,jsx}'],
+    files: ['**/*.{js,jsx}'],
     plugins: {
       'react-hooks': reactHooksPlugin
     },
@@ -17,7 +17,12 @@ export default [
       sourceType: 'module',
       globals: {
         ...globals.browser,
-        ...globals.node
+        ...globals.node,
+        fetch: 'readonly',
+        AbortController: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        process: 'readonly'
       },
       parserOptions: {
         ecmaFeatures: {
@@ -27,7 +32,7 @@ export default [
     },
     settings: {
       react: {
-        version: '19.0'
+        version: 'detect'
       }
     },
     rules: {
@@ -36,7 +41,12 @@ export default [
       'react/prop-types': 'off',
       'react/no-unescaped-entities': 'warn',
       'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'warn'
+      'react-hooks/exhaustive-deps': 'warn',
+      complexity: ['warn', 12],
+      'max-lines-per-function': ['warn', { max: 80, skipBlankLines: true, skipComments: true }],
+      'no-console': 'warn',
+      eqeqeq: ['error', 'always'],
+      'prefer-const': 'error'
     }
   },
   {

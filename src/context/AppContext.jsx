@@ -16,6 +16,7 @@ import {
   repairLedgerChain,
   sha256
 } from '../utils/sanitize';
+import { TIMEOUTS } from '../constants';
 
 const AppContext = createContext();
 
@@ -102,7 +103,7 @@ export function AppProvider({ children }) {
     setToasts((prev) => [...prev, { id, title, body, tone }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4500);
+    }, TIMEOUTS.TOAST_AUTO_DISMISS_MS);
   };
 
   const logAudit = (actor, action, target, type = 'human') => {

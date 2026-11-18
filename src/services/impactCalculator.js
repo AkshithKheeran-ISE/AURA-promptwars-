@@ -9,6 +9,8 @@
  * - US EPA / ASHRAE 62.2 Infiltration & Clean Air Delivery Rate (CADR) Metrics
  */
 
+import { INFILTRATION_FACTORS, RESPIRATION_RATES } from '../constants';
+
 // Statutory Baseline Emission Factors
 export const EMISSION_FACTORS = {
   // Transit (per passenger-km)
@@ -75,7 +77,9 @@ export function calculateInhaledExposure(
 
   // Infiltration Factor without active filtration
   // Weatherstripped: 0.35; Standard unsealed: 0.70 (CPCB / EPA Infiltration Baseline)
-  const infiltrationFactor = weatherstripped ? 0.35 : 0.7;
+  const infiltrationFactor = weatherstripped
+    ? INFILTRATION_FACTORS.WEATHERSTRIPPED
+    : INFILTRATION_FACTORS.STANDARD_UNSEALED;
 
   // Indoor PM2.5 calculation
   let indoorPm25 = safePm25 * infiltrationFactor;
@@ -86,7 +90,11 @@ export function calculateInhaledExposure(
 
   // Respiration rate based on physiology
   const respirationRateM3Hr =
-    archetype === 'school_infant' ? 0.35 : archetype === 'asthma_seniors' ? 0.5 : 0.6;
+    archetype === 'school_infant'
+      ? 0.35
+      : archetype === 'asthma_seniors'
+        ? 0.5
+        : RESPIRATION_RATES.ADULT_DAILY_M3 / 25; // 0.6 m³/hr
 
   // Mask penetration factor
   const maskPenetration = maskType === 'n95' ? 0.05 : maskType === 'surgical' ? 0.65 : 1.0;

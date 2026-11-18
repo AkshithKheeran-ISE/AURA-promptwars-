@@ -30,11 +30,11 @@ jobs:
       - name: Code Formatting Check (Prettier)
         run: npm run format
 
-      - name: Execute Automated Vitest Suite (Unit, Integration & E2E Workflows)
-        run: npm test
-
-      - name: Production Build Compilation (Vite)
-        run: npm run build
+      - name: Execute Vitest Suite with Coverage (V8 Provider)
+        run: npm run test:coverage
 
       - name: Production Dependency Security Audit
         run: npm audit --omit=dev
+
+      - name: Production Build Compilation (Vite)
+        run: npm run build

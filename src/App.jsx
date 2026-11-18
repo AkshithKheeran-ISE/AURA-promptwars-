@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { useApp } from './context/AppContext';
 import BootScreen from './components/BootScreen';
 import Sidebar from './components/Sidebar';
@@ -8,17 +8,17 @@ import CommandPalette from './components/CommandPalette';
 import ToastContainer from './components/ToastContainer';
 import ErrorBoundary from './components/ErrorBoundary';
 
-// 10 Core Application Pages for Family Smog Defense
-import CommandCenter from './pages/CommandCenter';
-import DailyRoutines from './pages/DailyRoutines';
-import IndoorAirHacks from './pages/IndoorAirHacks';
-import SustainableAlternatives from './pages/SustainableAlternatives';
-import ThreatMap from './pages/ThreatMap';
-import AlertCenter from './pages/AlertCenter';
-import CitizenReports from './pages/CitizenReports';
-import AgentSystem from './pages/AgentSystem';
-import Forecast from './pages/Forecast';
-import AuditTrail from './pages/AuditTrail';
+// 10 Core Application Pages for Family Smog Defense (Lazy-loaded for high efficiency)
+const CommandCenter = lazy(() => import('./pages/CommandCenter'));
+const DailyRoutines = lazy(() => import('./pages/DailyRoutines'));
+const IndoorAirHacks = lazy(() => import('./pages/IndoorAirHacks'));
+const SustainableAlternatives = lazy(() => import('./pages/SustainableAlternatives'));
+const ThreatMap = lazy(() => import('./pages/ThreatMap'));
+const AlertCenter = lazy(() => import('./pages/AlertCenter'));
+const CitizenReports = lazy(() => import('./pages/CitizenReports'));
+const AgentSystem = lazy(() => import('./pages/AgentSystem'));
+const Forecast = lazy(() => import('./pages/Forecast'));
+const AuditTrail = lazy(() => import('./pages/AuditTrail'));
 
 const PAGES = {
   command: CommandCenter,
@@ -32,6 +32,19 @@ const PAGES = {
   forecast: Forecast,
   audit: AuditTrail
 };
+
+function PageLoader() {
+  return (
+    <div className="flex h-96 w-full items-center justify-center font-mono text-cyan-400">
+      <div className="flex items-center space-x-3 rounded-lg border border-cyan-400/20 bg-slate-900/60 px-6 py-4 shadow-glow">
+        <span className="inline-block h-3 w-3 animate-ping rounded-full bg-cyan-400" />
+        <span className="text-xs uppercase tracking-widest text-slate-300">
+          Loading Atmospheric Telemetry...
+        </span>
+      </div>
+    </div>
+  );
+}
 
 export default function App() {
   const { page, sidebarCollapsed } = useApp();
@@ -92,7 +105,9 @@ export default function App() {
           className="mx-auto max-w-[1600px] p-4 md:p-6 min-h-[calc(100vh-140px)]"
         >
           <ErrorBoundary key={page}>
-            <CurrentPageComponent />
+            <Suspense fallback={<PageLoader />}>
+              <CurrentPageComponent />
+            </Suspense>
           </ErrorBoundary>
         </main>
 

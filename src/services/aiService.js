@@ -11,6 +11,7 @@
  */
 
 import { sanitizeInput, sha256 } from '../utils/sanitize';
+import { TIMEOUTS } from '../constants';
 
 /**
  * Calls the secure server-side Gemini proxy (/api/gemini).
@@ -20,7 +21,7 @@ import { sanitizeInput, sha256 } from '../utils/sanitize';
  */
 async function callSecureGeminiProxy(prompt) {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 7500);
+  const timeoutId = setTimeout(() => controller.abort(), TIMEOUTS.GEMINI_API_REQUEST_MS);
 
   try {
     const response = await fetch('/api/gemini', {

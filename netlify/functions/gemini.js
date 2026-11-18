@@ -92,7 +92,8 @@ export async function handler(event) {
       body: JSON.stringify({
         success: false,
         fallback: true,
-        message: 'Rate limit exceeded (30 req/min). Falling back to local deterministic expert system.'
+        message:
+          'Rate limit exceeded (30 req/min). Falling back to local deterministic expert system.'
       })
     };
   }
@@ -106,7 +107,8 @@ export async function handler(event) {
       body: JSON.stringify({
         success: false,
         fallback: true,
-        message: 'Server GEMINI_API_KEY is not configured. Falling back to local deterministic expert system.'
+        message:
+          'Server GEMINI_API_KEY is not configured. Falling back to local deterministic expert system.'
       })
     };
   }
