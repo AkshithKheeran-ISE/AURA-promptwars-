@@ -210,14 +210,16 @@ Cryptographic Standard: FIPS 180-4 SHA-256 Hash-Chaining & Merkle Tree Verificat
 /**
  * Master Agent Execution Directory
  */
-const AGENT_REGISTRY = {
-  family_advisor: executeFamilyAdvisor,
-  iaq_engineer: executeIaqEngineer,
-  pediatric_shield: executePediatricShield,
-  meteo_forecaster: executeMeteoForecaster,
-  eco_auditor: executeEcoAuditor,
-  community_watch: executeCommunityWatch
-};
+const AGENT_REGISTRY = Object.freeze(
+  Object.assign(Object.create(null), {
+    family_advisor: executeFamilyAdvisor,
+    iaq_engineer: executeIaqEngineer,
+    pediatric_shield: executePediatricShield,
+    meteo_forecaster: executeMeteoForecaster,
+    eco_auditor: executeEcoAuditor,
+    community_watch: executeCommunityWatch
+  })
+);
 
 const AGENT_KEYWORDS = [
   {

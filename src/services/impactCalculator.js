@@ -39,17 +39,21 @@ export const EMISSION_FACTORS = {
   }
 };
 
-// Lookup tables for physiological respiration and mask filtration
-const ARCHETYPE_RESPIRATION_RATES = {
-  school_infant: 0.35,
-  asthma_seniors: 0.5
-};
+// Prototype-safe lookup tables for physiological respiration and mask filtration
+const ARCHETYPE_RESPIRATION_RATES = Object.freeze(
+  Object.assign(Object.create(null), {
+    school_infant: 0.35,
+    asthma_seniors: 0.5
+  })
+);
 const DEFAULT_RESPIRATION_RATE = RESPIRATION_RATES.ADULT_DAILY_M3 / 25; // 0.60 m³/hr
 
-const MASK_PENETRATION_FACTORS = {
-  n95: 0.05,
-  surgical: 0.65
-};
+const MASK_PENETRATION_FACTORS = Object.freeze(
+  Object.assign(Object.create(null), {
+    n95: 0.05,
+    surgical: 0.65
+  })
+);
 const DEFAULT_MASK_PENETRATION = 1.0;
 
 /**
@@ -146,9 +150,12 @@ export function calculateCommunitySavings(
 ) {
   const safeDistanceKm = sanitizeNumber(roundTripDistanceKm, 0, 0, 300);
 
-  const origTransit = EMISSION_FACTORS.transit[originalMode] || EMISSION_FACTORS.transit.petrolCar;
-  const cleanTransit =
-    EMISSION_FACTORS.transit[cleanMode] || EMISSION_FACTORS.transit.eRickshawMetro;
+  const origTransit = Object.hasOwn(EMISSION_FACTORS.transit, originalMode)
+    ? EMISSION_FACTORS.transit[originalMode]
+    : EMISSION_FACTORS.transit.petrolCar;
+  const cleanTransit = Object.hasOwn(EMISSION_FACTORS.transit, cleanMode)
+    ? EMISSION_FACTORS.transit[cleanMode]
+    : EMISSION_FACTORS.transit.eRickshawMetro;
 
   // 1. Transit Category Savings (only if distance > 0 and modes differ)
   let co2TransitKg = 0;

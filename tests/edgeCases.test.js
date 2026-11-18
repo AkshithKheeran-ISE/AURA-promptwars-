@@ -92,6 +92,24 @@ describe('Comprehensive Edge Cases & Resilience Test Suite', () => {
       expect(Number.isFinite(resUnknown.totalFinancialSavingsInr)).toBe(true);
     });
 
+    it('is prototype-safe and cleanly defaults for inherited object property names', () => {
+      const prototypeAttack = calculateInhaledExposure(
+        100,
+        8,
+        false,
+        false,
+        'toString',
+        'constructor'
+      );
+      expect(Number.isFinite(prototypeAttack.standardInhaledMicrograms)).toBe(true);
+      expect(Number.isFinite(prototypeAttack.optimizedInhaledMicrograms)).toBe(true);
+      expect(prototypeAttack.percentageReduction).toBeGreaterThanOrEqual(0);
+
+      const protoTransit = calculateCommunitySavings(20, 'constructor', 'toString');
+      expect(Number.isFinite(protoTransit.co2SavedKg)).toBe(true);
+      expect(Number.isFinite(protoTransit.totalFinancialSavingsInr)).toBe(true);
+    });
+
     it('evaluates health risk index across normal, boundary, and extreme AQI levels', () => {
       const lowRisk = calculateHealthRiskIndex(15, false, false);
       expect(lowRisk.riskTier).toBe('Minimal Impact');
