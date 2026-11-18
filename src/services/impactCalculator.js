@@ -39,6 +39,19 @@ export const EMISSION_FACTORS = {
   }
 };
 
+// Lookup tables for physiological respiration and mask filtration
+const ARCHETYPE_RESPIRATION_RATES = {
+  school_infant: 0.35,
+  asthma_seniors: 0.5
+};
+const DEFAULT_RESPIRATION_RATE = RESPIRATION_RATES.ADULT_DAILY_M3 / 25; // 0.60 m³/hr
+
+const MASK_PENETRATION_FACTORS = {
+  n95: 0.05,
+  surgical: 0.65
+};
+const DEFAULT_MASK_PENETRATION = 1.0;
+
 /**
  * Safely sanitizes numeric inputs to prevent NaN, Infinity, negative, or out-of-range inputs.
  */
@@ -89,15 +102,10 @@ export function calculateInhaledExposure(
   }
 
   // Respiration rate based on physiology
-  const respirationRateM3Hr =
-    archetype === 'school_infant'
-      ? 0.35
-      : archetype === 'asthma_seniors'
-        ? 0.5
-        : RESPIRATION_RATES.ADULT_DAILY_M3 / 25; // 0.6 m³/hr
+  const respirationRateM3Hr = ARCHETYPE_RESPIRATION_RATES[archetype] ?? DEFAULT_RESPIRATION_RATE;
 
   // Mask penetration factor
-  const maskPenetration = maskType === 'n95' ? 0.05 : maskType === 'surgical' ? 0.65 : 1.0;
+  const maskPenetration = MASK_PENETRATION_FACTORS[maskType] ?? DEFAULT_MASK_PENETRATION;
 
   const standardInhaledMicrograms = safePm25 * safeHours * respirationRateM3Hr;
   const optimizedInhaledMicrograms = indoorPm25 * safeHours * respirationRateM3Hr * maskPenetration;

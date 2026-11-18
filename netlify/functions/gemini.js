@@ -58,22 +58,7 @@ function getCorsOrigin(requestHeaders) {
   return 'null';
 }
 
-export async function handler(event) {
-  const allowedOrigin = getCorsOrigin(event.headers);
-
-  // Security and CORS Headers
-  const headers = {
-    'Access-Control-Allow-Origin': allowedOrigin,
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'X-Content-Type-Options': 'nosniff',
-    'Content-Type': 'application/json'
-  };
-
-  if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers, body: '' };
-  }
-
+function validatePreconditions(event, headers) {
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
@@ -82,7 +67,6 @@ export async function handler(event) {
     };
   }
 
-  // Rate Limiting & Abuse Protection
   const clientIp =
     event.headers?.['client-ip'] ||
     event.headers?.['x-forwarded-for']?.split(',')[0]?.trim() ||
@@ -104,7 +88,6 @@ export async function handler(event) {
     };
   }
 
-  // Retrieve server-side secret (never exposed to client bundle)
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey || typeof apiKey !== 'string' || apiKey.length < 20) {
     return {
@@ -119,7 +102,6 @@ export async function handler(event) {
     };
   }
 
-  // Check request payload size limit (max 10 KB)
   if (event.body && typeof event.body === 'string' && event.body.length > 10240) {
     return {
       statusCode: 413,
@@ -128,37 +110,45 @@ export async function handler(event) {
     };
   }
 
-  // Parse and validate request body
+  return { apiKey };
+}
+
+function parseAndSanitizePrompt(eventBody, headers) {
   let body;
   try {
-    body = JSON.parse(event.body || '{}');
+    body = JSON.parse(eventBody || '{}');
   } catch {
     return {
-      statusCode: 400,
-      headers,
-      body: JSON.stringify({ error: 'Invalid JSON request payload.' })
+      errorResponse: {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Invalid JSON request payload.' })
+      }
     };
   }
 
   const rawPrompt = body.prompt;
   if (!rawPrompt || typeof rawPrompt !== 'string' || !rawPrompt.trim()) {
     return {
-      statusCode: 400,
-      headers,
-      body: JSON.stringify({ error: 'Prompt is required.' })
+      errorResponse: {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Prompt is required.' })
+      }
     };
   }
 
-  // Sanitize and limit length to prevent payload stuffing
   const cleanPrompt = rawPrompt
     .replace(/<[^>]*>/g, '')
     .trim()
     .slice(0, 600);
 
-  // Set timeout with AbortController (7000ms)
+  return { cleanPrompt };
+}
+
+async function callGeminiApi(cleanPrompt, apiKey, headers) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 7000);
-
   const startTime = Date.now();
 
   try {
@@ -171,11 +161,7 @@ export async function handler(event) {
         contents: [
           {
             role: 'user',
-            parts: [
-              {
-                text: `${AURA_SYSTEM_INSTRUCTION}\n\nUser Question: ${cleanPrompt}`
-              }
-            ]
+            parts: [{ text: `${AURA_SYSTEM_INSTRUCTION}\n\nUser Question: ${cleanPrompt}` }]
           }
         ],
         generationConfig: {
@@ -238,4 +224,33 @@ export async function handler(event) {
   } finally {
     clearTimeout(timeoutId);
   }
+}
+
+export async function handler(event) {
+  const allowedOrigin = getCorsOrigin(event.headers);
+
+  // Security and CORS Headers
+  const headers = {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'X-Content-Type-Options': 'nosniff',
+    'Content-Type': 'application/json'
+  };
+
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 200, headers, body: '' };
+  }
+
+  const preconditions = validatePreconditions(event, headers);
+  if (preconditions.statusCode) {
+    return preconditions;
+  }
+
+  const { errorResponse, cleanPrompt } = parseAndSanitizePrompt(event.body, headers);
+  if (errorResponse) {
+    return errorResponse;
+  }
+
+  return callGeminiApi(cleanPrompt, preconditions.apiKey, headers);
 }

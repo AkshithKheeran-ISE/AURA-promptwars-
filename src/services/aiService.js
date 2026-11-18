@@ -219,6 +219,44 @@ const AGENT_REGISTRY = {
   community_watch: executeCommunityWatch
 };
 
+const AGENT_KEYWORDS = [
+  {
+    agentId: 'pediatric_shield',
+    keywords: ['baby', 'infant', 'child', 'senior', 'asthma', 'pediatric', 'bronchial']
+  },
+  {
+    agentId: 'iaq_engineer',
+    keywords: ['corsi', 'filter', 'cadr', 'diy', 'purifier', 'box fan', 'merv']
+  },
+  {
+    agentId: 'meteo_forecaster',
+    keywords: ['window', 'inversion', 'ventilate', 'afternoon', 'meteo', 'weather', 'diurnal']
+  },
+  {
+    agentId: 'eco_auditor',
+    keywords: [
+      'impact',
+      'saving',
+      'save',
+      'co2',
+      'emission',
+      'fuel',
+      'transit',
+      'metro',
+      'roi',
+      'cost',
+      'rupees',
+      'financial',
+      'sigdi',
+      'heating'
+    ]
+  },
+  {
+    agentId: 'community_watch',
+    keywords: ['ledger', 'report', 'tamper', 'merkle', 'hash', 'mcd', 'burning']
+  }
+];
+
 /**
  * Resolves query intent to determine optimal specialist agent.
  * @param {string} prompt - User query
@@ -231,67 +269,10 @@ export function resolveAgentIntent(prompt, preferredAgentId = null) {
   }
 
   const lower = (prompt || '').toLowerCase();
-  if (
-    lower.includes('baby') ||
-    lower.includes('infant') ||
-    lower.includes('child') ||
-    lower.includes('senior') ||
-    lower.includes('asthma') ||
-    lower.includes('pediatric') ||
-    lower.includes('bronchial')
-  ) {
-    return 'pediatric_shield';
-  }
-  if (
-    lower.includes('corsi') ||
-    lower.includes('filter') ||
-    lower.includes('cadr') ||
-    lower.includes('diy') ||
-    lower.includes('purifier') ||
-    lower.includes('box fan') ||
-    lower.includes('merv')
-  ) {
-    return 'iaq_engineer';
-  }
-  if (
-    lower.includes('window') ||
-    lower.includes('inversion') ||
-    lower.includes('ventilate') ||
-    lower.includes('afternoon') ||
-    lower.includes('meteo') ||
-    lower.includes('weather') ||
-    lower.includes('diurnal')
-  ) {
-    return 'meteo_forecaster';
-  }
-  if (
-    lower.includes('impact') ||
-    lower.includes('saving') ||
-    lower.includes('save') ||
-    lower.includes('co2') ||
-    lower.includes('emission') ||
-    lower.includes('fuel') ||
-    lower.includes('transit') ||
-    lower.includes('metro') ||
-    lower.includes('roi') ||
-    lower.includes('cost') ||
-    lower.includes('rupees') ||
-    lower.includes('financial') ||
-    lower.includes('sigdi') ||
-    lower.includes('heating')
-  ) {
-    return 'eco_auditor';
-  }
-  if (
-    lower.includes('ledger') ||
-    lower.includes('report') ||
-    lower.includes('tamper') ||
-    lower.includes('merkle') ||
-    lower.includes('hash') ||
-    lower.includes('mcd') ||
-    lower.includes('burning')
-  ) {
-    return 'community_watch';
+  for (const { agentId, keywords } of AGENT_KEYWORDS) {
+    if (keywords.some((kw) => lower.includes(kw))) {
+      return agentId;
+    }
   }
 
   return 'family_advisor';

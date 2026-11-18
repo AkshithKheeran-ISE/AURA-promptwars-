@@ -920,56 +920,117 @@ export const SAMPLE_AI_QUERIES = [
   'Has any factory CEMS unit attempted optical sensor spoofing this week?'
 ];
 
+const FORECAST_PHASES = [
+  {
+    maxDay: 3,
+    baseAqi: 360,
+    wave: 'sin',
+    waveAmp: 30,
+    risk: 'Critical',
+    windSpeed: 3.5,
+    temp: 18,
+    rainChance: 0,
+    inversionHeight: 85
+  },
+  {
+    maxDay: 8,
+    baseAqi: 280,
+    wave: 'cos',
+    waveAmp: 35,
+    risk: 'High',
+    windSpeed: 6.2,
+    temp: 19,
+    rainChance: 5,
+    inversionHeight: 160
+  },
+  {
+    maxDay: 13,
+    baseAqi: 190,
+    wave: 'sin',
+    waveAmp: 25,
+    risk: 'Moderate',
+    windSpeed: 9.8,
+    temp: 21,
+    rainChance: 15,
+    inversionHeight: 320
+  },
+  {
+    maxDay: 18,
+    baseAqi: 340,
+    wave: 'sin',
+    waveAmp: 40,
+    risk: 'Critical',
+    windSpeed: 4.0,
+    temp: 17,
+    rainChance: 0,
+    inversionHeight: 90
+  },
+  {
+    maxDay: 24,
+    baseAqi: 240,
+    wave: 'cos',
+    waveAmp: 30,
+    risk: 'High',
+    windSpeed: 7.5,
+    temp: 20,
+    rainChance: 10,
+    inversionHeight: 210
+  },
+  {
+    maxDay: Infinity,
+    baseAqi: 145,
+    wave: 'sin',
+    waveAmp: 30,
+    risk: 'Moderate',
+    windSpeed: 11.2,
+    temp: 22,
+    rainChance: 40,
+    inversionHeight: 420
+  }
+];
+
+function getForecastPhaseMetrics(index) {
+  const phase = FORECAST_PHASES.find((p) => index < p.maxDay);
+  const waveVal = phase.wave === 'cos' ? Math.cos(index) : Math.sin(index);
+  return {
+    aqi: phase.baseAqi + Math.floor(waveVal * phase.waveAmp),
+    risk: phase.risk,
+    windSpeed: phase.windSpeed,
+    temp: phase.temp,
+    rainChance: phase.rainChance,
+    inversionHeight: phase.inversionHeight
+  };
+}
+
+function getPollutantByAqi(aqi) {
+  if (aqi > 250) return 'PM2.5 (Fine Combustion Particles)';
+  if (aqi > 180) return 'PM10 (Resuspended Road Dust)';
+  return 'O3 (Photochemical Ozone)';
+}
+
+function getGrapStage(aqi) {
+  if (aqi > 350) return 'Stage IV (Severe+ Emergency)';
+  if (aqi > 280) return 'Stage III (Severe Action)';
+  if (aqi > 200) return 'Stage II (Very Poor)';
+  return 'Stage I (Moderate Watch)';
+}
+
+function getAqiBriefing(aqi) {
+  if (aqi > 300) {
+    return 'Severe thermal boundary inversion trapping high-density vehicular and industrial exhaust. Unfavourable dispersion conditions. Anti-smog measures strictly enforced.';
+  }
+  if (aqi > 200) {
+    return 'Moderate wind ventilation clearing afternoon surface boundary layer, with evening particulate buildup expected. Vulnerable groups advised to wear N95.';
+  }
+  return 'Strong convective mixing and elevated wind currents creating favourable dispersion. Ambient air quality within tolerable municipal thresholds.';
+}
+
 export const THIRTY_DAY_FORECAST = Array.from({ length: 30 }, (_, i) => {
   const dayNum = i + 1;
   const date = new Date();
   date.setDate(date.getDate() + i);
 
-  // Create realistic winter air quality variation with inversion cycles
-  let aqi, risk, windSpeed, temp, rainChance, inversionHeight;
-  if (i < 3) {
-    aqi = 360 + Math.floor(Math.sin(i) * 30);
-    risk = 'Critical';
-    windSpeed = 3.5;
-    temp = 18;
-    rainChance = 0;
-    inversionHeight = 85;
-  } else if (i < 8) {
-    aqi = 280 + Math.floor(Math.cos(i) * 35);
-    risk = 'High';
-    windSpeed = 6.2;
-    temp = 19;
-    rainChance = 5;
-    inversionHeight = 160;
-  } else if (i < 13) {
-    aqi = 190 + Math.floor(Math.sin(i) * 25);
-    risk = 'Moderate';
-    windSpeed = 9.8;
-    temp = 21;
-    rainChance = 15;
-    inversionHeight = 320;
-  } else if (i < 18) {
-    aqi = 340 + Math.floor(Math.sin(i) * 40);
-    risk = 'Critical';
-    windSpeed = 4.0;
-    temp = 17;
-    rainChance = 0;
-    inversionHeight = 90;
-  } else if (i < 24) {
-    aqi = 240 + Math.floor(Math.cos(i) * 30);
-    risk = 'High';
-    windSpeed = 7.5;
-    temp = 20;
-    rainChance = 10;
-    inversionHeight = 210;
-  } else {
-    aqi = 145 + Math.floor(Math.sin(i) * 30);
-    risk = 'Moderate';
-    windSpeed = 11.2;
-    temp = 22;
-    rainChance = 40;
-    inversionHeight = 420;
-  }
+  const { aqi, risk, windSpeed, temp, rainChance, inversionHeight } = getForecastPhaseMetrics(i);
 
   return {
     day: dayNum,
@@ -986,26 +1047,9 @@ export const THIRTY_DAY_FORECAST = Array.from({ length: 30 }, (_, i) => {
     temp,
     rainChance,
     inversionHeight,
-    peakPollutant:
-      aqi > 250
-        ? 'PM2.5 (Fine Combustion Particles)'
-        : aqi > 180
-          ? 'PM10 (Resuspended Road Dust)'
-          : 'O3 (Photochemical Ozone)',
-    grapStage:
-      aqi > 350
-        ? 'Stage IV (Severe+ Emergency)'
-        : aqi > 280
-          ? 'Stage III (Severe Action)'
-          : aqi > 200
-            ? 'Stage II (Very Poor)'
-            : 'Stage I (Moderate Watch)',
-    briefing:
-      aqi > 300
-        ? 'Severe thermal boundary inversion trapping high-density vehicular and industrial exhaust. Unfavourable dispersion conditions. Anti-smog measures strictly enforced.'
-        : aqi > 200
-          ? 'Moderate wind ventilation clearing afternoon surface boundary layer, with evening particulate buildup expected. Vulnerable groups advised to wear N95.'
-          : 'Strong convective mixing and elevated wind currents creating favourable dispersion. Ambient air quality within tolerable municipal thresholds.'
+    peakPollutant: getPollutantByAqi(aqi),
+    grapStage: getGrapStage(aqi),
+    briefing: getAqiBriefing(aqi)
   };
 });
 
