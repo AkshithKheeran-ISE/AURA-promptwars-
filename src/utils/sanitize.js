@@ -34,9 +34,9 @@ export function stripHtmlTags(str) {
   if (typeof str !== 'string') return '';
   const input = str.length > 50000 ? str.slice(0, 50000) : str;
   return input
-    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
-    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '')
-    .replace(/<[^>]+>/g, '')
+    .replace(/<script\b[^<]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<style\b[^<]*>[\s\S]*?<\/style>/gi, '')
+    .replace(/<[^<>]*>/g, '')
     .trim();
 }
 

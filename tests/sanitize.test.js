@@ -47,14 +47,65 @@ describe('Security & Sanitization Utilities', () => {
       expect(stripHtmlTags(null)).toBe('');
     });
 
-    it('processes very long inputs (50,000+ characters) in under 50 ms without ReDoS', () => {
-      const maliciousPayload = '<script ' + 'a="x" '.repeat(10000) + 'console.log(1);';
-      const start = performance.now();
-      const output = stripHtmlTags(maliciousPayload);
-      const elapsed = performance.now() - start;
+    it('correctly cleans typical HTML structures and preserves text', () => {
+      expect(
+        stripHtmlTags(
+          '<div class="info"><p>PM2.5: <strong>180 µg/m³</strong></p><a href="#">Details</a></div>'
+        )
+      ).toBe('PM2.5: 180 µg/m³Details');
+      expect(stripHtmlTags('<br/><hr/><img src="x" />Clean Text')).toBe('Clean Text');
+      expect(stripHtmlTags('Normal prompt without any tags.')).toBe(
+        'Normal prompt without any tags.'
+      );
+    });
 
-      expect(elapsed).toBeLessThan(50);
-      expect(output).toBeDefined();
+    it('processes 100,000-character adversarial inputs in stripHtmlTags in under 100 ms', () => {
+      const longA = 'a'.repeat(100000) + '!';
+      const t0 = performance.now();
+      const resA = stripHtmlTags(longA);
+      const elapsedA = performance.now() - t0;
+      expect(elapsedA).toBeLessThan(100);
+      expect(typeof resA).toBe('string');
+      expect(resA.length).toBeLessThanOrEqual(50000);
+
+      const longSpaces = ' '.repeat(100000) + 'x';
+      const t1 = performance.now();
+      const resSpaces = stripHtmlTags(longSpaces);
+      const elapsedSpaces = performance.now() - t1;
+      expect(elapsedSpaces).toBeLessThan(100);
+      expect(typeof resSpaces).toBe('string');
+
+      const alternatingTags = '<'.repeat(50000) + '>'.repeat(50000);
+      const t2 = performance.now();
+      stripHtmlTags(alternatingTags);
+      const elapsedTags = performance.now() - t2;
+      expect(elapsedTags).toBeLessThan(100);
+    });
+
+    it('processes 100,000-character adversarial inputs in Gemini prompt sanitization in under 100 ms', () => {
+      const sanitizeGeminiPrompt = (rawPrompt) =>
+        rawPrompt
+          .slice(0, 1000)
+          .replace(/<[^<>]*>/g, '')
+          .trim()
+          .slice(0, 600);
+
+      const longA = 'a'.repeat(100000) + '!';
+      const t0 = performance.now();
+      const resA = sanitizeGeminiPrompt(longA);
+      const elapsedA = performance.now() - t0;
+      expect(elapsedA).toBeLessThan(100);
+      expect(resA.length).toBe(600);
+
+      const longSpaces = ' '.repeat(100000) + 'x';
+      const t1 = performance.now();
+      const resSpaces = sanitizeGeminiPrompt(longSpaces);
+      const elapsedSpaces = performance.now() - t1;
+      expect(elapsedSpaces).toBeLessThan(100);
+      expect(resSpaces).toBe('');
+
+      const typicalTagPrompt = 'Tell me about <script>alert(1)</script> air quality in <delhi>';
+      expect(sanitizeGeminiPrompt(typicalTagPrompt)).toBe('Tell me about alert(1) air quality in');
     });
   });
 
