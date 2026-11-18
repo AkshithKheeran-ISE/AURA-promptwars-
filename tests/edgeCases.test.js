@@ -24,14 +24,17 @@ import { NAV_ITEMS } from '../src/context/AppContext';
 
 describe('Comprehensive Edge Cases & Resilience Test Suite', () => {
   describe('Input Sanitization & Boundary Handling', () => {
-    it('handles null, undefined, numbers, and empty input safely', () => {
-      expect(sanitizeInput(null)).toBe('');
-      expect(sanitizeInput(undefined)).toBe('');
-      expect(sanitizeInput('')).toBe('');
-      expect(sanitizeInput(12345)).toBe('');
-      expect(escapeHtml(null)).toBe('');
-      expect(escapeHtml(undefined)).toBe('');
-      expect(stripHtmlTags(null)).toBe('');
+    it.each([
+      [null, ''],
+      [undefined, ''],
+      ['', ''],
+      [12345, '']
+    ])('sanitizes non-string or empty input %j to empty string', (input, expected) => {
+      expect(sanitizeInput(input)).toBe(expected);
+      if (input === null || input === undefined) {
+        expect(escapeHtml(input)).toBe('');
+        expect(stripHtmlTags(input)).toBe('');
+      }
     });
 
     it('handles excessively long strings beyond max allowable length', () => {
@@ -73,18 +76,18 @@ describe('Comprehensive Edge Cases & Resilience Test Suite', () => {
       expect(Number.isFinite(resHuge.standardInhaledMicrograms)).toBe(true);
     });
 
-    it('handles extreme and negative community commute distances', () => {
-      const resNegative = calculateCommunitySavings(-100);
-      expect(resNegative.co2SavedKg).toBe(0);
-      expect(resNegative.totalFinancialSavingsInr).toBe(0);
-
-      const resNaN = calculateCommunitySavings(NaN);
-      expect(resNaN.co2SavedKg).toBe(0);
-
-      const resZero = calculateCommunitySavings(0);
-      expect(resZero.co2SavedKg).toBe(0);
-      expect(resZero.totalFinancialSavingsInr).toBe(0);
-    });
+    it.each([
+      [-100, 0, 0],
+      [NaN, 0, 0],
+      [0, 0, 0]
+    ])(
+      'handles non-positive/NaN commute distance %j safely',
+      (distance, expectedCo2, expectedInr) => {
+        const res = calculateCommunitySavings(distance);
+        expect(res.co2SavedKg).toBe(expectedCo2);
+        expect(res.totalFinancialSavingsInr).toBe(expectedInr);
+      }
+    );
 
     it('handles unexpected transit modes and missing inputs without throwing', () => {
       const resUnknown = calculateCommunitySavings(25, 'hyperspace_capsule', 'teleportation');
@@ -110,15 +113,20 @@ describe('Comprehensive Edge Cases & Resilience Test Suite', () => {
       expect(Number.isFinite(protoTransit.totalFinancialSavingsInr)).toBe(true);
     });
 
-    it('evaluates health risk index across normal, boundary, and extreme AQI levels', () => {
-      const lowRisk = calculateHealthRiskIndex(15, false, false);
-      expect(lowRisk.riskTier).toBe('Minimal Impact');
+    it.each([
+      [15, false, false, 'Minimal Impact'],
+      [450, true, true, 'Severe Environmental Hazard']
+    ])(
+      'evaluates health risk index for AQI %i as %s',
+      (aqi, respiratory, cardiac, expectedTier) => {
+        const risk = calculateHealthRiskIndex(aqi, respiratory, cardiac);
+        expect(risk.riskTier).toBe(expectedTier);
+      }
+    );
 
+    it('evaluates health risk boundary and extreme limits safely', () => {
       const boundaryRisk = calculateHealthRiskIndex(100, false, false);
       expect(boundaryRisk.riskScore).toBeGreaterThan(0);
-
-      const severeRisk = calculateHealthRiskIndex(450, true, true);
-      expect(severeRisk.riskTier).toBe('Severe Environmental Hazard');
 
       const extremeOverflow = calculateHealthRiskIndex(9999, true, true);
       expect(extremeOverflow.riskScore).toBeLessThanOrEqual(100);

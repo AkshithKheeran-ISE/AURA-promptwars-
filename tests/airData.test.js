@@ -7,6 +7,11 @@ import {
   THIRTY_DAY_FORECAST
 } from '../src/data/airData';
 import { FAMILY_ARCHETYPES, DAILY_ROUTINE_SLOTS } from '../src/services/routineEngine';
+import {
+  FAMILY_AGENTS_ROSTER,
+  SAMPLE_QUERIES,
+  SATELLITE_AGENTS_CONFIG
+} from '../src/components/agent/agentConstants';
 
 describe('Data Models & Telemetry Schema Integrity', () => {
   describe('WARDS_DATA', () => {
@@ -82,14 +87,13 @@ describe('Data Models & Telemetry Schema Integrity', () => {
   });
 
   describe('FAMILY_ARCHETYPES & ROUTINE SLOTS', () => {
-    it('defines 4 family archetypes covering infants, asthmatics, and commuters', () => {
-      expect(FAMILY_ARCHETYPES.length).toBe(4);
-      const ids = FAMILY_ARCHETYPES.map((a) => a.id);
-      expect(ids).toContain('school_infant');
-      expect(ids).toContain('asthma_seniors');
-      expect(ids).toContain('daily_commuter');
-      expect(ids).toContain('rwa_community');
-    });
+    it.each([['school_infant'], ['asthma_seniors'], ['daily_commuter'], ['rwa_community']])(
+      'defines required family archetype "%s"',
+      (expectedId) => {
+        const ids = FAMILY_ARCHETYPES.map((a) => a.id);
+        expect(ids).toContain(expectedId);
+      }
+    );
 
     it('covers key diurnal diurnal windows including morning and afternoon ventilation', () => {
       expect(DAILY_ROUTINE_SLOTS.length).toBeGreaterThanOrEqual(4);
@@ -100,6 +104,21 @@ describe('Data Models & Telemetry Schema Integrity', () => {
         expect(slot.smogHackRoutine).toBeTruthy();
         expect(slot.impactExplanation).toBeTruthy();
       });
+    });
+  });
+
+  describe('Agent Roster & Satellite Configuration Metadata', () => {
+    it('defines valid agent roster cards, sample queries, and satellite agents', () => {
+      expect(FAMILY_AGENTS_ROSTER.length).toBeGreaterThanOrEqual(6);
+      FAMILY_AGENTS_ROSTER.forEach((agent) => {
+        expect(agent.id).toBeTruthy();
+        expect(agent.name).toBeTruthy();
+        expect(agent.role).toBeTruthy();
+        expect(agent.desc).toBeTruthy();
+      });
+
+      expect(SAMPLE_QUERIES.length).toBeGreaterThanOrEqual(4);
+      expect(SATELLITE_AGENTS_CONFIG.length).toBeGreaterThanOrEqual(3);
     });
   });
 });

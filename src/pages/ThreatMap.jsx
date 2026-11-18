@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
-import { Layers, AlertTriangle, Compass } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
+import MapLayersToolbar from '../components/map/MapLayersToolbar';
+import MapTacticalOverlays from '../components/map/MapTacticalOverlays';
+import SectorDossier from '../components/map/SectorDossier';
 import { useApp } from '../context/AppContext';
 import { WARDS_DATA } from '../data/airData';
 
@@ -16,6 +18,16 @@ const DEFAULT_STATUS_COLOR = '#34d399';
 function getStatusColor(status) {
   return STATUS_COLORS[status] || DEFAULT_STATUS_COLOR;
 }
+
+const RING_ROAD_CORRIDOR = [
+  [28.73, 77.12],
+  [28.67, 77.12],
+  [28.63, 77.11],
+  [28.53, 77.16],
+  [28.53, 77.27],
+  [28.61, 77.26],
+  [28.7, 77.17]
+];
 
 export default function ThreatMap() {
   const { selectedWard, setSelectedWardId, addToast } = useApp();
@@ -110,17 +122,7 @@ export default function ThreatMap() {
 
     // Draw simulated traffic emission corridor lines if toggled
     if (layers.traffic) {
-      // Ring Road Corridor
-      const ringRoad = [
-        [28.73, 77.12],
-        [28.67, 77.12],
-        [28.63, 77.11],
-        [28.53, 77.16],
-        [28.53, 77.27],
-        [28.61, 77.26],
-        [28.7, 77.17]
-      ];
-      const trafficLine = L.polyline(ringRoad, {
+      const trafficLine = L.polyline(RING_ROAD_CORRIDOR, {
         color: '#f43f5e',
         weight: 2.5,
         dashArray: '6 8',
@@ -169,209 +171,20 @@ export default function ThreatMap() {
       <div className="grid gap-6 xl:grid-cols-3">
         {/* Map Viewport Container (col-span-2) */}
         <div className="panel p-3 xl:col-span-2 space-y-3 relative overflow-hidden">
-          {/* Map Header Toolbar with Layer Toggles */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-cyan-400/10 pb-2.5 px-2">
-            <div className="flex items-center gap-2 font-mono text-xs text-slate-300">
-              <Layers className="h-4 w-4 text-cyan-400" />
-              <span className="font-bold text-white">Atmospheric Layers:</span>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3 text-xs font-mono">
-              <label
-                htmlFor="layer-sensors"
-                className="flex items-center gap-1.5 cursor-pointer text-slate-300 hover:text-white"
-              >
-                <input
-                  id="layer-sensors"
-                  type="checkbox"
-                  checked={layers.sensors}
-                  onChange={() => toggleLayer('sensors')}
-                  className="accent-cyan-400 cursor-pointer"
-                />
-                <span>Micro-Sensors</span>
-              </label>
-
-              <label
-                htmlFor="layer-plumes"
-                className="flex items-center gap-1.5 cursor-pointer text-rose-300 hover:text-white"
-              >
-                <input
-                  id="layer-plumes"
-                  type="checkbox"
-                  checked={layers.plumes}
-                  onChange={() => toggleLayer('plumes')}
-                  className="accent-rose-500 cursor-pointer"
-                />
-                <span>Industrial Plumes</span>
-              </label>
-
-              <label
-                htmlFor="layer-traffic"
-                className="flex items-center gap-1.5 cursor-pointer text-amber-300 hover:text-white"
-              >
-                <input
-                  id="layer-traffic"
-                  type="checkbox"
-                  checked={layers.traffic}
-                  onChange={() => toggleLayer('traffic')}
-                  className="accent-amber-400 cursor-pointer"
-                />
-                <span>Freight Corridors</span>
-              </label>
-
-              <label
-                htmlFor="layer-sensitive"
-                className="flex items-center gap-1.5 cursor-pointer text-emerald-300 hover:text-white"
-              >
-                <input
-                  id="layer-sensitive"
-                  type="checkbox"
-                  checked={layers.sensitive}
-                  onChange={() => toggleLayer('sensitive')}
-                  className="accent-emerald-400 cursor-pointer"
-                />
-                <span>School Zones</span>
-              </label>
-            </div>
-          </div>
+          <MapLayersToolbar layers={layers} onToggleLayer={toggleLayer} />
 
           {/* Leaflet DOM Map Container */}
           <div className="aura-map relative h-[560px] w-full rounded-lg overflow-hidden border border-cyan-400/15">
             <div ref={mapContainerRef} className="h-full w-full" />
-
-            {/* Tactical Map Floating Overlay */}
-            <div className="absolute top-3 left-3 z-[400] panel p-2.5 font-mono text-[11px] space-y-1 bg-[#08101e]/90 shadow-xl">
-              <div className="text-cyan-300 font-bold flex items-center gap-1.5">
-                <Compass
-                  className="h-3.5 w-3.5 animate-spin"
-                  style={{ animationDuration: '10s' }}
-                />
-                <span>DELHI NCR BASIN · GRID-4</span>
-              </div>
-              <div className="text-slate-400 text-[10px]">Lat 28.6138° N · Long 77.2090° E</div>
-              <div className="text-emerald-400 text-[10px] flex items-center gap-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span>CPCB Delhi CAAQMS Baseline</span>
-              </div>
-            </div>
-
-            {/* Map Legend */}
-            <div className="absolute bottom-3 right-3 z-[400] panel p-2 font-mono text-[10px] space-y-1 bg-[#08101e]/90 shadow-xl">
-              <div className="text-slate-400 font-bold mb-1">AIR QUALITY INDEX</div>
-              <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                <span className="text-slate-300">0 - 100 Good/Satisfactory</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-amber-400" />
-                <span className="text-slate-300">101 - 200 Moderate</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-orange-400" />
-                <span className="text-slate-300">201 - 300 Poor</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-rose-500" />
-                <span className="text-slate-300">301+ Severe / Emergency</span>
-              </div>
-            </div>
+            <MapTacticalOverlays />
           </div>
         </div>
 
         {/* Selected Sector Inspector Panel (Right) */}
-        <div className="panel panel-corners p-5 space-y-4">
-          <div className="border-b border-cyan-400/10 pb-3">
-            <span className="label text-cyan-300">Sector Dossier</span>
-            <h2 className="text-xl font-bold text-white mt-0.5">{selectedWard.name}</h2>
-            <div className="font-mono text-xs text-slate-400 mt-1">
-              Station {selectedWard.sensorId} · {selectedWard.lat.toFixed(3)}°N,{' '}
-              {selectedWard.lng.toFixed(3)}°E
-            </div>
-          </div>
-
-          {/* Big AQI Status Display */}
-          <div className="rounded-xl border border-cyan-400/15 bg-[#030712]/70 p-4 text-center space-y-1">
-            <div className="font-mono text-[11px] text-slate-400">
-              INSTANTANEOUS AIR QUALITY INDEX
-            </div>
-            <div
-              className="font-display text-4xl font-extrabold"
-              style={{
-                color: getStatusColor(selectedWard.status)
-              }}
-            >
-              {selectedWard.aqi}
-            </div>
-            <div
-              className="inline-block px-2.5 py-0.5 rounded font-mono text-xs font-bold uppercase tracking-widest"
-              style={{
-                backgroundColor:
-                  selectedWard.status === 'Critical'
-                    ? 'rgba(244,63,94,0.15)'
-                    : 'rgba(52,211,153,0.15)',
-                color: selectedWard.status === 'Critical' ? '#f43f5e' : '#34d399'
-              }}
-            >
-              {selectedWard.status} HAZARD LEVEL
-            </div>
-          </div>
-
-          {/* Granular Chemical Telemetry */}
-          <div className="space-y-2 font-mono text-xs">
-            <div className="flex justify-between py-1.5 border-b border-cyan-400/10">
-              <span className="text-slate-400">Fine Particulates (PM2.5):</span>
-              <span className="font-bold text-white">{selectedWard.pm25} µg/m³</span>
-            </div>
-            <div className="flex justify-between py-1.5 border-b border-cyan-400/10">
-              <span className="text-slate-400">Coarse Dust (PM10):</span>
-              <span className="font-bold text-white">{selectedWard.pm10} µg/m³</span>
-            </div>
-            <div className="flex justify-between py-1.5 border-b border-cyan-400/10">
-              <span className="text-slate-400">Nitrogen Dioxide (NO2):</span>
-              <span className="font-bold text-cyan-300">{selectedWard.no2} ppb</span>
-            </div>
-            <div className="flex justify-between py-1.5 border-b border-cyan-400/10">
-              <span className="text-slate-400">Sulfur Dioxide (SO2):</span>
-              <span className="font-bold text-amber-300">{selectedWard.so2} ppb</span>
-            </div>
-            <div className="flex justify-between py-1.5 border-b border-cyan-400/10">
-              <span className="text-slate-400">Carbon Monoxide (CO):</span>
-              <span className="font-bold text-white">{selectedWard.co} mg/m³</span>
-            </div>
-            <div className="flex justify-between py-1.5 border-b border-cyan-400/10">
-              <span className="text-slate-400">Ground-Level Ozone (O3):</span>
-              <span className="font-bold text-white">{selectedWard.o3} ppb</span>
-            </div>
-          </div>
-
-          {/* Primary Emission Contributors */}
-          <div className="space-y-1.5">
-            <span className="label text-slate-400">Primary Source Fingerprints</span>
-            <div className="space-y-1">
-              {selectedWard.sources.map((src, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-2 rounded bg-[#030712] p-2 text-xs text-slate-300 font-mono border border-cyan-400/10"
-                >
-                  <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
-                  <span>{src}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Inversion Boundary Warning */}
-          <div className="rounded-lg border border-amber-400/30 bg-amber-400/10 p-3 space-y-1">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-amber-300 font-mono">
-              <AlertTriangle className="h-3.5 w-3.5" />
-              Atmospheric Inversion Risk
-            </div>
-            <div className="text-xs text-slate-300 leading-snug">
-              Thermal ceiling trapped at {selectedWard.inversion}. Stagnant surface winds preventing
-              dispersion of heavy combustion aerosols.
-            </div>
-          </div>
-        </div>
+        <SectorDossier
+          selectedWard={selectedWard}
+          statusColor={getStatusColor(selectedWard.status)}
+        />
       </div>
     </div>
   );

@@ -42,7 +42,7 @@ async function callSecureGeminiProxy(prompt) {
       }
     }
   } catch {
-    // Graceful offline fallback
+    // Offline or network error: gracefully fall through to deterministic model
   } finally {
     clearTimeout(timeoutId);
   }

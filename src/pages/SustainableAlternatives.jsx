@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { Leaf, CheckCircle2 } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
 import { useApp } from '../context/AppContext';
+import AlternativeCard from '../components/alternatives/AlternativeCard';
 
 const ALTERNATIVES_DATA = [
   {
@@ -74,6 +74,10 @@ const ALTERNATIVES_DATA = [
   }
 ];
 
+/**
+ * Sustainable Community Alternatives & Footprint Calculator.
+ * Enables households and RWAs to simulate collective transitions and adopt clean habits.
+ */
 export default function SustainableAlternatives() {
   const { addToast, logAudit } = useApp();
   const [householdScale, setHouseholdScale] = useState(50);
@@ -110,6 +114,33 @@ export default function SustainableAlternatives() {
         fuelSavingsLakhsInr: Number(((householdScale * 24000 * pledgeCount) / 400000).toFixed(2))
       };
     }, [householdScale, adoptedPledges.length]);
+
+  const metricReadouts = [
+    {
+      label: 'Winter Carbon Avoided',
+      value: `${totalCo2PreventedTons} Tons CO2`,
+      sub: 'from transit & heating',
+      color: 'text-cyan-300'
+    },
+    {
+      label: 'Toxic Soot Prevented',
+      value: `${totalPm25PreventedKg} kg PM2.5`,
+      sub: 'spared from local lungs',
+      color: 'text-emerald-400'
+    },
+    {
+      label: 'High-Risk Exposure Mitigated',
+      value: `~${asthmaCasesPrevented} Vulnerable Days`,
+      sub: 'WHO 2021 model (illustrative)',
+      color: 'text-rose-400'
+    },
+    {
+      label: 'Community Fuel Savings',
+      value: `₹ ${fuelSavingsLakhsInr} Lakhs`,
+      sub: 'saved on petrol & coal',
+      color: 'text-amber-300'
+    }
+  ];
 
   return (
     <div className="space-y-6">
@@ -173,108 +204,26 @@ export default function SustainableAlternatives() {
 
         {/* Scaled Metric Readouts */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 font-mono text-center pt-2">
-          <div className="rounded-xl bg-[#030712] p-3.5 border border-cyan-400/15">
-            <div className="text-slate-500 text-[10px]">Winter Carbon Avoided</div>
-            <div className="font-display text-2xl font-bold text-cyan-300 mt-1">
-              {totalCo2PreventedTons} Tons CO2
+          {metricReadouts.map((m, idx) => (
+            <div key={idx} className="rounded-xl bg-[#030712] p-3.5 border border-cyan-400/15">
+              <div className="text-slate-500 text-[10px]">{m.label}</div>
+              <div className={`font-display text-2xl font-bold ${m.color} mt-1`}>{m.value}</div>
+              <div className="text-[10px] text-slate-400 mt-0.5">{m.sub}</div>
             </div>
-            <div className="text-[10px] text-slate-400 mt-0.5">from transit & heating</div>
-          </div>
-
-          <div className="rounded-xl bg-[#030712] p-3.5 border border-cyan-400/15">
-            <div className="text-slate-500 text-[10px]">Toxic Soot Prevented</div>
-            <div className="font-display text-2xl font-bold text-emerald-400 mt-1">
-              {totalPm25PreventedKg} kg PM2.5
-            </div>
-            <div className="text-[10px] text-slate-400 mt-0.5">spared from local lungs</div>
-          </div>
-
-          <div className="rounded-xl bg-[#030712] p-3.5 border border-cyan-400/15">
-            <div className="text-slate-500 text-[10px]">High-Risk Exposure Mitigated</div>
-            <div className="font-display text-2xl font-bold text-rose-400 mt-1">
-              ~{asthmaCasesPrevented} Vulnerable Days
-            </div>
-            <div className="text-[10px] text-slate-400 mt-0.5">WHO 2021 model (illustrative)</div>
-          </div>
-
-          <div className="rounded-xl bg-[#030712] p-3.5 border border-cyan-400/15">
-            <div className="text-slate-500 text-[10px]">Community Fuel Savings</div>
-            <div className="font-display text-2xl font-bold text-amber-300 mt-1">
-              ₹ {fuelSavingsLakhsInr} Lakhs
-            </div>
-            <div className="text-[10px] text-slate-400 mt-0.5">saved on petrol & coal</div>
-          </div>
+          ))}
         </div>
       </div>
 
       {/* Comparison Matrix of 4 Everyday Choices */}
       <div className="grid gap-6 md:grid-cols-2">
-        {ALTERNATIVES_DATA.map((item) => {
-          const isAdopted = adoptedPledges.includes(item.id);
-
-          return (
-            <div
-              key={item.id}
-              className={`panel panel-corners p-5 space-y-4 transition ${
-                isAdopted ? 'border-emerald-400/40 bg-[#08101e]' : 'border-cyan-400/10 bg-[#060d1b]'
-              }`}
-            >
-              <div className="flex items-center justify-between border-b border-cyan-400/10 pb-2.5">
-                <h3 className="text-base font-bold text-white font-sans">{item.title}</h3>
-                <button
-                  onClick={() => handlePledge(item.id, item.clean.title)}
-                  className={`px-3 py-1 rounded text-xs font-mono font-bold transition cursor-pointer flex items-center gap-1.5 ${
-                    isAdopted
-                      ? 'bg-emerald-400 text-black hover:bg-emerald-300'
-                      : 'bg-[#0c182c] border border-cyan-400/30 text-cyan-300 hover:bg-cyan-400/20'
-                  }`}
-                >
-                  {isAdopted ? (
-                    <>
-                      <CheckCircle2 className="h-3.5 w-3.5" /> PLEDGED
-                    </>
-                  ) : (
-                    <>
-                      <Leaf className="h-3.5 w-3.5" /> ADOPT CLEAN ALTERNATIVE
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {/* Side by side comparison */}
-              <div className="grid grid-cols-2 gap-3 text-xs">
-                {/* High Emission */}
-                <div className="p-3 rounded-lg bg-rose-500/5 border border-rose-500/20 space-y-1">
-                  <div className="font-mono text-[10px] text-rose-400 font-bold uppercase">
-                    High-Emission Habit
-                  </div>
-                  <div className="font-bold text-white text-xs">{item.dirty.title}</div>
-                  <div className="font-mono text-[10px] text-rose-300">{item.dirty.impact}</div>
-                  <p className="text-slate-400 text-[11px] font-sans leading-relaxed pt-1">
-                    {item.dirty.danger}
-                  </p>
-                </div>
-
-                {/* Sustainable Alternative */}
-                <div className="p-3 rounded-lg bg-emerald-400/5 border border-emerald-400/20 space-y-1">
-                  <div className="font-mono text-[10px] text-emerald-400 font-bold uppercase">
-                    Sustainable Alternative
-                  </div>
-                  <div className="font-bold text-white text-xs">{item.clean.title}</div>
-                  <div className="font-mono text-[10px] text-emerald-300">{item.clean.impact}</div>
-                  <p className="text-slate-300 text-[11px] font-sans leading-relaxed pt-1">
-                    {item.clean.benefit}
-                  </p>
-                </div>
-              </div>
-
-              <div className="rounded bg-[#030712] p-2.5 border border-cyan-400/10 font-mono text-[11px] text-cyan-300 flex items-center justify-between">
-                <span>Annual Family Savings:</span>
-                <span className="font-bold text-emerald-300">{item.annualSavings}</span>
-              </div>
-            </div>
-          );
-        })}
+        {ALTERNATIVES_DATA.map((item) => (
+          <AlternativeCard
+            key={item.id}
+            item={item}
+            isAdopted={adoptedPledges.includes(item.id)}
+            onTogglePledge={handlePledge}
+          />
+        ))}
       </div>
     </div>
   );

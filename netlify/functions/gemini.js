@@ -53,7 +53,7 @@ function getCorsOrigin(requestHeaders) {
       return origin;
     }
   } catch {
-    // Malformed URL origin
+    return 'null';
   }
   return 'null';
 }

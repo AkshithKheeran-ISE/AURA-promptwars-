@@ -30,7 +30,74 @@ export const DATA_PROVENANCE_TIERS = {
   }
 };
 
-export const WARDS_DATA = [
+export const DEFAULT_FIRMWARE = 'v4.1.8-SHA256';
+
+/**
+ * Factory helper for ward telemetry records with standard firmware and attestation defaults.
+ * @param {Object} data - Ward sensor metrics and geographic location.
+ * @returns {Object} Structured ward telemetry object.
+ */
+const createWard = (data) => ({
+  firmware: DEFAULT_FIRMWARE,
+  attested: true,
+  ...data
+});
+
+/**
+ * Factory helper for Continuous Emission Monitoring System (CEMS) stack stations.
+ */
+const createCemsStation = (
+  id,
+  name,
+  ward,
+  pollutant,
+  actual,
+  limit,
+  status,
+  tamperRisk,
+  fine,
+  lastReported
+) => ({
+  id,
+  name,
+  ward,
+  pollutant,
+  actual,
+  limit,
+  status,
+  tamperRisk,
+  fine,
+  lastReported
+});
+
+/**
+ * Factory helper for live network packet ingestion streams.
+ */
+const createIngestionPacket = (id, time, source, target, protocol, pollutant, action, tone) => ({
+  id,
+  time,
+  source,
+  target,
+  protocol,
+  pollutant,
+  action,
+  tone
+});
+
+/**
+ * Factory helper for immutable audit logs with timestamp offsets.
+ */
+const createAuditLog = (id, offsetMs, actor, action, target, type, hash) => ({
+  id,
+  ts: Date.now() - offsetMs,
+  actor,
+  action,
+  target,
+  type,
+  hash
+});
+
+const RAW_WARDS_TELEMETRY = [
   {
     id: 'wazirpur',
     name: 'Wazirpur Industrial Sector',
@@ -50,8 +117,6 @@ export const WARDS_DATA = [
     inversion: 'Severe (80m ceiling)',
     status: 'Critical',
     sensorId: 'AURA-WZP-08',
-    firmware: 'v4.1.8-SHA256',
-    attested: true,
     sources: [
       'Electroplating & Smelting Stacks',
       'Unpaved Truck Corridors',
@@ -78,8 +143,6 @@ export const WARDS_DATA = [
     inversion: 'High (110m)',
     status: 'Critical',
     sensorId: 'AURA-AV-03',
-    firmware: 'v4.1.8-SHA256',
-    attested: true,
     sources: ['Interstate Diesel Bus Fleet', 'Border Toll Congestion', 'Open Waste Transfer'],
     alertsCount: 7
   },
@@ -102,8 +165,6 @@ export const WARDS_DATA = [
     inversion: 'High (130m)',
     status: 'Critical',
     sensorId: 'AURA-OKH-12',
-    firmware: 'v4.1.8-SHA256',
-    attested: true,
     sources: ['Waste-to-Energy Incineration', 'Container Depot Traffic', 'Fabrication Units'],
     alertsCount: 5
   },
@@ -126,8 +187,6 @@ export const WARDS_DATA = [
     inversion: 'High (100m)',
     status: 'Critical',
     sensorId: 'AURA-MYP-04',
-    firmware: 'v4.1.8-SHA256',
-    attested: true,
     sources: ['Metal Torch Cutting', 'Heavy Freight Trucks', 'Industrial Resuspension'],
     alertsCount: 6
   },
@@ -150,8 +209,6 @@ export const WARDS_DATA = [
     inversion: 'Severe (70m)',
     status: 'Critical',
     sensorId: 'AURA-JGP-01',
-    firmware: 'v4.1.8-SHA256',
-    attested: true,
     sources: ['Warehouse Diesel Gensets', 'Highway Ingress Freight', 'Unpaved Shoulders'],
     alertsCount: 5
   },
@@ -174,8 +231,6 @@ export const WARDS_DATA = [
     inversion: 'Moderate (180m)',
     status: 'High',
     sensorId: 'AURA-ROH-07',
-    firmware: 'v4.1.8-SHA256',
-    attested: true,
     sources: ['Arterial Vehicular Congestion', 'Construction Demolition Zones'],
     alertsCount: 3
   },
@@ -198,8 +253,6 @@ export const WARDS_DATA = [
     inversion: 'Moderate (210m)',
     status: 'High',
     sensorId: 'AURA-PB-02',
-    firmware: 'v4.1.8-SHA256',
-    attested: true,
     sources: ['Stop-and-Go Ring Road Traffic', 'Commercial Bakery Ovens'],
     alertsCount: 2
   },
@@ -222,8 +275,6 @@ export const WARDS_DATA = [
     inversion: 'Moderate (260m)',
     status: 'High',
     sensorId: 'AURA-IGI-09',
-    firmware: 'v4.1.8-SHA256',
-    attested: true,
     sources: ['Aviation Ground Support Equipment', 'Expressway Toll Queues'],
     alertsCount: 3
   },
@@ -246,8 +297,6 @@ export const WARDS_DATA = [
     inversion: 'Moderate (240m)',
     status: 'High',
     sensorId: 'AURA-ND-62',
-    firmware: 'v4.1.8-SHA256',
-    attested: true,
     sources: ['Campus Backup Generators', 'Peripheral Ring Road Freight'],
     alertsCount: 2
   },
@@ -270,8 +319,6 @@ export const WARDS_DATA = [
     inversion: 'Low (310m)',
     status: 'Moderate',
     sensorId: 'AURA-DWK-14',
-    firmware: 'v4.1.8-SHA256',
-    attested: true,
     sources: ['Local Commercial Traffic', 'Road Dust Suspension'],
     alertsCount: 1
   },
@@ -294,8 +341,6 @@ export const WARDS_DATA = [
     inversion: 'Low (340m)',
     status: 'Moderate',
     sensorId: 'AURA-CP-01',
-    firmware: 'v4.1.8-SHA256',
-    attested: true,
     sources: ['Central Commuter Taxis & Autos', 'Restaurant Kitchen Exhausts'],
     alertsCount: 1
   },
@@ -318,8 +363,6 @@ export const WARDS_DATA = [
     inversion: 'Low (330m)',
     status: 'Moderate',
     sensorId: 'AURA-CC-05',
-    firmware: 'v4.1.8-SHA256',
-    attested: true,
     sources: ['Commercial Office HVAC Plumes', 'Peak Hour Feeder Shuttles'],
     alertsCount: 1
   },
@@ -342,8 +385,6 @@ export const WARDS_DATA = [
     inversion: 'Low (380m)',
     status: 'Moderate',
     sensorId: 'AURA-JLN-02',
-    firmware: 'v4.1.8-SHA256',
-    attested: true,
     sources: ['School Bus Fleets', 'Light Recreational Traffic'],
     alertsCount: 0
   },
@@ -366,8 +407,6 @@ export const WARDS_DATA = [
     inversion: 'Moderate (220m)',
     status: 'High',
     sensorId: 'AURA-YMN-01',
-    firmware: 'v4.1.8-SHA256',
-    attested: true,
     sources: ['Riparian Agricultural Residue', 'Bridge Construction Works'],
     alertsCount: 2
   },
@@ -390,8 +429,6 @@ export const WARDS_DATA = [
     inversion: 'Clear (450m)',
     status: 'Safe',
     sensorId: 'AURA-VK-06',
-    firmware: 'v4.1.8-SHA256',
-    attested: true,
     sources: ['Residential Neighborhood Traffic'],
     alertsCount: 0
   },
@@ -414,12 +451,12 @@ export const WARDS_DATA = [
     inversion: 'Clear (520m)',
     status: 'Safe',
     sensorId: 'AURA-LOD-01',
-    firmware: 'v4.1.8-SHA256',
-    attested: true,
     sources: ['Natural Flora Canopy Filtration'],
     alertsCount: 0
   }
 ];
+
+export const WARDS_DATA = RAW_WARDS_TELEMETRY.map(createWard);
 
 export const TOP_STAT_METRICS = [
   {
@@ -665,129 +702,129 @@ export const PRIORITY_ALERTS = [
 ];
 
 export const INDUSTRIAL_CEMS_STATIONS = [
-  {
-    id: 'CEMS-WZP-01',
-    name: 'Apex Galvanizing & Metal Works',
-    ward: 'Wazirpur Industrial Sector',
-    pollutant: 'SO2 & Acid Mist',
-    actual: '192 mg/Nm³',
-    limit: '50 mg/Nm³',
-    status: 'CRITICAL VIOLATION',
-    tamperRisk: 'LOW',
-    fine: '₹ 5,00,000',
-    lastReported: '30s ago'
-  },
-  {
-    id: 'CEMS-OKH-04',
-    name: 'Timarpur-Okhla Waste Energy Stack 2',
-    ward: 'Okhla Phase-III',
-    pollutant: 'Particulate Matter (PM)',
-    actual: '148 mg/Nm³',
-    limit: '30 mg/Nm³',
-    status: 'TAMPER DETECTED',
-    tamperRisk: 'HIGH',
-    fine: '₹ 15,00,000',
-    lastReported: '2m ago'
-  },
-  {
-    id: 'CEMS-MYP-09',
-    name: 'Capital Heavy Alloy Castings',
-    ward: 'Mayapuri Sector',
-    pollutant: 'NOx & Lead Fumes',
-    actual: '410 mg/Nm³',
-    limit: '200 mg/Nm³',
-    status: 'EXCEEDING',
-    tamperRisk: 'MEDIUM',
-    fine: '₹ 2,50,000',
-    lastReported: '4m ago'
-  },
-  {
-    id: 'CEMS-BAD-03',
-    name: 'NTPC Gas Turbine Backup Unit B',
-    ward: 'Badarpur Border',
-    pollutant: 'NOx',
-    actual: '85 mg/Nm³',
-    limit: '150 mg/Nm³',
-    status: 'COMPLIANT',
-    tamperRisk: 'NONE',
-    fine: '₹ 0',
-    lastReported: '15s ago'
-  },
-  {
-    id: 'CEMS-ND-11',
-    name: 'Sahibabad Distilleries & Biofuel Unit',
-    ward: 'East Border Fringe',
-    pollutant: 'VOC & Carbon',
-    actual: '64 mg/Nm³',
-    limit: '100 mg/Nm³',
-    status: 'COMPLIANT',
-    tamperRisk: 'NONE',
-    fine: '₹ 0',
-    lastReported: '45s ago'
-  }
+  createCemsStation(
+    'CEMS-WZP-01',
+    'Apex Galvanizing & Metal Works',
+    'Wazirpur Industrial Sector',
+    'SO2 & Acid Mist',
+    '192 mg/Nm³',
+    '50 mg/Nm³',
+    'CRITICAL VIOLATION',
+    'LOW',
+    '₹ 5,00,000',
+    '30s ago'
+  ),
+  createCemsStation(
+    'CEMS-OKH-04',
+    'Timarpur-Okhla Waste Energy Stack 2',
+    'Okhla Phase-III',
+    'Particulate Matter (PM)',
+    '148 mg/Nm³',
+    '30 mg/Nm³',
+    'TAMPER DETECTED',
+    'HIGH',
+    '₹ 15,00,000',
+    '2m ago'
+  ),
+  createCemsStation(
+    'CEMS-MYP-09',
+    'Capital Heavy Alloy Castings',
+    'Mayapuri Sector',
+    'NOx & Lead Fumes',
+    '410 mg/Nm³',
+    '200 mg/Nm³',
+    'EXCEEDING',
+    'MEDIUM',
+    '₹ 2,50,000',
+    '4m ago'
+  ),
+  createCemsStation(
+    'CEMS-BAD-03',
+    'NTPC Gas Turbine Backup Unit B',
+    'Badarpur Border',
+    'NOx',
+    '85 mg/Nm³',
+    '150 mg/Nm³',
+    'COMPLIANT',
+    'NONE',
+    '₹ 0',
+    '15s ago'
+  ),
+  createCemsStation(
+    'CEMS-ND-11',
+    'Sahibabad Distilleries & Biofuel Unit',
+    'East Border Fringe',
+    'VOC & Carbon',
+    '64 mg/Nm³',
+    '100 mg/Nm³',
+    'COMPLIANT',
+    'NONE',
+    '₹ 0',
+    '45s ago'
+  )
 ];
 
 export const LIVE_INGESTION_STREAM = [
-  {
-    id: 'PKT-84192',
-    time: '20:38:12',
-    source: 'AURA-WZP-08:LaserOptic',
-    target: 'ingest.aura:8883',
-    protocol: 'TLS 1.3 / SHA-256',
-    pollutant: 'PM2.5: 298 µg/m³',
-    action: 'ALLOW',
-    tone: 'emerald'
-  },
-  {
-    id: 'PKT-84193',
-    time: '20:38:14',
-    source: '185.220.101.47:9001',
-    target: 'cems.gw.delhi:443',
-    protocol: 'RAW-TCP',
-    pollutant: 'CEMS False Packet Injection',
-    action: 'DROP',
-    tone: 'rose'
-  },
-  {
-    id: 'PKT-84194',
-    time: '20:38:15',
-    source: 'CEMS-OKH-04:GasChroma',
-    target: 'scada.aura:502',
-    protocol: 'Modbus/TLS',
-    pollutant: 'SO2: 192 mg/Nm³',
-    action: 'FLAG',
-    tone: 'amber'
-  },
-  {
-    id: 'PKT-84195',
-    time: '20:38:18',
-    source: 'AURA-AV-03:Particulate',
-    target: 'ingest.aura:8883',
-    protocol: 'mTLS / AES-256',
-    pollutant: 'NO2: 92 ppb (Spike)',
-    action: 'FLAG',
-    tone: 'amber'
-  },
-  {
-    id: 'PKT-84196',
-    time: '20:38:21',
-    source: 'DRONE-UAV-01:FLIR-Sniff',
-    target: 'mesh.aura:8443',
-    protocol: 'ChaCha20',
-    pollutant: 'VOC Plume 440ppm',
-    action: 'ALLOW',
-    tone: 'emerald'
-  },
-  {
-    id: 'PKT-84197',
-    time: '20:38:24',
-    source: '45.95.147.236:44321',
-    target: 'api.aura:22',
-    protocol: 'SSH-Brute',
-    pollutant: 'Sensor Root Compromise Attempt',
-    action: 'DROP',
-    tone: 'rose'
-  }
+  createIngestionPacket(
+    'PKT-84192',
+    '20:38:12',
+    'AURA-WZP-08:LaserOptic',
+    'ingest.aura:8883',
+    'TLS 1.3 / SHA-256',
+    'PM2.5: 298 µg/m³',
+    'ALLOW',
+    'emerald'
+  ),
+  createIngestionPacket(
+    'PKT-84193',
+    '20:38:14',
+    '185.220.101.47:9001',
+    'cems.gw.delhi:443',
+    'RAW-TCP',
+    'CEMS False Packet Injection',
+    'DROP',
+    'rose'
+  ),
+  createIngestionPacket(
+    'PKT-84194',
+    '20:38:15',
+    'CEMS-OKH-04:GasChroma',
+    'scada.aura:502',
+    'Modbus/TLS',
+    'SO2: 192 mg/Nm³',
+    'FLAG',
+    'amber'
+  ),
+  createIngestionPacket(
+    'PKT-84195',
+    '20:38:18',
+    'AURA-AV-03:Particulate',
+    'ingest.aura:8883',
+    'mTLS / AES-256',
+    'NO2: 92 ppb (Spike)',
+    'FLAG',
+    'amber'
+  ),
+  createIngestionPacket(
+    'PKT-84196',
+    '20:38:21',
+    'DRONE-UAV-01:FLIR-Sniff',
+    'mesh.aura:8443',
+    'ChaCha20',
+    'VOC Plume 440ppm',
+    'ALLOW',
+    'emerald'
+  ),
+  createIngestionPacket(
+    'PKT-84197',
+    '20:38:24',
+    '45.95.147.236:44321',
+    'api.aura:22',
+    'SSH-Brute',
+    'Sensor Root Compromise Attempt',
+    'DROP',
+    'rose'
+  )
 ];
 
 export const INITIAL_CITIZEN_REPORTS = [
@@ -1002,24 +1039,49 @@ function getForecastPhaseMetrics(index) {
   };
 }
 
+export const AQI_THRESHOLDS = {
+  STAGE_IV_EMERGENCY: 350,
+  STAGE_III_SEVERE: 280,
+  STAGE_II_VERY_POOR: 200,
+  PM25_CUTOFF: 250,
+  PM10_CUTOFF: 180,
+  BRIEFING_CRITICAL: 300,
+  BRIEFING_MODERATE: 200
+};
+
+/**
+ * Determines primary aerosol pollutant based on AQI threshold.
+ * @param {number} aqi - Air Quality Index.
+ * @returns {string} Pollutant label.
+ */
 function getPollutantByAqi(aqi) {
-  if (aqi > 250) return 'PM2.5 (Fine Combustion Particles)';
-  if (aqi > 180) return 'PM10 (Resuspended Road Dust)';
+  if (aqi > AQI_THRESHOLDS.PM25_CUTOFF) return 'PM2.5 (Fine Combustion Particles)';
+  if (aqi > AQI_THRESHOLDS.PM10_CUTOFF) return 'PM10 (Resuspended Road Dust)';
   return 'O3 (Photochemical Ozone)';
 }
 
+/**
+ * Resolves Graded Response Action Plan (GRAP) enforcement stage.
+ * @param {number} aqi - Air Quality Index.
+ * @returns {string} GRAP enforcement stage.
+ */
 function getGrapStage(aqi) {
-  if (aqi > 350) return 'Stage IV (Severe+ Emergency)';
-  if (aqi > 280) return 'Stage III (Severe Action)';
-  if (aqi > 200) return 'Stage II (Very Poor)';
+  if (aqi > AQI_THRESHOLDS.STAGE_IV_EMERGENCY) return 'Stage IV (Severe+ Emergency)';
+  if (aqi > AQI_THRESHOLDS.STAGE_III_SEVERE) return 'Stage III (Severe Action)';
+  if (aqi > AQI_THRESHOLDS.STAGE_II_VERY_POOR) return 'Stage II (Very Poor)';
   return 'Stage I (Moderate Watch)';
 }
 
+/**
+ * Generates meteorological dispersal and health briefing based on AQI.
+ * @param {number} aqi - Air Quality Index.
+ * @returns {string} Detailed meteorological briefing text.
+ */
 function getAqiBriefing(aqi) {
-  if (aqi > 300) {
+  if (aqi > AQI_THRESHOLDS.BRIEFING_CRITICAL) {
     return 'Severe thermal boundary inversion trapping high-density vehicular and industrial exhaust. Unfavourable dispersion conditions. Anti-smog measures strictly enforced.';
   }
-  if (aqi > 200) {
+  if (aqi > AQI_THRESHOLDS.BRIEFING_MODERATE) {
     return 'Moderate wind ventilation clearing afternoon surface boundary layer, with evening particulate buildup expected. Vulnerable groups advised to wear N95.';
   }
   return 'Strong convective mixing and elevated wind currents creating favourable dispersion. Ambient air quality within tolerable municipal thresholds.';
@@ -1116,94 +1178,94 @@ export const DRONE_MISSION_DATA = {
 };
 
 export const INITIAL_AUDIT_LOGS = [
-  {
-    id: 'AUD-9912',
-    ts: Date.now() - 45000,
-    actor: 'EmergencyResponder (AI)',
-    action: 'Auto-dispatched 4 Anti-Smog Cannons',
-    target: 'Wazirpur Sector East',
-    type: 'agent',
-    hash: '81cfb62733b0b86d2b7d4eb3cbc96291671cbb88887506f2b89b0dd34461bf96'
-  },
-  {
-    id: 'AUD-9911',
-    ts: Date.now() - 120000,
-    actor: 'Analyst Akshith (Human)',
-    action: 'Elevated Incident ALR-DEL-901 to Stage-IV',
-    target: 'Municipal Control Room',
-    type: 'human',
-    hash: 'ba9068524e6cfa9078c0e3c7c651b1fd1a095a3a51a15ec2648a1db36ff34298'
-  },
-  {
-    id: 'AUD-9910',
-    ts: Date.now() - 240000,
-    actor: 'BioValidator (AI)',
-    action: 'Filtered 18 false sensor condensation spikes',
-    target: 'Riverfront East Sensors',
-    type: 'agent',
-    hash: '4bb9aee150580e2c81cfb1156f0a6d794ca8791a5315b1e5372eab6347222195'
-  },
-  {
-    id: 'AUD-9909',
-    ts: Date.now() - 360000,
-    actor: 'CEMS Gateway (System)',
-    action: 'Flagged Tamper Alert on Stack 2 Incinerator',
-    target: 'Okhla CEMS-OKH-04',
-    type: 'system',
-    hash: 'c27b4203aa006bfcab13134d167e22162097be962f3021f818f113b6a07bf285'
-  },
-  {
-    id: 'AUD-9908',
-    ts: Date.now() - 480000,
-    actor: 'Citizen Suresh (Citizen)',
-    action: 'Logged open waste burning report',
-    target: 'REP-AURA-8101 / Anand Vihar',
-    type: 'human',
-    hash: 'b9a280171e7f16685f66ee1f1aa4d5b03ca946b0eabfc28e039d504360285c65'
-  },
-  {
-    id: 'AUD-9907',
-    ts: Date.now() - 600000,
-    actor: 'PolicyAuditor (AI)',
-    action: 'Calculated ₹15,00,000 environmental violation fine',
-    target: 'Okhla Waste Plant',
-    type: 'agent',
-    hash: '0d3ef6943f286d15010e443159873878aae1b0ca66ab1fa924f65fda500dfbec'
-  },
-  {
-    id: 'AUD-9906',
-    ts: Date.now() - 750000,
-    actor: 'Drone Sentinel-Air-01',
-    action: 'Completed FLIR aerial plume scan of Sector 1',
-    target: 'Wazirpur Stacks',
-    type: 'agent',
-    hash: 'b6a31c0df1faa91d87900aafccc7307a7bb55cdebaa94c132f191d153015cb9b'
-  },
-  {
-    id: 'AUD-9905',
-    ts: Date.now() - 900000,
-    actor: 'AerosolNet (AI)',
-    action: 'Synchronized Sentinel-5P TROPOMI raster tiles',
-    target: 'National Ingestion Store',
-    type: 'agent',
-    hash: 'ad391f92238456dde4f73da95ebc855f77610de048469e54e8aeb10d397a08f9'
-  },
-  {
-    id: 'AUD-9904',
-    ts: Date.now() - 1200000,
-    actor: 'MeteoForecaster (AI)',
-    action: 'Updated 30-Day WRF-Chem atmospheric forecast',
-    target: 'City Dispersion Mesh',
-    type: 'agent',
-    hash: '415bfee8153083ec9376f29548865c0244a5e91d1a82df0b547a10e3f9713eb1'
-  },
-  {
-    id: 'AUD-9903',
-    ts: Date.now() - 1500000,
-    actor: 'Zero-Trust Mesh (System)',
-    action: 'Validated SHA-256 telemetry block checksums',
-    target: '3,420 IoT Nodes',
-    type: 'system',
-    hash: 'b4c3847f9bcebdf591ab9ca377d1e0de13493b1dda7f43579d39eaa083d413d7'
-  }
+  createAuditLog(
+    'AUD-9912',
+    45000,
+    'EmergencyResponder (AI)',
+    'Auto-dispatched 4 Anti-Smog Cannons',
+    'Wazirpur Sector East',
+    'agent',
+    '81cfb62733b0b86d2b7d4eb3cbc96291671cbb88887506f2b89b0dd34461bf96'
+  ),
+  createAuditLog(
+    'AUD-9911',
+    120000,
+    'Analyst Akshith (Human)',
+    'Elevated Incident ALR-DEL-901 to Stage-IV',
+    'Municipal Control Room',
+    'human',
+    'ba9068524e6cfa9078c0e3c7c651b1fd1a095a3a51a15ec2648a1db36ff34298'
+  ),
+  createAuditLog(
+    'AUD-9910',
+    240000,
+    'BioValidator (AI)',
+    'Filtered 18 false sensor condensation spikes',
+    'Riverfront East Sensors',
+    'agent',
+    '4bb9aee150580e2c81cfb1156f0a6d794ca8791a5315b1e5372eab6347222195'
+  ),
+  createAuditLog(
+    'AUD-9909',
+    360000,
+    'CEMS Gateway (System)',
+    'Flagged Tamper Alert on Stack 2 Incinerator',
+    'Okhla CEMS-OKH-04',
+    'system',
+    'c27b4203aa006bfcab13134d167e22162097be962f3021f818f113b6a07bf285'
+  ),
+  createAuditLog(
+    'AUD-9908',
+    480000,
+    'Citizen Suresh (Citizen)',
+    'Logged open waste burning report',
+    'REP-AURA-8101 / Anand Vihar',
+    'human',
+    'b9a280171e7f16685f66ee1f1aa4d5b03ca946b0eabfc28e039d504360285c65'
+  ),
+  createAuditLog(
+    'AUD-9907',
+    600000,
+    'PolicyAuditor (AI)',
+    'Calculated ₹15,00,000 environmental violation fine',
+    'Okhla Waste Plant',
+    'agent',
+    '0d3ef6943f286d15010e443159873878aae1b0ca66ab1fa924f65fda500dfbec'
+  ),
+  createAuditLog(
+    'AUD-9906',
+    750000,
+    'Drone Sentinel-Air-01',
+    'Completed FLIR aerial plume scan of Sector 1',
+    'Wazirpur Stacks',
+    'agent',
+    'b6a31c0df1faa91d87900aafccc7307a7bb55cdebaa94c132f191d153015cb9b'
+  ),
+  createAuditLog(
+    'AUD-9905',
+    900000,
+    'AerosolNet (AI)',
+    'Synchronized Sentinel-5P TROPOMI raster tiles',
+    'National Ingestion Store',
+    'agent',
+    'ad391f92238456dde4f73da95ebc855f77610de048469e54e8aeb10d397a08f9'
+  ),
+  createAuditLog(
+    'AUD-9904',
+    1200000,
+    'MeteoForecaster (AI)',
+    'Updated 30-Day WRF-Chem atmospheric forecast',
+    'City Dispersion Mesh',
+    'agent',
+    '415bfee8153083ec9376f29548865c0244a5e91d1a82df0b547a10e3f9713eb1'
+  ),
+  createAuditLog(
+    'AUD-9903',
+    1500000,
+    'Zero-Trust Mesh (System)',
+    'Validated SHA-256 telemetry block checksums',
+    '3,420 IoT Nodes',
+    'system',
+    'b4c3847f9bcebdf591ab9ca377d1e0de13493b1dda7f43579d39eaa083d413d7'
+  )
 ];

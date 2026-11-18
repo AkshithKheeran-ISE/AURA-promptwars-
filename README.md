@@ -6,8 +6,8 @@
 [![CI Pipeline](https://github.com/akshithkheerankr/Urban-Air-Quality-Assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/akshithkheerankr/Urban-Air-Quality-Assistant/actions/workflows/ci.yml)
 [![Live Demo](https://img.shields.io/badge/Live_Deployment-auratheairqualityassistant.vercel.app-cyan?style=flat&logo=vercel)](https://auratheairqualityassistant.vercel.app/)
 [![Vulnerabilities](https://img.shields.io/badge/vulnerabilities-0_zero-brightgreen)](#)
-[![Tests](https://img.shields.io/badge/tests-110%2F110_passing-brightgreen)](#)
-[![Coverage](https://img.shields.io/badge/coverage-97.36%25_lines-brightgreen)](#)
+[![Tests](https://img.shields.io/badge/tests-121%2F121_passing-brightgreen)](#)
+[![Coverage](https://img.shields.io/badge/coverage-97.19%25_lines-brightgreen)](#)
 [![Accessibility](https://img.shields.io/badge/accessibility-axe--core_automated_scans-blue)](#)
 [![Design](https://img.shields.io/badge/UI_Aesthetic-ORCA_Tactical_Command-blue)](#)
 
@@ -155,7 +155,7 @@ AURA provides transparent, explainable formulas directly in the interface with z
 
 ## 🧪 Automated Testing Suite
 
-Tested with Vitest across 11 suites and 110 automated tests, with 97.36% line coverage:
+Tested with Vitest across 11 suites and 121 automated tests, with 97.19% line coverage:
 
 ```bash
 npm run test:coverage
@@ -163,8 +163,8 @@ npm run test:coverage
 
 ```
  Test Files  11 passed (11)
-      Tests  110 passed (110)
-   Coverage  97.36% Lines
+      Tests  121 passed (121)
+   Coverage  97.19% Lines
 ```
 
 Playwright End-to-End & Automated Accessibility Suite:
