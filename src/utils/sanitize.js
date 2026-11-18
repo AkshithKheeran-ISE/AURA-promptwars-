@@ -35,16 +35,16 @@ export function escapeHtml(str) {
  */
 function removeBlock(str, openTag, closeTag) {
   const lower = str.toLowerCase();
-  let result = '';
+  const chunks = [];
   let startIdx = 0;
 
   while (startIdx < str.length) {
     const openIdx = lower.indexOf(openTag, startIdx);
     if (openIdx === -1) {
-      result += str.slice(startIdx);
+      chunks.push(str.slice(startIdx));
       break;
     }
-    result += str.slice(startIdx, openIdx);
+    chunks.push(str.slice(startIdx, openIdx));
     const closeIdx = lower.indexOf(closeTag, openIdx + openTag.length);
     if (closeIdx === -1) {
       break;
@@ -55,7 +55,7 @@ function removeBlock(str, openTag, closeTag) {
     }
     startIdx = endOfClose + 1;
   }
-  return result;
+  return chunks.join('');
 }
 
 /**
@@ -69,7 +69,7 @@ export function stripHtmlTags(str) {
   let text = removeBlock(input, '<script', '</script');
   text = removeBlock(text, '<style', '</style');
 
-  let result = '';
+  const chars = [];
   let inTag = false;
   for (let i = 0; i < text.length; i++) {
     const ch = text[i];
@@ -78,10 +78,10 @@ export function stripHtmlTags(str) {
     } else if (ch === '>') {
       inTag = false;
     } else if (!inTag) {
-      result += ch;
+      chars.push(ch);
     }
   }
-  return result.trim();
+  return chars.join('').trim();
 }
 
 /**

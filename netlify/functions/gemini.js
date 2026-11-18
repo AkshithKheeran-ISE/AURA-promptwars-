@@ -113,6 +113,33 @@ function validatePreconditions(event, headers) {
   return { apiKey };
 }
 
+/**
+ * Sanitizes raw user prompt text for Gemini:
+ * 1. Binds input length to 1000 characters before processing
+ * 2. Strips HTML tags using a linear character-by-character scan
+ * 3. Trims whitespace and clamps to maxLength
+ * @param {string} rawPrompt - User question string
+ * @param {number} maxLength - Maximum allowable length (default: 600)
+ * @returns {string} Sanitized prompt
+ */
+export function sanitizePromptText(rawPrompt, maxLength = 600) {
+  if (!rawPrompt || typeof rawPrompt !== 'string') return '';
+  const cappedPrompt = rawPrompt.slice(0, 1000);
+  const chars = [];
+  let inTag = false;
+  for (let i = 0; i < cappedPrompt.length; i++) {
+    const ch = cappedPrompt[i];
+    if (ch === '<') {
+      inTag = true;
+    } else if (ch === '>') {
+      inTag = false;
+    } else if (!inTag) {
+      chars.push(ch);
+    }
+  }
+  return chars.join('').trim().slice(0, maxLength);
+}
+
 function parseAndSanitizePrompt(eventBody, headers) {
   let body;
   try {
@@ -138,21 +165,7 @@ function parseAndSanitizePrompt(eventBody, headers) {
     };
   }
 
-  const cappedPrompt = rawPrompt.slice(0, 1000);
-  let strippedPrompt = '';
-  let inTag = false;
-  for (let i = 0; i < cappedPrompt.length; i++) {
-    const ch = cappedPrompt[i];
-    if (ch === '<') {
-      inTag = true;
-    } else if (ch === '>') {
-      inTag = false;
-    } else if (!inTag) {
-      strippedPrompt += ch;
-    }
-  }
-  const cleanPrompt = strippedPrompt.trim().slice(0, 600);
-
+  const cleanPrompt = sanitizePromptText(rawPrompt, 600);
   return { cleanPrompt };
 }
 
