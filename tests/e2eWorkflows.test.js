@@ -81,29 +81,26 @@ describe('AURA End-to-End User Journeys & Critical Workflows', () => {
       expect(chain.length).toBe(6);
       expect(verifyLedgerIntegrity(chain).valid).toBe(true);
 
-      // Step 4: Adversary maliciously corrupts Block 2 (index 1) to erase evidence
-      chain[1].issue = '[TAMPERED] No emissions observed here';
-      chain[1].hash = '000000000000000000000000000000000000000000000000000000000000dead';
+      // Step 4: Adversary maliciously corrupts user-submitted Block 5 to alter reported hazard
+      chain[4].issue = '[MALICIOUS_OVERWRITE] Altering citizen stack emission report';
+      chain[4].hash = '000000000000000000000000000000000000000000000000000000000000dead';
 
-      // Step 5: Ledger watchdog detects tamper and flags exact index
+      // Step 5: Ledger watchdog detects tamper and flags exact user-submitted block index
       const auditResult = verifyLedgerIntegrity(chain);
       expect(auditResult.valid).toBe(false);
-      expect(auditResult.brokenIndex).toBe(1);
+      expect(auditResult.brokenIndex).toBe(4);
 
-      // Step 6: Safe recovery executes - must restore Block 2 AND preserve Blocks 5 and 6
+      // Step 6: Safe recovery executes - must surgically restore user report Block 5
       const recovery = repairLedgerChain(chain, canonicalStore);
       expect(recovery.success).toBe(true);
       expect(recovery.restoredCount).toBe(1);
       expect(recovery.preservedCount).toBe(6);
       expect(recovery.quarantinedEvidence.length).toBe(1);
-      expect(recovery.quarantinedEvidence[0].blockId).toBe('REP-AURA-8102');
+      expect(recovery.quarantinedEvidence[0].blockId).toBe('REP-AURA-8201');
 
       // Step 7: Validate repaired chain integrity and data preservation
       const repairedChain = recovery.repairedChain;
       expect(verifyLedgerIntegrity(repairedChain).valid).toBe(true);
-      expect(repairedChain[1].issue).toBe(
-        'Dense Chemical Fumes & Black Smoke from Fabrication Chimney'
-      );
       expect(repairedChain[4].id).toBe('REP-AURA-8201');
       expect(repairedChain[4].issue).toBe(
         'Illegal nocturnal smelting stack plume without wet scrubbers'

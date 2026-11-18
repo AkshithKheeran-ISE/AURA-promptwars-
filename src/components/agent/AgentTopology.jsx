@@ -25,72 +25,27 @@ export default function AgentTopology({ agentMetrics, onRunConsensus, onExecuteA
           preserveAspectRatio="none"
           aria-hidden="true"
         >
-          <line
-            x1="50"
-            y1="50"
-            x2="20"
-            y2="20"
-            stroke="#22d3ee"
-            strokeWidth="1"
-            strokeDasharray="2 2"
-            className="animate-dash"
-            opacity="0.6"
-          />
-          <line
-            x1="50"
-            y1="50"
-            x2="80"
-            y2="20"
-            stroke="#34d399"
-            strokeWidth="1"
-            strokeDasharray="2 2"
-            className="animate-dash"
-            opacity="0.6"
-          />
-          <line
-            x1="50"
-            y1="50"
-            x2="15"
-            y2="50"
-            stroke="#f43f5e"
-            strokeWidth="1"
-            strokeDasharray="2 2"
-            className="animate-dash"
-            opacity="0.6"
-          />
-          <line
-            x1="50"
-            y1="50"
-            x2="85"
-            y2="50"
-            stroke="#a855f7"
-            strokeWidth="1"
-            strokeDasharray="2 2"
-            className="animate-dash"
-            opacity="0.6"
-          />
-          <line
-            x1="50"
-            y1="50"
-            x2="25"
-            y2="80"
-            stroke="#fbbf24"
-            strokeWidth="1"
-            strokeDasharray="2 2"
-            className="animate-dash"
-            opacity="0.6"
-          />
-          <line
-            x1="50"
-            y1="50"
-            x2="75"
-            y2="80"
-            stroke="#38bdf8"
-            strokeWidth="1"
-            strokeDasharray="2 2"
-            className="animate-dash"
-            opacity="0.6"
-          />
+          {[
+            { x: 20, y: 20, stroke: '#22d3ee' },
+            { x: 80, y: 20, stroke: '#34d399' },
+            { x: 15, y: 50, stroke: '#f43f5e' },
+            { x: 85, y: 50, stroke: '#a855f7' },
+            { x: 25, y: 80, stroke: '#fbbf24' },
+            { x: 75, y: 80, stroke: '#38bdf8' }
+          ].map((l, idx) => (
+            <line
+              key={idx}
+              x1="50"
+              y1="50"
+              x2={l.x}
+              y2={l.y}
+              stroke={l.stroke}
+              strokeWidth="1"
+              strokeDasharray="2 2"
+              className="animate-dash"
+              opacity="0.6"
+            />
+          ))}
         </svg>
 
         {/* Central Orchestrator Core */}

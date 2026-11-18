@@ -36,29 +36,39 @@ export default function AlternativeCard({ item, isAdopted, onTogglePledge }) {
 
       {/* Side by side comparison */}
       <div className="grid grid-cols-2 gap-3 text-xs">
-        {/* High Emission */}
-        <div className="p-3 rounded-lg bg-rose-500/5 border border-rose-500/20 space-y-1">
-          <div className="font-mono text-[10px] text-rose-400 font-bold uppercase">
-            High-Emission Habit
+        {[
+          {
+            label: 'High-Emission Habit',
+            border: 'border-rose-500/20',
+            bg: 'bg-rose-500/5',
+            labelColor: 'text-rose-400',
+            textColor: 'text-rose-300',
+            descColor: 'text-slate-400',
+            data: item.dirty,
+            detail: item.dirty.danger
+          },
+          {
+            label: 'Sustainable Alternative',
+            border: 'border-emerald-400/20',
+            bg: 'bg-emerald-400/5',
+            labelColor: 'text-emerald-400',
+            textColor: 'text-emerald-300',
+            descColor: 'text-slate-300',
+            data: item.clean,
+            detail: item.clean.benefit
+          }
+        ].map((box, bIdx) => (
+          <div key={bIdx} className={`p-3 rounded-lg ${box.bg} border ${box.border} space-y-1`}>
+            <div className={`font-mono text-[10px] ${box.labelColor} font-bold uppercase`}>
+              {box.label}
+            </div>
+            <div className="font-bold text-white text-xs">{box.data.title}</div>
+            <div className={`font-mono text-[10px] ${box.textColor}`}>{box.data.impact}</div>
+            <p className={`${box.descColor} text-[11px] font-sans leading-relaxed pt-1`}>
+              {box.detail}
+            </p>
           </div>
-          <div className="font-bold text-white text-xs">{item.dirty.title}</div>
-          <div className="font-mono text-[10px] text-rose-300">{item.dirty.impact}</div>
-          <p className="text-slate-400 text-[11px] font-sans leading-relaxed pt-1">
-            {item.dirty.danger}
-          </p>
-        </div>
-
-        {/* Sustainable Alternative */}
-        <div className="p-3 rounded-lg bg-emerald-400/5 border border-emerald-400/20 space-y-1">
-          <div className="font-mono text-[10px] text-emerald-400 font-bold uppercase">
-            Sustainable Alternative
-          </div>
-          <div className="font-bold text-white text-xs">{item.clean.title}</div>
-          <div className="font-mono text-[10px] text-emerald-300">{item.clean.impact}</div>
-          <p className="text-slate-300 text-[11px] font-sans leading-relaxed pt-1">
-            {item.clean.benefit}
-          </p>
-        </div>
+        ))}
       </div>
 
       <div className="rounded bg-[#030712] p-2.5 border border-cyan-400/10 font-mono text-[11px] text-cyan-300 flex items-center justify-between">

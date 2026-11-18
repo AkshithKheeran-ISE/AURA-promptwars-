@@ -46,29 +46,10 @@ const createWard = (data) => ({
 /**
  * Factory helper for Continuous Emission Monitoring System (CEMS) stack stations.
  */
-const createCemsStation = (
-  id,
-  name,
-  ward,
-  pollutant,
-  actual,
-  limit,
-  status,
-  tamperRisk,
-  fine,
-  lastReported
-) => ({
-  id,
-  name,
-  ward,
-  pollutant,
-  actual,
-  limit,
-  status,
-  tamperRisk,
-  fine,
-  lastReported
-});
+const createCemsStation = (...args) => {
+  const [id, name, ward, pollutant, actual, limit, status, tamperRisk, fine, lastReported] = args;
+  return { id, name, ward, pollutant, actual, limit, status, tamperRisk, fine, lastReported };
+};
 
 /**
  * Factory helper for live network packet ingestion streams.
@@ -886,68 +867,75 @@ export const INITIAL_CITIZEN_REPORTS = [
   }
 ];
 
-export const AI_AGENTS_ROSTER = [
-  {
-    id: 'aerosol_net',
-    name: 'AerosolNet',
-    role: 'Satellite AOD & Optical Spectrometry',
-    tasksHandled: '42,890',
-    latency: '34ms',
-    status: 'WORKING',
-    avatarColor: '#22d3ee',
-    desc: 'Ingests INSAT-3DR and Sentinel-5P TROPOMI satellite rasters, computing optical depth and aerosol vertical distribution.'
-  },
-  {
-    id: 'sentinel_air',
-    name: 'Sentinel-Air',
-    role: 'Real-Time Threshold & Plume Anomaly Detector',
-    tasksHandled: '184,210',
-    latency: '8ms',
-    status: 'WORKING',
-    avatarColor: '#f43f5e',
-    desc: 'Performs sub-second statistical outlier detection across 3,420 IoT micro-sensors, isolating sudden chemical plumes.'
-  },
-  {
-    id: 'bio_validator',
-    name: 'BioValidator',
-    role: 'Sensor Physics & Condensation Bias Filter',
-    tasksHandled: '96,140',
-    latency: '19ms',
-    status: 'WORKING',
-    avatarColor: '#34d399',
-    desc: 'Cross-references optical particle counters against hygroscopic growth curves to prevent false fog/dew alarms.'
-  },
-  {
-    id: 'meteo_forecaster',
-    name: 'MeteoForecaster',
-    role: 'Atmospheric Dispersion & Inversion Engine',
-    tasksHandled: '14,500',
-    latency: '140ms',
-    status: 'WORKING',
-    avatarColor: '#a855f7',
-    desc: 'Solves Eulerian grid atmospheric dispersion equations using boundary layer height, wind turbulence and solar flux.'
-  },
-  {
-    id: 'emergency_responder',
-    name: 'EmergencyResponder',
-    role: 'Municipal GRAP Playbook & Resource Allocator',
-    tasksHandled: '8,920',
-    latency: '45ms',
-    status: 'WORKING',
-    avatarColor: '#fbbf24',
-    desc: 'Generates precision municipal dispatch directives: anti-smog water cannons, truck diversions, and school alerts.'
-  },
-  {
-    id: 'policy_auditor',
-    name: 'PolicyAuditor',
-    role: 'Clean Air Regulatory & CEMS Fine Assessor',
-    tasksHandled: '3,110',
-    latency: '28ms',
-    status: 'WORKING',
-    avatarColor: '#38bdf8',
-    desc: 'Verifies industrial factory telemetry compliance against National Ambient Air Quality Standards and auto-generates fines.'
-  }
+const RAW_MUNICIPAL_AGENTS = [
+  [
+    'aerosol_net',
+    'AerosolNet',
+    'Satellite AOD & Optical Spectrometry',
+    '42,890',
+    '34ms',
+    '#22d3ee',
+    'Ingests INSAT-3DR and Sentinel-5P TROPOMI satellite rasters, computing optical depth and aerosol vertical distribution.'
+  ],
+  [
+    'sentinel_air',
+    'Sentinel-Air',
+    'Real-Time Threshold & Plume Anomaly Detector',
+    '184,210',
+    '8ms',
+    '#f43f5e',
+    'Performs sub-second statistical outlier detection across 3,420 IoT micro-sensors, isolating sudden chemical plumes.'
+  ],
+  [
+    'bio_validator',
+    'BioValidator',
+    'Sensor Physics & Condensation Bias Filter',
+    '96,140',
+    '19ms',
+    '#34d399',
+    'Cross-references optical particle counters against hygroscopic growth curves to prevent false fog/dew alarms.'
+  ],
+  [
+    'meteo_forecaster',
+    'MeteoForecaster',
+    'Atmospheric Dispersion & Inversion Engine',
+    '14,500',
+    '140ms',
+    '#a855f7',
+    'Solves Eulerian grid atmospheric dispersion equations using boundary layer height, wind turbulence and solar flux.'
+  ],
+  [
+    'emergency_responder',
+    'EmergencyResponder',
+    'Municipal GRAP Playbook & Resource Allocator',
+    '8,920',
+    '45ms',
+    '#fbbf24',
+    'Generates precision municipal dispatch directives: anti-smog water cannons, truck diversions, and school alerts.'
+  ],
+  [
+    'policy_auditor',
+    'PolicyAuditor',
+    'Clean Air Regulatory & CEMS Fine Assessor',
+    '3,110',
+    '28ms',
+    '#38bdf8',
+    'Verifies industrial factory telemetry compliance against National Ambient Air Quality Standards and auto-generates fines.'
+  ]
 ];
+
+export const AI_AGENTS_ROSTER = RAW_MUNICIPAL_AGENTS.map(
+  ([id, name, role, tasksHandled, latency, avatarColor, desc]) => ({
+    id,
+    name,
+    role,
+    tasksHandled,
+    latency,
+    status: 'WORKING',
+    avatarColor,
+    desc
+  })
+);
 
 export const SAMPLE_AI_QUERIES = [
   'Explain why PM2.5 is spiking in Wazirpur and Anand Vihar tonight',

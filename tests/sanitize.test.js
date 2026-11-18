@@ -71,47 +71,33 @@ describe('Security & Sanitization Utilities', () => {
       expect(stripHtmlTags(input)).toBe('Valid report');
     });
 
-    it('processes <<<<<< repeated 50,000 times safely in linear time', () => {
-      const input = '<'.repeat(50000);
-      const t0 = performance.now();
-      const output = stripHtmlTags(input);
-      const elapsed = performance.now() - t0;
-      expect(elapsed).toBeLessThan(1000);
-      expect(output).toBe('');
-    });
+    const verifyLinearExecution = (input, fn, validator) => {
+      const start = performance.now();
+      const result = fn(input);
+      expect(performance.now() - start).toBeLessThan(1000);
+      validator(result);
+    };
 
-    it('processes <script repeated 20,000 times safely in linear time', () => {
-      const input = '<script'.repeat(20000);
-      const t0 = performance.now();
-      const output = stripHtmlTags(input);
-      const elapsed = performance.now() - t0;
-      expect(elapsed).toBeLessThan(1000);
-      expect(output).toBe('');
+    it.each([
+      ['repeated open angle brackets', '<'.repeat(50000), ''],
+      ['repeated unclosed script prefixes', '<script'.repeat(20000), '']
+    ])('processes %s safely in linear time', (_, input, expected) => {
+      verifyLinearExecution(input, stripHtmlTags, (res) => expect(res).toBe(expected));
     });
 
     it('processes a 100,000-character string of spaces ending in x safely in linear time', () => {
-      const input = ' '.repeat(100000) + 'x';
-      const t0 = performance.now();
-      const output = stripHtmlTags(input);
-      const elapsed = performance.now() - t0;
-      expect(elapsed).toBeLessThan(1000);
-      expect(typeof output).toBe('string');
+      verifyLinearExecution(' '.repeat(100000) + 'x', stripHtmlTags, (output) => {
+        expect(typeof output).toBe('string');
+      });
     });
 
     it('processes 100,000-character adversarial inputs in Gemini prompt sanitization safely in linear time', () => {
-      const longA = 'a'.repeat(100000) + '!';
-      const t0 = performance.now();
-      const resA = sanitizePromptText(longA);
-      const elapsedA = performance.now() - t0;
-      expect(elapsedA).toBeLessThan(1000);
-      expect(resA.length).toBe(600);
-
-      const longSpaces = ' '.repeat(100000) + 'x';
-      const t1 = performance.now();
-      const resSpaces = sanitizePromptText(longSpaces);
-      const elapsedSpaces = performance.now() - t1;
-      expect(elapsedSpaces).toBeLessThan(1000);
-      expect(resSpaces).toBe('');
+      verifyLinearExecution('a'.repeat(100000) + '!', sanitizePromptText, (resA) => {
+        expect(resA.length).toBe(600);
+      });
+      verifyLinearExecution(' '.repeat(100000) + 'x', sanitizePromptText, (resSpaces) => {
+        expect(resSpaces).toBe('');
+      });
 
       const typicalTagPrompt = 'Tell me about <script>alert(1)</script> air quality in <delhi>';
       expect(sanitizePromptText(typicalTagPrompt)).toBe('Tell me about alert(1) air quality in');

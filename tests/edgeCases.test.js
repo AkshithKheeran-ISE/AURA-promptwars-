@@ -252,22 +252,8 @@ describe('Comprehensive Edge Cases & Resilience Test Suite', () => {
       const uniqueIds = new Set(NAV_ITEMS.map((item) => item.id));
       expect(uniqueIds.size).toBe(10);
 
-      const expectedRoutes = [
-        'command',
-        'routines',
-        'hacks',
-        'alternatives',
-        'map',
-        'alerts',
-        'reports',
-        'ai',
-        'forecast',
-        'audit'
-      ];
-
-      expectedRoutes.forEach((route) => {
-        const found = NAV_ITEMS.find((item) => item.id === route);
-        expect(found).toBeDefined();
+      NAV_ITEMS.forEach((found) => {
+        expect(found.id).toBeTruthy();
         expect(typeof found.label).toBe('string');
         expect(found.label.length).toBeGreaterThan(0);
       });

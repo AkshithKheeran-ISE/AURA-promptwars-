@@ -3,76 +3,76 @@ import SectionHeader from '../components/SectionHeader';
 import { useApp } from '../context/AppContext';
 import AlternativeCard from '../components/alternatives/AlternativeCard';
 
-const ALTERNATIVES_DATA = [
+const RAW_ALTERNATIVES = [
   {
     id: 'heating',
     title: 'Winter Space Heating',
-    dirty: {
-      title: 'Coal / Wood Sigdi or Cow Dung Cakes',
-      impact: '14.2 kg CO2 & 120g PM2.5 per evening',
-      danger: 'Emits lethal Carbon Monoxide and Carcinogenic Polycyclic Hydrocarbons (PAHs).',
-      color: '#f43f5e'
-    },
-    clean: {
-      title: 'Oil-Filled Radiator or Inverter Heat Pump',
-      impact: '1.1 kg CO2 & 0g PM2.5 indoors',
-      benefit: 'Gentle radiant warmth without burning oxygen or drying mucosal airways.',
-      color: '#34d399'
-    },
+    dirty: [
+      'Coal / Wood Sigdi or Cow Dung Cakes',
+      '14.2 kg CO2 & 120g PM2.5 per evening',
+      'Emits lethal Carbon Monoxide and Carcinogenic Polycyclic Hydrocarbons (PAHs).'
+    ],
+    clean: [
+      'Oil-Filled Radiator or Inverter Heat Pump',
+      '1.1 kg CO2 & 0g PM2.5 indoors',
+      'Gentle radiant warmth without burning oxygen or drying mucosal airways.'
+    ],
     annualSavings: '390 kg CO2 & 3.6 kg toxic soot per winter'
   },
   {
     id: 'commute',
     title: 'Daily Urban Commute',
-    dirty: {
-      title: 'Single-Occupancy Petrol / Diesel SUV',
-      impact: '3.8 kg CO2 & 1.7g PM2.5 per 20km trip',
-      danger: 'Creates heavy NO2 street canyon stagnation outside schools.',
-      color: '#f43f5e'
-    },
-    clean: {
-      title: 'Shared E-Rickshaw Feeder + Metro Rail',
-      impact: '0.3 kg CO2 & 0.04g PM2.5 per trip',
-      benefit: 'Zero street-level tailpipe emissions and bypasses traffic jams.',
-      color: '#34d399'
-    },
+    dirty: [
+      'Single-Occupancy Petrol / Diesel SUV',
+      '3.8 kg CO2 & 1.7g PM2.5 per 20km trip',
+      'Creates heavy NO2 street canyon stagnation outside schools.'
+    ],
+    clean: [
+      'Shared E-Rickshaw Feeder + Metro Rail',
+      '0.3 kg CO2 & 0.04g PM2.5 per trip',
+      'Zero street-level tailpipe emissions and bypasses traffic jams.'
+    ],
     annualSavings: '780 kg CO2 & 340g direct street soot'
   },
   {
     id: 'waste',
     title: 'Garden & Municipal Waste Disposal',
-    dirty: {
-      title: 'Open Smoldering of Fallen Leaves & Plastic',
-      impact: '18.5 kg CO2 & 95g PM2.5 per 10kg pile',
-      danger: 'Releases dioxins, furans, and black carbon directly into neighbor balconies.',
-      color: '#f43f5e'
-    },
-    clean: {
-      title: 'Community Aerobic Vermicomposting Pit',
-      impact: '0.8 kg CO2 & 0g PM2.5 (produces rich compost)',
-      benefit: 'Turns leaf litter into organic garden fertilizer for society parks.',
-      color: '#34d399'
-    },
+    dirty: [
+      'Open Smoldering of Fallen Leaves & Plastic',
+      '18.5 kg CO2 & 95g PM2.5 per 10kg pile',
+      'Releases dioxins, furans, and black carbon directly into neighbor balconies.'
+    ],
+    clean: [
+      'Community Aerobic Vermicomposting Pit',
+      '0.8 kg CO2 & 0g PM2.5 (produces rich compost)',
+      'Turns leaf litter into organic garden fertilizer for society parks.'
+    ],
     annualSavings: '450 kg CO2 & 2.4 kg PM2.5 per neighborhood'
   },
   {
     id: 'power',
     title: 'Emergency Power Backup',
-    dirty: {
-      title: 'Unmuffled 10kVA Diesel Generator (DG Set)',
-      impact: '24.0 kg CO2 & 180g PM2.5 per 3 hours',
-      danger: 'Vibrational noise pollution and unburned diesel soot plumes.',
-      color: '#f43f5e'
-    },
-    clean: {
-      title: 'Rooftop Solar + Lithium (LiFePO4) Inverter',
-      impact: '0.0 kg CO2 & 0g PM2.5 at point of use',
-      benefit: 'Instant silent switchover with 10-year lifespan and zero fuel cost.',
-      color: '#34d399'
-    },
+    dirty: [
+      'Unmuffled 10kVA Diesel Generator (DG Set)',
+      '24.0 kg CO2 & 180g PM2.5 per 3 hours',
+      'Vibrational noise pollution and unburned diesel soot plumes.'
+    ],
+    clean: [
+      'Rooftop Solar + Lithium (LiFePO4) Inverter',
+      '0.0 kg CO2 & 0g PM2.5 at point of use',
+      'Instant silent switchover with 10-year lifespan and zero fuel cost.'
+    ],
     annualSavings: '920 kg CO2 & 5.1 kg PM2.5 per season'
   }
 ];
+
+const ALTERNATIVES_DATA = RAW_ALTERNATIVES.map((item) => ({
+  id: item.id,
+  title: item.title,
+  dirty: { title: item.dirty[0], impact: item.dirty[1], danger: item.dirty[2] },
+  clean: { title: item.clean[0], impact: item.clean[1], benefit: item.clean[2] },
+  annualSavings: item.annualSavings
+}));
 
 /**
  * Sustainable Community Alternatives & Footprint Calculator.
