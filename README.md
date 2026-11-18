@@ -3,10 +3,10 @@
 > **Atmospheric Understanding & Real-time Air Quality Intelligence Suite**  
 > _A GenAI-powered assistant helping families and communities navigate severe winter smog and urban air pollution with low-emission routines, DIY indoor air quality hacks, and sustainable alternatives tailored to location and lifestyle._
 
-[![CI Pipeline](https://github.com/akshithkheeran-design/Urban-Air-Quality-Assistant2026/actions/workflows/ci.yml/badge.svg)](https://github.com/akshithkheeran-design/Urban-Air-Quality-Assistant2026/actions/workflows/ci.yml)
+[![CI Pipeline](https://github.com/akshithkheeran2008-ctrl/Urban-Air-Quality-Assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/akshithkheeran2008-ctrl/Urban-Air-Quality-Assistant/actions/workflows/ci.yml)
 [![Vulnerabilities](https://img.shields.io/badge/vulnerabilities-0_zero-brightgreen)](#)
-[![Tests](https://img.shields.io/badge/tests-97%2F97_passing-brightgreen)](#)
-[![Coverage](https://img.shields.io/badge/coverage-97.5%25_lines-brightgreen)](#)
+[![Tests](https://img.shields.io/badge/tests-105%2F105_passing-brightgreen)](#)
+[![Coverage](https://img.shields.io/badge/coverage-97.36%25_lines-brightgreen)](#)
 [![Accessibility](https://img.shields.io/badge/accessibility-axe--core_automated_scans-blue)](#)
 [![Design](https://img.shields.io/badge/UI_Aesthetic-ORCA_Tactical_Command-blue)](#)
 
@@ -150,7 +150,7 @@ AURA provides transparent, explainable formulas directly in the interface with z
 
 ## 🧪 Automated Testing Suite
 
-Tested with Vitest across 11 suites and 97 automated tests, with 97.5% line coverage:
+Tested with Vitest across 11 suites and 105 automated tests, with 97.36% line coverage:
 
 ```bash
 npm run test:coverage
@@ -158,8 +158,8 @@ npm run test:coverage
 
 ```
  Test Files  11 passed (11)
-      Tests  97 passed (97)
-   Coverage  97.58% Lines
+      Tests  105 passed (105)
+   Coverage  97.36% Lines
 ```
 
 Playwright End-to-End & Automated Accessibility Suite:
