@@ -105,7 +105,7 @@ test.describe('AURA Urban Air Quality Assistant E2E Test Suite', () => {
   test('opens Command Palette via Ctrl+K and navigates to Neighborhood Map', async ({ page }) => {
     // Open command palette via search bar
     await page
-      .getByRole('button', { name: /Search.*pollutants|command palette/i })
+      .getByRole('button', { name: /Search or open command palette/i })
       .first()
       .click();
     await expect(page.getByRole('dialog', { name: 'Command Palette' })).toBeVisible();
