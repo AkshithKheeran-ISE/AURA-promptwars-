@@ -46,7 +46,11 @@ jobs:
         run: npm run playwright:install
 
       - name: Execute End-to-End Test Suite (Playwright)
-        run: npm run test:e2e
+        run: |
+          npm run test:e2e 2>&1 | tee playwright-output.txt
+          EXIT_CODE=${PIPESTATUS[0]}
+          cat playwright-output.txt >> $GITHUB_STEP_SUMMARY
+          exit $EXIT_CODE
 
       - name: Upload Playwright Artifacts on Failure
         if: failure()
