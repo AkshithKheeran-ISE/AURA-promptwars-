@@ -5,9 +5,12 @@
     "moduleResolution": "Bundler",
     "jsx": "react-jsx",
     "allowJs": true,
-    "checkJs": false,
+    "checkJs": true,
+    "noImplicitAny": false,
     "noEmit": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "maxNodeModuleJsDepth": 0
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
 }

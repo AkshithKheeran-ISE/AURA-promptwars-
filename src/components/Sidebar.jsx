@@ -58,6 +58,7 @@ function SidebarBrand({ collapsed }) {
   );
 }
 
+/** @param {any} props */
 function SidebarNavItem({ item, isActive, badgeValue, collapsed, onSelect }) {
   const IconComponent = ICON_MAP[item.icon] || LayoutDashboard;
   return (

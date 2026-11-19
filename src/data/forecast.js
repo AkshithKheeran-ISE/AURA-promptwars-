@@ -97,7 +97,7 @@ const FORECAST_PHASES = [
 ];
 
 function getForecastPhaseMetrics(index) {
-  const phase = FORECAST_PHASES.find((p) => index < p.maxDay);
+  const phase = FORECAST_PHASES.find((p) => index < p.maxDay) || FORECAST_PHASES[0];
   const waveVal = phase.wave === 'cos' ? Math.cos(index) : Math.sin(index);
   return {
     aqi: phase.baseAqi + Math.floor(waveVal * phase.waveAmp),

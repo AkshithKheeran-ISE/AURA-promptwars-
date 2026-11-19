@@ -121,8 +121,8 @@ export function sanitizeInput(input, maxLength = 500) {
 
 /**
  * Validates a citizen smog report before chaining to the ledger.
- * @param {object} report - { location, issue, reporter, urgency }
- * @returns {object} { isValid: boolean, errors: string[], sanitized: object }
+ * @param {any} report - { location, issue, reporter, urgency }
+ * @returns {{ isValid: boolean, errors: string[], sanitized: any }}
  */
 export function validateCitizenReport(report) {
   const errors = [];

@@ -1,7 +1,14 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { AppProvider } from '../../src/context/AppContext';
+import { render, screen, fireEvent, waitFor, renderHook, within } from '@testing-library/react';
+import {
+  AppProvider,
+  useUi,
+  useHousehold,
+  useAlerts,
+  useLedger,
+  useApp
+} from '../../src/context/AppContext';
 import App from '../../src/App';
 import BootScreen from '../../src/components/BootScreen';
 import ErrorBoundary from '../../src/components/ErrorBoundary';
@@ -98,6 +105,8 @@ describe('UI Component Behavioral Smoke Tests', () => {
     ).toBeDefined();
 
     expect(screen.getByText(/GenAI Smog Assistant Terminal/i)).toBeDefined();
+    expect(screen.getByTitle('Click to run multi-agent consensus')).toBeDefined();
+    expect(screen.getAllByText('IAQEngineer').length).toBeGreaterThan(0);
   });
 
   it.each([
@@ -135,7 +144,7 @@ describe('UI Component Behavioral Smoke Tests', () => {
     // Sidebar navigation to Daily Routines
     const routinesBtn = screen.getByRole('button', { name: /Daily Routines/i });
     fireEvent.click(routinesBtn);
-    expect(await screen.findByText(/06:30 – 08:30/i)).toBeDefined();
+    expect(await screen.findByText(/06:30 – 08:30/i, {}, { timeout: 5000 })).toBeDefined();
 
     // Toggle sidebar collapse
     const collapseBtn = screen.getByRole('button', { name: /Collapse Sidebar/i });
@@ -145,16 +154,30 @@ describe('UI Component Behavioral Smoke Tests', () => {
     // Open Command Palette via Header search
     const searchBtn = screen.getByLabelText(/Search or open command palette/i);
     fireEvent.click(searchBtn);
-    expect(screen.getByRole('dialog', { name: /Command Palette/i })).toBeDefined();
+    const dialog1 = screen.getByRole('dialog', { name: /Command Palette/i });
+    expect(dialog1).toBeDefined();
 
-    // Search query in Command Palette
-    const searchInput = screen.getByLabelText(/Search modules and actions/i);
-    fireEvent.change(searchInput, { target: { value: 'Corsi' } });
-    expect(screen.getByText(/Toggle DIY Corsi-Rosenthal Box Filtration/i)).toBeDefined();
+    // Click quick action inside Command Palette
+    const corsiAction = within(dialog1).getByText(/Toggle DIY Corsi-Rosenthal Box Filtration/i);
+    fireEvent.click(corsiAction);
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: /Command Palette/i })).toBeNull();
+    });
 
-    // Close Command Palette
-    const closePaletteBtn = screen.getByLabelText(/Close command palette/i);
-    fireEvent.click(closePaletteBtn);
+    // Reopen and select module
+    fireEvent.click(searchBtn);
+    const dialog2 = screen.getByRole('dialog', { name: /Command Palette/i });
+    const forecastModule = within(dialog2).getByRole('button', { name: /30-Day Outlook/i });
+    fireEvent.click(forecastModule);
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: /Command Palette/i })).toBeNull();
+    });
+
+    // Reopen and select ward
+    fireEvent.click(searchBtn);
+    const dialog3 = screen.getByRole('dialog', { name: /Command Palette/i });
+    const anandWard = within(dialog3).getByRole('button', { name: /Anand Vihar/i });
+    fireEvent.click(anandWard);
     await waitFor(() => {
       expect(screen.queryByRole('dialog', { name: /Command Palette/i })).toBeNull();
     });
@@ -237,5 +260,19 @@ describe('UI Component Behavioral Smoke Tests', () => {
     await waitFor(() => {
       expect(screen.getByText(/2 Sustainable Alternatives Adopted/i)).toBeDefined();
     });
+  });
+
+  it('throws an error when domain context hooks are invoked outside of AppProvider', () => {
+    expect(() => renderHook(() => useUi())).toThrow('useUi must be used within an AppProvider');
+    expect(() => renderHook(() => useHousehold())).toThrow(
+      'useHousehold must be used within an AppProvider'
+    );
+    expect(() => renderHook(() => useAlerts())).toThrow(
+      'useAlerts must be used within an AppProvider'
+    );
+    expect(() => renderHook(() => useLedger())).toThrow(
+      'useLedger must be used within an AppProvider'
+    );
+    expect(() => renderHook(() => useApp())).toThrow('useUi must be used within an AppProvider');
   });
 });

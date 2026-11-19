@@ -8,9 +8,13 @@ import { NAV_ITEMS } from '../constants/navigation';
 
 export { NAV_ITEMS } from '../constants/navigation';
 
+/** @type {React.Context<any>} */
 export const UiContext = createContext(null);
+/** @type {React.Context<any>} */
 export const HouseholdContext = createContext(null);
+/** @type {React.Context<any>} */
 export const AlertsContext = createContext(null);
+/** @type {React.Context<any>} */
 export const LedgerContext = createContext(null);
 
 /**

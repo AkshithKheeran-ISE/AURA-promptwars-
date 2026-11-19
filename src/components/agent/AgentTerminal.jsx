@@ -105,6 +105,7 @@ EngagedAgentsView.propTypes = {
   agents: PropTypes.arrayOf(PropTypes.string)
 };
 
+/** @param {any} props */
 function AgentChatMessage({ m, idx, expandedTraceIdx, onToggleTrace }) {
   const isUser = m.sender === 'user';
   const isSys = m.sender === 'sys';

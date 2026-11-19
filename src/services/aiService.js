@@ -279,6 +279,7 @@ export async function orchestrateAgentWorkflow(rawPrompt, context = {}, preferre
     detail: `Routed query to specialist: ${agentId}`
   });
 
+  /** @type {string | null} */
   let outputText = null;
   let engineUsed = '';
   let isFallback = true;
@@ -310,7 +311,7 @@ export async function orchestrateAgentWorkflow(rawPrompt, context = {}, preferre
   const durationMs = Math.round(performance.now() - startTime);
   const timestamp = Date.now();
 
-  const attestationPayload = `${agentId}|${cleanPrompt.slice(0, 32)}|${timestamp}|${durationMs}|${sha256(outputText).slice(0, 16)}`;
+  const attestationPayload = `${agentId}|${cleanPrompt.slice(0, 32)}|${timestamp}|${durationMs}|${sha256(outputText || '').slice(0, 16)}`;
   const attestationToken = sha256(attestationPayload);
 
   trace.push({
@@ -358,13 +359,13 @@ export async function orchestrateMultiAgentConsensus(context = {}) {
 Coordinated Intelligence from IAQEngineer, PediatricShield, and EcoAuditor
 
 1. INDOOR AIR DEFENSE (IAQEngineer):
-${iaq.text.split('\n').slice(2, 6).join('\n')}
+${(iaq.text || '').split('\n').slice(2, 6).join('\n')}
 
 2. VULNERABLE AIRWAY SHIELD (PediatricShield):
-${pediatric.text.split('\n').slice(2, 6).join('\n')}
+${(pediatric.text || '').split('\n').slice(2, 6).join('\n')}
 
 3. DIRECT IMPACT & FINANCIAL AUDIT (EcoAuditor):
-${eco.text.split('\n').slice(2, 6).join('\n')}
+${(eco.text || '').split('\n').slice(2, 6).join('\n')}
 
 Verified by AURA-CORE Consensus Engine · Zero Unverified Claims`;
 

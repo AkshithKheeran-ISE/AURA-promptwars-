@@ -68,6 +68,7 @@ export default function App() {
     setBooted(true);
   };
 
+  /** @type {any} */
   const CurrentPageComponent = PAGES[page] || CommandCenter;
 
   return (

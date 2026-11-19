@@ -2,7 +2,10 @@ import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { Lock, CheckCircle2 } from 'lucide-react';
 
-const TimelineCard = memo(function TimelineCard({ rep, idx, isCorrupt, onAdvanceStage }) {
+/**
+ * @param {{ rep: any, idx: number, isCorrupt: boolean, onAdvanceStage: (id: string) => void }} props
+ */
+function TimelineCardBase({ rep, idx, isCorrupt, onAdvanceStage }) {
   return (
     <div
       className={`w-72 shrink-0 p-3.5 rounded-xl border font-mono text-xs space-y-2 transition relative ${
@@ -59,9 +62,11 @@ const TimelineCard = memo(function TimelineCard({ rep, idx, isCorrupt, onAdvance
       </div>
     </div>
   );
-});
+}
 
-TimelineCard.propTypes = {
+const TimelineCard = memo(TimelineCardBase);
+
+TimelineCardBase.propTypes = {
   rep: PropTypes.shape({
     id: PropTypes.string.isRequired,
     issue: PropTypes.string.isRequired,

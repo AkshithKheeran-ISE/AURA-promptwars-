@@ -6,7 +6,7 @@ import { sha256 } from '../utils/crypto';
 
 /**
  * Computes deterministic SHA-256 hash for an audit log entry.
- * @param {object} log
+ * @param {any} log
  * @returns {string} SHA-256 hex digest
  */
 export const computeAuditHash = (log) => {

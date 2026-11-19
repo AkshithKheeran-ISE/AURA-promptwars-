@@ -243,7 +243,7 @@ export default function CommandCenter() {
         />
         <IndoorShieldCard
           selectedWard={selectedWard}
-          outdoorColor={outdoorColor}
+          activeHacksCount={activeHacks.length}
           exposureCalc={exposureCalc}
           healthRisk={healthRisk}
         />
@@ -251,7 +251,7 @@ export default function CommandCenter() {
 
       <div className="grid gap-6 xl:grid-cols-3">
         <div className="xl:col-span-2">
-          <InversionDiurnalChart selectedWard={selectedWard} />
+          <InversionDiurnalChart />
         </div>
         <EmergencyPlaybookSummary onNavigateHacks={() => setPage('hacks')} />
       </div>

@@ -91,6 +91,7 @@ ProtocolDirectiveBanner.propTypes = {
   selectedWard: PropTypes.object.isRequired
 };
 
+/** @param {any} props */
 function DailyRoutineSlotCard({ slot }) {
   return (
     <div className="panel panel-corners p-5 space-y-3 hover:border-cyan-400/40 transition">

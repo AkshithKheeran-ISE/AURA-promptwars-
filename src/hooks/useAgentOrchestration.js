@@ -102,7 +102,7 @@ async function executeAgentTask(options) {
         agent: 'AURA-CORE',
         role: 'Orchestrator',
         engine: 'System Safety Fallback',
-        text: `Encountered temporary exception during agent execution: ${err?.message || 'Please specify query parameters.'}`
+        text: `Encountered temporary exception during agent execution: ${/** @type {any} */ (err)?.message || 'Please specify query parameters.'}`
       }
     ]);
   }

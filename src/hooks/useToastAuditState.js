@@ -6,7 +6,7 @@ import { TIMEOUTS } from '../constants';
  * Manages toast notifications and tamper-evident audit trail entries.
  */
 export function useToastAuditState() {
-  const [toasts, setToasts] = useState([]);
+  const [toasts, setToasts] = useState(/** @type {any[]} */ ([]));
   const [auditLogs, setAuditLogs] = useState(INITIAL_AUDIT_LOGS);
 
   const addToast = (title, body, tone = 'cyan') => {

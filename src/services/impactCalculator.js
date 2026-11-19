@@ -79,7 +79,7 @@ function sanitizeNumber(val, fallback = 0, min = 0, max = Infinity) {
  * @param {boolean} [weatherstripped=false] - Whether windows have weatherstripping
  * @param {string} [maskType='none'] - 'none' | 'surgical' | 'n95'
  * @param {string} [archetype='standard_adult'] - 'standard_adult' | 'school_infant' | 'asthma_seniors'
- * @returns {object} Rigorous particulate dose calculation
+ * @returns {{ standardInhaledMicrograms: number, optimizedInhaledMicrograms: number, reductionMicrograms: number, percentageReduction: number, indoorPm25: number, units: string }} Rigorous particulate dose calculation
  */
 export function calculateInhaledExposure(
   ambientPm25,

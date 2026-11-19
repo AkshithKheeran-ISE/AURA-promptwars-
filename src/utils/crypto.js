@@ -149,7 +149,7 @@ export const generateDeterministicHash = sha256;
 
 /**
  * Computes a genuine SHA-256 block hash for an immutable citizen report ledger entry.
- * @param {object} block - { id, issue, location, reporter, urgency, prevHash }
+ * @param {any} block - { id, issue, location, reporter, urgency, prevHash }
  * @param {string} [prevHash] - Optional override for previous block hash
  * @returns {string} 64-character SHA-256 hash
  */
@@ -162,7 +162,7 @@ export function computeBlockHash(block, prevHash = block.prevHash) {
 /**
  * Cryptographically verifies every block in a citizen reporting ledger chain.
  * Recalculates each block's SHA-256 hash and verifies pointer consistency.
- * @param {Array<object>} chain - Array of chained report blocks
+ * @param {Array<any>} chain - Array of chained report blocks
  * @returns {{ valid: boolean, brokenIndex: number, reason: string | null }}
  */
 export function verifyLedgerIntegrity(chain) {
@@ -224,14 +224,14 @@ export function computeMerkleRoot(hashes) {
 
 /**
  * Recovers a corrupted ledger chain while preserving valid user reports.
- * @param {Array<object>} chain - The active ledger chain with a corrupted block
- * @param {Map<string, object>|Record<string, object>} canonicalStore - Authentic baseline payloads
+ * @param {Array<any>} chain - The active ledger chain with a corrupted block
+ * @param {any} canonicalStore - Authentic baseline payloads
  * @returns {{
  *   success: boolean,
- *   repairedChain: Array<object>,
+ *   repairedChain: Array<any>,
  *   restoredCount: number,
  *   preservedCount: number,
- *   quarantinedEvidence: Array<object>
+ *   quarantinedEvidence: Array<any>
  * }}
  */
 export function repairLedgerChain(chain, canonicalStore) {
@@ -246,6 +246,7 @@ export function repairLedgerChain(chain, canonicalStore) {
   }
 
   const repaired = chain.map((block) => ({ ...block }));
+  /** @type {Array<any>} */
   const quarantinedEvidence = [];
   let restoredCount = 0;
   const GENESIS_PREV_HASH = '0'.repeat(64);

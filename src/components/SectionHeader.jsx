@@ -1,5 +1,12 @@
 import React from 'react';
 
+/**
+ * @param {object} props
+ * @param {string} [props.eyebrow]
+ * @param {string} props.title
+ * @param {string} [props.desc]
+ * @param {React.ReactNode} [props.right]
+ */
 export default function SectionHeader({ eyebrow, title, desc, right }) {
   return (
     <div className="flex flex-wrap items-end justify-between gap-4 border-b border-cyan-400/10 pb-4">

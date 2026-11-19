@@ -80,6 +80,7 @@ HackCardBlueprint.propTypes = {
   hack: PropTypes.object.isRequired
 };
 
+/** @param {any} props */
 function IaqHackCard({ hack, isActive, isExpanded, onToggleActive, onToggleExpand }) {
   return (
     <div
@@ -173,7 +174,9 @@ IaqHackCard.propTypes = {
 
 export default function IndoorAirHacks() {
   const { activeHacks, toggleHack, exposureCalc, selectedWard } = useHousehold();
-  const [expandedHackId, setExpandedHackId] = useState('corsi_rosenthal');
+  const [expandedHackId, setExpandedHackId] = useState(
+    /** @type {string | null} */ ('corsi_rosenthal')
+  );
 
   return (
     <div className="space-y-6">

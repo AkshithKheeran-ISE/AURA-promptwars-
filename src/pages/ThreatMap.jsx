@@ -41,9 +41,12 @@ export default function ThreatMap() {
       <div className="grid gap-6 xl:grid-cols-3">
         <div className="panel p-2 xl:col-span-2 relative min-h-[540px] overflow-hidden">
           <div ref={mapContainerRef} className="h-[540px] w-full rounded-xl z-0" />
-          <MapTacticalOverlays layers={layers} />
+          <MapTacticalOverlays />
         </div>
-        <SectorDossier selectedWard={selectedWard} />
+        <SectorDossier
+          selectedWard={selectedWard}
+          statusColor={selectedWard.status === 'Critical' ? '#f43f5e' : '#34d399'}
+        />
       </div>
     </div>
   );

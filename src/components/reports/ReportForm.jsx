@@ -88,7 +88,7 @@ function ReportDetailsInput({ description, onChange }) {
         </label>
         <textarea
           id="rep-description"
-          rows="3"
+          rows={3}
           placeholder="What did you observe? e.g. Thick rubber fumes smoldering near railway underpass..."
           value={description}
           onChange={(e) => onChange('description', e.target.value)}

@@ -34,7 +34,10 @@ TamperWarningBanner.propTypes = {
   onVerify: PropTypes.func.isRequired
 };
 
-const ReportTableRow = React.memo(function ReportTableRow({ rep, onAdvanceStage }) {
+/**
+ * @param {{ rep: any, onAdvanceStage: (id: string) => void }} props
+ */
+function ReportTableRowBase({ rep, onAdvanceStage }) {
   return (
     <tr className="hover:bg-white/5 transition">
       <td className="py-3 text-cyan-300 font-bold">{rep.id}</td>
@@ -70,9 +73,11 @@ const ReportTableRow = React.memo(function ReportTableRow({ rep, onAdvanceStage 
       </td>
     </tr>
   );
-});
+}
 
-ReportTableRow.propTypes = {
+const ReportTableRow = React.memo(ReportTableRowBase);
+
+ReportTableRowBase.propTypes = {
   rep: PropTypes.shape({
     id: PropTypes.string.isRequired,
     issue: PropTypes.string.isRequired,
