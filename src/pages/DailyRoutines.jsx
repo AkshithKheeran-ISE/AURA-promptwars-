@@ -37,8 +37,12 @@ function ArchetypeDwellingToolbar({
       </div>
 
       <div className="flex items-center gap-2">
-        <span className="text-slate-400">Dwelling:</span>
+        <label htmlFor="dwelling-type-select" className="text-slate-400">
+          Dwelling:
+        </label>
         <select
+          id="dwelling-type-select"
+          aria-label="Select household dwelling type"
           value={dwellingType}
           onChange={(e) => onDwellingChange(e.target.value)}
           className="rounded-lg border border-cyan-400/20 bg-[#0c182c] px-2.5 py-1 text-white focus:outline-none"

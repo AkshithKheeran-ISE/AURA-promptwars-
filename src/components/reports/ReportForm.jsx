@@ -18,6 +18,7 @@ function HazardCategorySelect({ value, onChange }) {
       </label>
       <select
         id="rep-issue-type"
+        aria-label="Select hazard category"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="w-full rounded-lg border border-cyan-400/20 bg-[#0c182c] px-3 py-2 text-white focus:outline-none"
@@ -59,6 +60,7 @@ function ReporterUrgencyInputs({ reporter, urgency, onChange }) {
         </label>
         <select
           id="rep-urgency"
+          aria-label="Select report urgency"
           value={urgency}
           onChange={(e) => onChange('urgency', e.target.value)}
           className="w-full rounded-lg border border-cyan-400/20 bg-[#0c182c] px-3 py-2 text-white focus:outline-none"
@@ -162,6 +164,7 @@ export default function ReportForm({ onSubmitReport, merkleRootHex }) {
           </label>
           <select
             id="rep-ward-select"
+            aria-label="Select ward location"
             value={formData.location}
             onChange={(e) => handleFieldChange('location', e.target.value)}
             className="w-full rounded-lg border border-cyan-400/20 bg-[#0c182c] px-3 py-2 text-white focus:outline-none"
