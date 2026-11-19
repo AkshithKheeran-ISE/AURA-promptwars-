@@ -35,7 +35,7 @@ function TimelineCardBase({ rep, idx, isCorrupt, onAdvanceStage }) {
 
       {/* Hash readouts */}
       <div className="text-[10px] space-y-1 pt-1 border-t border-cyan-400/10">
-        <div className="truncate text-slate-500">
+        <div className="truncate text-slate-400">
           <span className="text-slate-400">prev:</span> {rep.prevHash.slice(0, 16)}...
         </div>
         <div className="truncate text-cyan-400">

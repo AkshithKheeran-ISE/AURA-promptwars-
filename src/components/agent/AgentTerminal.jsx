@@ -6,7 +6,7 @@ import { SAMPLE_QUERIES } from './agentConstants';
 function AgentQuickPrompts({ onSend }) {
   return (
     <div className="py-2 space-y-1">
-      <div className="label text-[9px] text-slate-500">Quick Family Prompts:</div>
+      <div className="label text-[9px] text-slate-400">Quick Family Prompts:</div>
       <div className="flex flex-wrap gap-1.5">
         {SAMPLE_QUERIES.map((q, idx) => (
           <button
@@ -111,7 +111,7 @@ function AgentChatMessage({ m, idx, expandedTraceIdx, onToggleTrace }) {
   const isSys = m.sender === 'sys';
   return (
     <div className={`space-y-1 ${isUser ? 'text-right' : 'text-left'}`}>
-      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5 justify-start">
+      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 justify-start">
         <MessageSenderHeader m={m} />
       </div>
       <div

@@ -18,9 +18,9 @@ function LiveClock() {
     <div className="hidden text-right lg:block font-mono">
       <div className="text-sm font-semibold text-cyan-200 flex items-center gap-1 justify-end">
         <span>{ist}</span>
-        <span className="text-[10px] text-slate-500 font-normal">IST</span>
+        <span className="text-[10px] text-slate-400 font-normal">IST</span>
       </div>
-      <div className="text-[10px] text-slate-500">{utc} UTC</div>
+      <div className="text-[10px] text-slate-400">{utc} UTC</div>
     </div>
   );
 }
@@ -60,7 +60,7 @@ function NotificationDropdown({ alerts, notifOpen, criticalCount, onToggle, onSe
               >
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-[10px] text-rose-300 font-bold">{alr.id}</span>
-                  <span className="text-[10px] text-slate-500">{alr.timestamp}</span>
+                  <span className="text-[10px] text-slate-400">{alr.timestamp}</span>
                 </div>
                 <div className="text-xs font-semibold text-slate-200 mt-0.5 truncate">
                   {alr.title}
@@ -135,7 +135,7 @@ export default function Header() {
           aria-label="Search or open command palette (Ctrl+K)"
           className="flex w-full items-center justify-between rounded-lg border border-cyan-400/15 bg-[#08101e] py-2 pl-9 pr-3 text-sm text-slate-400 hover:border-cyan-400/40 hover:bg-[#0c182c] transition cursor-pointer text-left"
         >
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <span className="truncate">Search pollutants, stations, wards, industrial stacks...</span>
           <kbd className="rounded border border-slate-700 bg-black/40 px-1.5 py-0.5 font-mono text-[10px] text-slate-400">
             CTRL K

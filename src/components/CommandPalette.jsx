@@ -107,7 +107,7 @@ function WardsSection({ filteredWards, onSelectWard }) {
               >
                 AQI {ward.aqi}
               </span>
-              <span className="text-[10px] text-slate-500 uppercase">({ward.status})</span>
+              <span className="text-[10px] text-slate-400 uppercase">({ward.status})</span>
             </div>
           </button>
         ))}
@@ -154,7 +154,7 @@ function CommandPaletteModal({ query, onQueryChange, onClose, children }) {
             onChange={(e) => onQueryChange(e.target.value)}
             placeholder="Type a command, routine, IAQ hack, ward, or action..."
             aria-label="Search modules and actions"
-            className="flex-1 bg-transparent text-sm text-white placeholder:text-slate-500 focus:outline-none"
+            className="flex-1 bg-transparent text-sm text-white placeholder:text-slate-400 focus:outline-none"
           />
           <button
             onClick={onClose}
@@ -167,7 +167,7 @@ function CommandPaletteModal({ query, onQueryChange, onClose, children }) {
 
         <div className="max-h-96 overflow-y-auto p-3 space-y-4 font-sans text-sm">{children}</div>
 
-        <div className="flex items-center justify-between border-t border-cyan-400/10 bg-black/40 px-4 py-2 text-xs font-mono text-slate-500">
+        <div className="flex items-center justify-between border-t border-cyan-400/10 bg-black/40 px-4 py-2 text-xs font-mono text-slate-400">
           <span>Press ESC to close</span>
           <span>AURA Family Smog Defense v4.2.1</span>
         </div>

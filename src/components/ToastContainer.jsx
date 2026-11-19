@@ -26,7 +26,7 @@ export default function ToastContainer() {
           >
             <div className="text-xs font-bold text-white flex items-center justify-between">
               <span>{toast.title}</span>
-              <span className="font-mono text-[9px] text-slate-500">AURA NOTIF</span>
+              <span className="font-mono text-[9px] text-slate-400">AURA NOTIF</span>
             </div>
             <div className="mt-1 text-xs text-slate-300 leading-relaxed">{toast.body}</div>
           </div>

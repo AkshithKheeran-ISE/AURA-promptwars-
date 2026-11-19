@@ -137,7 +137,7 @@ export default function Sidebar() {
               <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400 shadow-glow-green" />
               <span>Household Shield Active</span>
             </div>
-            <div className="mt-1 font-mono text-[10px] text-slate-500">
+            <div className="mt-1 font-mono text-[10px] text-slate-400">
               Corsi-Rosenthal · Wet-Mop · Weatherstrip
             </div>
           </div>

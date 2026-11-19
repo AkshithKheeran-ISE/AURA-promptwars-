@@ -51,7 +51,7 @@ export default function AgentRosterGrid({ agentMetrics, onExecuteAgent }) {
               </div>
 
               <div className="pt-2 border-t border-cyan-400/10 flex items-center justify-between text-[10px]">
-                <span className="text-slate-500">
+                <span className="text-slate-400">
                   {metrics.lastLatencyMs ? `Latency: ${metrics.lastLatencyMs}ms` : 'Status: Ready'}
                 </span>
                 <button

@@ -88,7 +88,7 @@ export default function BootScreen({ onDone }) {
 
         <button
           onClick={onDone}
-          className="mx-auto mt-4 block cursor-pointer font-mono text-[10px] uppercase tracking-widest text-slate-500 hover:text-slate-300"
+          className="mx-auto mt-4 block cursor-pointer font-mono text-[10px] uppercase tracking-widest text-slate-400 hover:text-slate-300"
         >
           Skip Boot Sequence
         </button>

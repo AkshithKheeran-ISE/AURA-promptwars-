@@ -191,7 +191,7 @@ export default function ReportForm({ onSubmitReport, merkleRootHex }) {
         <ReportDetailsInput description={formData.description} onChange={handleFieldChange} />
       </form>
 
-      <div className="pt-2 border-t border-cyan-400/10 font-mono text-[10px] text-slate-500 truncate">
+      <div className="pt-2 border-t border-cyan-400/10 font-mono text-[10px] text-slate-400 truncate">
         Merkle Root: 0x{merkleRootHex.slice(0, 16)}...
       </div>
     </div>
