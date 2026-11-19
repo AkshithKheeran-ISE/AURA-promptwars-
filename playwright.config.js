@@ -7,11 +7,7 @@ export default defineConfig({
   fullyParallel: false,
   retries: 0,
   workers: 1,
-  reporter: [
-    ['list'],
-    ['html', { outputFolder: 'playwright-report', open: 'never' }],
-    ['github']
-  ],
+  reporter: [['list'], ['html', { outputFolder: 'playwright-report', open: 'never' }], ['github']],
   use: {
     baseURL: 'http://127.0.0.1:3000',
     trace: 'on-first-retry'
