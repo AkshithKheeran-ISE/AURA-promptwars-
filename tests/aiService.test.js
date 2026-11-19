@@ -79,31 +79,20 @@ describe('AURA Verifiable GenAI & Multi-Agent Orchestration Service', () => {
       expect(res2.attestationToken).not.toBe(res.attestationToken);
     });
 
-    it('executes MeteoForecaster with boundary layer inversion calculations', async () => {
-      const res = await orchestrateAgentWorkflow(
-        'When should I open my window for cross ventilation inversion?'
-      );
-      expect(res.agentId).toBe('meteo_forecaster');
-      expect(typeof res.text).toBe('string');
-      expect(res.text.length).toBeGreaterThan(0);
-      expect(res.attestationToken).toMatch(/^[0-9a-f]{64}$/);
-    });
-
-    it('executes EcoAuditor with exact explainable emissions & cost formulas', async () => {
-      const res = await orchestrateAgentWorkflow('Taking metro transit vs car commute emissions');
-      expect(res.agentId).toBe('eco_auditor');
-      expect(typeof res.text).toBe('string');
-      expect(res.text.length).toBeGreaterThan(0);
-      expect(res.attestationToken).toMatch(/^[0-9a-f]{64}$/);
-    });
-
-    it('executes CommunityWatch with SHA-256 ledger and escalation workflow', async () => {
-      const res = await orchestrateAgentWorkflow('How does citizen ledger verification work?');
-      expect(res.agentId).toBe('community_watch');
-      expect(typeof res.text).toBe('string');
-      expect(res.text.length).toBeGreaterThan(0);
-      expect(res.attestationToken).toMatch(/^[0-9a-f]{64}$/);
-    });
+    it.each([
+      ['meteo_forecaster', 'When should I open my window for cross ventilation inversion?'],
+      ['eco_auditor', 'Taking metro transit vs car commute emissions'],
+      ['community_watch', 'How does citizen ledger verification work?']
+    ])(
+      'executes %s specialist with attested token and structured payload',
+      async (expectedAgentId, prompt) => {
+        const res = await orchestrateAgentWorkflow(prompt);
+        expect(res.agentId).toBe(expectedAgentId);
+        expect(typeof res.text).toBe('string');
+        expect(res.text.length).toBeGreaterThan(0);
+        expect(res.attestationToken).toMatch(/^[0-9a-f]{64}$/);
+      }
+    );
   });
 
   describe('Multi-Agent Consensus Orchestration', () => {
@@ -130,13 +119,11 @@ describe('AURA Verifiable GenAI & Multi-Agent Orchestration Service', () => {
     });
 
     it('gracefully handles empty, null, or malformed prompt payloads', async () => {
-      const emptyRes = await orchestrateAgentWorkflow('');
-      expect(emptyRes.agentId).toBe('family_advisor');
-      expect(emptyRes.attestationToken.length).toBe(64);
-
-      const nullRes = await orchestrateAgentWorkflow(null);
-      expect(nullRes.agentId).toBe('family_advisor');
-      expect(nullRes.attestationToken.length).toBe(64);
+      for (const payload of ['', null, undefined]) {
+        const res = await orchestrateAgentWorkflow(payload);
+        expect(res.agentId).toBe('family_advisor');
+        expect(res.attestationToken).toMatch(/^[0-9a-f]{64}$/);
+      }
     });
 
     it('generates distinct cryptographic attestation tokens for different queries', async () => {
