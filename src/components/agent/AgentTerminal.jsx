@@ -84,6 +84,27 @@ ExecutionTraceView.propTypes = {
   onToggle: PropTypes.func.isRequired
 };
 
+function EngagedAgentsView({ agents }) {
+  if (!agents || agents.length === 0) return null;
+  return (
+    <div className="mt-2.5 pt-2 border-t border-cyan-400/15 text-[10px] flex items-center gap-1.5 flex-wrap">
+      <span className="text-slate-400 font-bold">Agents Engaged:</span>
+      {agents.map((ag) => (
+        <span
+          key={ag}
+          className="px-1.5 py-0.5 rounded bg-cyan-400/10 text-cyan-300 border border-cyan-400/30"
+        >
+          {ag}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+EngagedAgentsView.propTypes = {
+  agents: PropTypes.arrayOf(PropTypes.string)
+};
+
 function AgentChatMessage({ m, idx, expandedTraceIdx, onToggleTrace }) {
   const isUser = m.sender === 'user';
   const isSys = m.sender === 'sys';
@@ -102,6 +123,7 @@ function AgentChatMessage({ m, idx, expandedTraceIdx, onToggleTrace }) {
         }`}
       >
         {m.text}
+        <EngagedAgentsView agents={m.agents} />
         <ExecutionTraceView
           trace={m.trace}
           isExpanded={expandedTraceIdx === idx}

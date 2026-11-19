@@ -37,25 +37,26 @@ function checkRateLimit(clientIp) {
   return { limited: false };
 }
 
+const DEFAULT_ALLOWED_ORIGINS = [
+  'https://auratheairqualityassistant.vercel.app',
+  'https://aura-the-urbanairqualityassistant.netlify.app',
+  'https://urban-air-quality-assistant.netlify.app',
+  'https://akshithkheerankr.github.io',
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:5173'
+];
+
 function getCorsOrigin(requestHeaders) {
   const origin = requestHeaders?.origin || requestHeaders?.Origin || '';
   if (!origin) return '*';
-  try {
-    const parsed = new URL(origin);
-    const hostname = parsed.hostname;
-    if (
-      hostname === 'localhost' ||
-      hostname === '127.0.0.1' ||
-      hostname.endsWith('.netlify.app') ||
-      hostname.endsWith('.vercel.app') ||
-      hostname.endsWith('.github.io')
-    ) {
-      return origin;
-    }
-  } catch {
-    return 'null';
-  }
-  return 'null';
+  const allowed = (process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const allowedOrigins = allowed.length > 0 ? allowed : DEFAULT_ALLOWED_ORIGINS;
+  return allowedOrigins.includes(origin) ? origin : 'null';
 }
 
 function getClientIp(headers) {
@@ -243,10 +244,14 @@ async function callGeminiApi(cleanPrompt, apiKey, headers) {
   const startTime = Date.now();
 
   try {
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
+    const apiUrl =
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
     const response = await fetch(apiUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': apiKey
+      },
       signal: controller.signal,
       body: JSON.stringify({
         contents: [
@@ -289,9 +294,11 @@ export async function handler(event) {
   // Security and CORS Headers
   const headers = {
     'Access-Control-Allow-Origin': allowedOrigin,
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'X-Content-Type-Options': 'nosniff',
+    'Referrer-Policy': 'no-referrer',
+    'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
     'Content-Type': 'application/json'
   };
 

@@ -9,7 +9,7 @@
  * - US EPA / ASHRAE 62.2 Infiltration & Clean Air Delivery Rate (CADR) Metrics
  */
 
-import { INFILTRATION_FACTORS, RESPIRATION_RATES } from '../constants';
+import { INFILTRATION_FACTORS, RESPIRATION_RATES, TARIFFS } from '../constants';
 
 // Statutory Baseline Emission Factors
 export const EMISSION_FACTORS = {
@@ -102,7 +102,7 @@ export function calculateInhaledExposure(
   let indoorPm25 = safePm25 * infiltrationFactor;
   if (usesHEPA) {
     // Verified 88%–92% removal via Corsi-Rosenthal / HEPA filtration
-    indoorPm25 = indoorPm25 * 0.1;
+    indoorPm25 = indoorPm25 * INFILTRATION_FACTORS.HEPA_RESIDUAL_FRACTION;
   }
 
   // Respiration rate based on physiology
@@ -196,7 +196,7 @@ export function calculateCommunitySavings(
 
   // Medical expenditure avoidance:
   // Calibrated to prevented bronchodilator & nebulization actuations (~₹12.50 per gram PM2.5 spared)
-  const healthSavingsInr = Math.round(totalPm25SavedG * 12.5);
+  const healthSavingsInr = Math.round(totalPm25SavedG * TARIFFS.HEALTH_SAVINGS_INR_PER_G_PM25);
 
   return {
     co2SavedKg: totalCo2SavedKg,

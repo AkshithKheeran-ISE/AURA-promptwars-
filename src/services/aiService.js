@@ -1,21 +1,20 @@
 /**
  * @file aiService.js
- * Genuine, Verifiable AI Agent Orchestration & Secure Gemini Proxy Client.
+ * Multi-Agent Orchestration & Secure Gemini Proxy Client.
  *
  * Security Architecture:
- * - NO API keys are stored in client-side code or bundle.
- * - Live inference requests call secure serverless proxy (/api/gemini).
- * - All agent tasks have verifiable execution contracts, real measured latencies,
- *   structured execution traces, and cryptographic SHA-256 attestation tokens.
- * - Comprehensive deterministic fallbacks guarantee 100% functionality even when offline.
+ * - No API keys stored in client-side code or bundle.
+ * - Live inference requests call serverless proxy (/api/gemini).
+ * - Verifiable execution contracts, measured latencies, structured execution traces,
+ *   and SHA-256 attestation tokens.
+ * - Deterministic fallbacks guarantee functionality during network disruption.
  */
 
 import { sanitizeInput, sha256 } from '../utils/sanitize';
-import { TIMEOUTS } from '../constants';
+import { TIMEOUTS, TARGET_AIR_CHANGES_PER_HOUR } from '../constants';
 
 /**
- * Calls the secure server-side Gemini proxy (/api/gemini).
- * Never exposes secrets in the browser bundle.
+ * Calls server-side Gemini proxy (/api/gemini).
  * @param {string} prompt - User query
  * @returns {Promise<{ text: string, model: string, latencyMs: number } | null>}
  */
@@ -33,7 +32,7 @@ async function callSecureGeminiProxy(prompt) {
 
     if (response.ok) {
       const data = await response.json();
-      if (data && data.success && data.text) {
+      if (data && data.success && typeof data.text === 'string') {
         return {
           text: sanitizeInput(data.text, 2000),
           model: data.model || 'gemini-2.0-flash',
@@ -50,69 +49,19 @@ async function callSecureGeminiProxy(prompt) {
 }
 
 /**
- * 1. FamilyAdvisor: Lifestyle & Inversion-Calibrated Routine Engine
+ * Data-Driven Specialized Agent Definitions
  */
-function executeFamilyAdvisor(query, context = {}) {
-  const archetype = context.familyArchetype || 'school_infant';
-  const isInfant = archetype === 'school_infant';
-  const isSenior = archetype === 'asthma_seniors';
-
-  const text = `[AURA FamilyAdvisor · INVERSION-ADAPTED SCHEDULE · Verifiable Execution]
-Target Archetype: ${isInfant ? 'Infant & School Children' : isSenior ? 'Elderly Asthmatic' : 'Active Commuters'}
-1. DIURNAL SCHEDULE CALIBRATION:
-   - 06:30–08:30 (Inversion Peak, Ceiling ~80m): Windows sealed airtight. School commutes must use vehicle air recirculation or N95 masks.
-   - 09:00–12:00: Work & study hours. Floor hygiene: Damp microfiber wet-mop only; zero dry broom sweeping.
-   - 13:30–15:30 (Golden Ventilation Window, Ceiling ~480m): Solar convection breaks inversion. Cross-ventilate for 45 min to exhaust indoor CO2.
-   - 17:30–20:00 (Evening Trap Resurgence): Reseal draft gaps with foam weatherstripping tape.
-   - 21:00–06:00 (Nocturnal Sanctuary): Continuous bedroom Corsi-Rosenthal / HEPA filtration.
-2. VERIFIABLE EXPOSURE REDUCTION:
-   - Avoids ~120 µg/day of toxic sub-micron particulate lung burden per family member.`;
-
-  return {
-    agentId: 'family_advisor',
-    agentName: 'FamilyAdvisor',
-    role: 'Lifestyle & Schedule Customizer',
-    text
-  };
-}
-
-/**
- * 2. IAQEngineer: DIY Filtration & CADR Architect
- */
-function executeIaqEngineer(query, context = {}) {
-  const areaSqFt = context.areaSqFt || 250;
-  const volumeM3 = Math.round(areaSqFt * 0.0929 * 2.74); // 2.74m ceiling
-  const targetAch = 5; // 5 air changes/hour
-  const requiredCadrM3Hr = Math.round(volumeM3 * targetAch);
-
-  const text = `[AURA IAQEngineer · DIY FILTRATION BLUEPRINT · Verifiable Execution]
-Room Volume: ${volumeM3} m³ (${areaSqFt} sq ft) | Target ACH: 5 Air Changes/Hr | Required CADR: ${requiredCadrM3Hr} m³/hr
-1. DIY CORSI-ROSENTHAL BOX SPECIFICATIONS:
-   - Filter Elements: 4× MERV-13 / HEPA H11 pleated air filters (20"×20"×2"). Airflow arrows point INWARD.
-   - Fan Unit: Standard 20" 3-speed domestic box fan (~₹350).
-   - Filter Pack: 4× MERV-13 filters (~₹1,100). Total Unit Cost: ₹1,450 (Commercial equivalent: ₹16,000–₹22,000).
-2. OPERATIONAL PERFORMANCE:
-   - Realized CADR: ~480 m³/hr (10× filter surface area minimizes backpressure and fan motor heat).
-   - Clearance Rate: Clears 92% of indoor PM2.5 in ${areaSqFt} sq ft space in 22 minutes.
-   - Acoustic Profile: <42 dB on Low speed for quiet bedroom operation.`;
-
-  return {
-    agentId: 'iaq_engineer',
-    agentName: 'IAQEngineer',
-    role: 'DIY Air Purifier & Hack Architect',
-    text
-  };
-}
-
-/**
- * 3. PediatricShield: Child & Senior Airway Protection Specialist
- */
-function executePediatricShield(query, context = {}) {
-  const ambientPm25 = context.ambientPm25 || 280;
-  const infantBreathsPerMin = 45; // 2x adult
-  const infantMinuteVolLiters = 3.6;
-
-  const text = `[AURA PediatricShield · CLINICAL PROTOCOL · Verifiable Execution]
+export const AGENT_DEFINITIONS = [
+  {
+    id: 'pediatric_shield',
+    name: 'PediatricShield',
+    role: 'Child & Senior Bronchial Protection',
+    keywords: ['baby', 'infant', 'child', 'senior', 'asthma', 'pediatric', 'bronchial'],
+    render: (_query, context = {}) => {
+      const ambientPm25 = context.ambientPm25 || 280;
+      const infantBreathsPerMin = 45;
+      const infantMinuteVolLiters = 3.6;
+      return `[AURA PediatricShield · CLINICAL PROTOCOL · Verifiable Execution]
 Target Vulnerability: Pediatric & Geriatric Airway Protection (Ambient PM2.5: ${ambientPm25} µg/m³)
 1. PHYSIOLOGICAL VULNERABILITY ANALYSIS:
    - Respiratory Frequency: Infants breathe 40–50 bpm (${infantBreathsPerMin} bpm vs adult ~16 bpm, minute volume ~${infantMinuteVolLiters} L/min), receiving 2.4× more pollutant dose per kg body weight.
@@ -123,24 +72,39 @@ Target Vulnerability: Pediatric & Geriatric Airway Protection (Ambient PM2.5: ${
    - Maintain nursery indoor relative humidity at 45%–55% to protect mucosal cilia clearance.
 3. HEALTH METRIC:
    - Prevents ~140 µg/day of deep alveolar soot ingestion; minimizes pediatric bronchial hyper-reactivity.`;
-
-  return {
-    agentId: 'pediatric_shield',
-    agentName: 'PediatricShield',
-    role: 'Child & Senior Bronchial Protection',
-    text
-  };
-}
-
-/**
- * 4. MeteoForecaster: Atmospheric Inversion & Dispersion Forecaster
- */
-function executeMeteoForecaster(query, _context = {}) {
-  const currentHour = new Date().getHours();
-  const inversionCeilingMeters = currentHour >= 12 && currentHour <= 16 ? 480 : 85;
-  const isGoldenWindow = currentHour >= 13 && currentHour <= 15;
-
-  const text = `[AURA MeteoForecaster · BOUNDARY INVERSION MODEL · Verifiable Execution]
+    }
+  },
+  {
+    id: 'iaq_engineer',
+    name: 'IAQEngineer',
+    role: 'DIY Air Purifier & Hack Architect',
+    keywords: ['corsi', 'filter', 'cadr', 'diy', 'purifier', 'box fan', 'merv'],
+    render: (_query, context = {}) => {
+      const areaSqFt = context.areaSqFt || 250;
+      const volumeM3 = Math.round(areaSqFt * 0.0929 * 2.74);
+      const requiredCadrM3Hr = Math.round(volumeM3 * TARGET_AIR_CHANGES_PER_HOUR);
+      return `[AURA IAQEngineer · DIY FILTRATION BLUEPRINT · Verifiable Execution]
+Room Volume: ${volumeM3} m³ (${areaSqFt} sq ft) | Target ACH: 5 Air Changes/Hr | Required CADR: ${requiredCadrM3Hr} m³/hr
+1. DIY CORSI-ROSENTHAL BOX SPECIFICATIONS:
+   - Filter Elements: 4× MERV-13 / HEPA H11 pleated air filters (20"×20"×2"). Airflow arrows point INWARD.
+   - Fan Unit: Standard 20" 3-speed domestic box fan (~₹350).
+   - Filter Pack: 4× MERV-13 filters (~₹1,100). Total Unit Cost: ₹1,450 (Commercial equivalent: ₹16,000–₹22,000).
+2. OPERATIONAL PERFORMANCE:
+   - Realized CADR: ~480 m³/hr (10× filter surface area minimizes backpressure and fan motor heat).
+   - Clearance Rate: Clears 92% of indoor PM2.5 in ${areaSqFt} sq ft space in 22 minutes.
+   - Acoustic Profile: <42 dB on Low speed for quiet bedroom operation.`;
+    }
+  },
+  {
+    id: 'meteo_forecaster',
+    name: 'MeteoForecaster',
+    role: 'Boundary Inversion & Window Timing',
+    keywords: ['window', 'inversion', 'ventilate', 'afternoon', 'meteo', 'weather', 'diurnal'],
+    render: () => {
+      const currentHour = new Date().getHours();
+      const inversionCeilingMeters = currentHour >= 12 && currentHour <= 16 ? 480 : 85;
+      const isGoldenWindow = currentHour >= 13 && currentHour <= 15;
+      return `[AURA MeteoForecaster · BOUNDARY INVERSION MODEL · Verifiable Execution]
 Atmospheric Boundary Layer Mixing Ceiling: ${inversionCeilingMeters}m | Current Status: ${isGoldenWindow ? 'GOLDEN WINDOW ACTIVE' : 'SURFACE INVERSION TRAP ACTIVE'}
 1. THERMAL DISPERSION DYNAMICS:
    - Nocturnal Radiation Trap: Radiative cooling between 20:00 and 08:30 compresses emissions below an 85m ceiling, concentrating ground-level PM2.5.
@@ -148,94 +112,12 @@ Atmospheric Boundary Layer Mixing Ceiling: ${inversionCeilingMeters}m | Current 
 2. GOLDEN VENTILATION WINDOW:
    - Solar Convective Uplift: Solar heating between 13:30 and 15:30 raises boundary mixing ceiling to ~480m.
    - Recommendation: Cross-ventilate your home for exactly 40–45 minutes between 13:30 and 15:30 to flush indoor CO2 while ambient PM2.5 is at its diurnal minimum.`;
-
-  return {
-    agentId: 'meteo_forecaster',
-    agentName: 'MeteoForecaster',
-    role: 'Boundary Inversion & Window Timing',
-    text
-  };
-}
-
-/**
- * 5. EcoAuditor: Direct Impact & Financial Calculator
- */
-function executeEcoAuditor(query, context = {}) {
-  const distanceKm = context.distanceKm || 20;
-  const co2AvoidedKg = Number((distanceKm * (0.192 - 0.015)).toFixed(2));
-  const pm25AvoidedG = Number((distanceKm * (0.045 - 0.002)).toFixed(2));
-  const petrolSavingsInr = Math.round(distanceKm * 5.64); // Petrol car ₹7.44/km - Metro ₹1.80/km
-
-  const text = `[AURA EcoAuditor · DIRECT IMPACT AUDIT · Verifiable Execution]
-Analyzed Scope: 20 km Daily Commute Shift (Petrol Car -> Metro + E-Rickshaw) & Clean Space Heating
-1. DIRECT EMISSION REDUCTION:
-   - CO2 Prevented: ${co2AvoidedKg} kg CO2/day (approx 78 kg CO2/month).
-   - Toxic PM2.5 Spared: ${pm25AvoidedG} g/day kept out of street canyons and school gates.
-   - Clean Heating Swap: Switching from coal sigdi to sealed radiator eliminates 14.2 kg CO2 and 120g PM2.5 per evening.
-2. FINANCIAL & HEALTH CLINIC SAVINGS:
-   - Direct Fuel Savings: ~₹${petrolSavingsInr}/day (~₹3,400/month).
-   - Healthcare Cost Avoidance: Reduces preventative nebulizer and respiratory clinic expenditures by ~₹3,200/month.`;
-
-  return {
-    agentId: 'eco_auditor',
-    agentName: 'EcoAuditor',
+    }
+  },
+  {
+    id: 'eco_auditor',
+    name: 'EcoAuditor',
     role: 'Explainable Direct Impact Calculator',
-    text
-  };
-}
-
-/**
- * 6. CommunityWatch: Tamper-Evident Ledger & Hazard Auditor
- */
-function executeCommunityWatch(query, _context = {}) {
-  const text = `[AURA CommunityWatch · IMMUTABLE LEDGER PROTOCOL · Verifiable Execution]
-Cryptographic Standard: FIPS 180-4 SHA-256 Hash-Chaining & Merkle Tree Verification
-1. INCIDENT REPORT ACCOUNTABILITY:
-   - Every citizen hazard observation is sanitized, hashed with SHA-256, and chained to the preceding block.
-   - The ledger computes an immutable binary Merkle root. Any attempt to modify report details breaks pointer consensus.
-2. MUNICIPAL ESCALATION & TRIAGE:
-   - Tier 1: SHA-256 hashing to community ledger.
-   - Tier 2: Resident Welfare Association (RWA) verification triage.
-   - Tier 3: Municipal Corporation of Delhi (MCD) / DPCC flying squad dispatched with GPS coordinates.
-   - Tier 4: Hazard doused, violator penalized, resolution evidence anchored to ledger.`;
-
-  return {
-    agentId: 'community_watch',
-    agentName: 'CommunityWatch',
-    role: 'Tamper-Evident Hazard Watchdog',
-    text
-  };
-}
-
-/**
- * Master Agent Execution Directory
- */
-const AGENT_REGISTRY = Object.freeze(
-  Object.assign(Object.create(null), {
-    family_advisor: executeFamilyAdvisor,
-    iaq_engineer: executeIaqEngineer,
-    pediatric_shield: executePediatricShield,
-    meteo_forecaster: executeMeteoForecaster,
-    eco_auditor: executeEcoAuditor,
-    community_watch: executeCommunityWatch
-  })
-);
-
-const AGENT_KEYWORDS = [
-  {
-    agentId: 'pediatric_shield',
-    keywords: ['baby', 'infant', 'child', 'senior', 'asthma', 'pediatric', 'bronchial']
-  },
-  {
-    agentId: 'iaq_engineer',
-    keywords: ['corsi', 'filter', 'cadr', 'diy', 'purifier', 'box fan', 'merv']
-  },
-  {
-    agentId: 'meteo_forecaster',
-    keywords: ['window', 'inversion', 'ventilate', 'afternoon', 'meteo', 'weather', 'diurnal']
-  },
-  {
-    agentId: 'eco_auditor',
     keywords: [
       'impact',
       'saving',
@@ -251,119 +133,171 @@ const AGENT_KEYWORDS = [
       'financial',
       'sigdi',
       'heating'
-    ]
+    ],
+    render: (_query, context = {}) => {
+      const distanceKm = context.distanceKm || 20;
+      const co2AvoidedKg = Number((distanceKm * (0.192 - 0.015)).toFixed(2));
+      const pm25AvoidedG = Number((distanceKm * (0.045 - 0.002)).toFixed(2));
+      const petrolSavingsInr = Math.round(distanceKm * 5.64);
+      return `[AURA EcoAuditor · DIRECT IMPACT AUDIT · Verifiable Execution]
+Analyzed Scope: 20 km Daily Commute Shift (Petrol Car -> Metro + E-Rickshaw) & Clean Space Heating
+1. DIRECT EMISSION REDUCTION:
+   - CO2 Prevented: ${co2AvoidedKg} kg CO2/day (approx 78 kg CO2/month).
+   - Toxic PM2.5 Spared: ${pm25AvoidedG} g/day kept out of street canyons and school gates.
+   - Clean Heating Swap: Switching from coal sigdi to sealed radiator eliminates 14.2 kg CO2 and 120g PM2.5 per evening.
+2. FINANCIAL & HEALTH CLINIC SAVINGS:
+   - Direct Fuel Savings: ~₹${petrolSavingsInr}/day (~₹3,400/month).
+   - Healthcare Cost Avoidance: Reduces preventative nebulizer and respiratory clinic expenditures by ~₹3,200/month.`;
+    }
   },
   {
-    agentId: 'community_watch',
-    keywords: ['ledger', 'report', 'tamper', 'merkle', 'hash', 'mcd', 'burning']
+    id: 'community_watch',
+    name: 'CommunityWatch',
+    role: 'Tamper-Evident Hazard Watchdog',
+    keywords: ['ledger', 'report', 'tamper', 'merkle', 'hash', 'mcd', 'burning'],
+    render: () => `[AURA CommunityWatch · IMMUTABLE LEDGER PROTOCOL · Verifiable Execution]
+Cryptographic Standard: FIPS 180-4 SHA-256 Hash-Chaining & Merkle Tree Verification
+1. INCIDENT REPORT ACCOUNTABILITY:
+   - Every citizen hazard observation is sanitized, hashed with SHA-256, and chained to the preceding block.
+   - The ledger computes an immutable binary Merkle root. Any attempt to modify report details breaks pointer consensus.
+2. MUNICIPAL ESCALATION & TRIAGE:
+   - Tier 1: SHA-256 hashing to community ledger.
+   - Tier 2: Resident Welfare Association (RWA) verification triage.
+   - Tier 3: Municipal Corporation of Delhi (MCD) / DPCC flying squad dispatched with GPS coordinates.
+   - Tier 4: Hazard doused, violator penalized, resolution evidence anchored to ledger.`
+  },
+  {
+    id: 'family_advisor',
+    name: 'FamilyAdvisor',
+    role: 'Lifestyle & Schedule Customizer',
+    keywords: [],
+    render: (_query, context = {}) => {
+      const archetype = context.familyArchetype || 'school_infant';
+      const isInfant = archetype === 'school_infant';
+      const isSenior = archetype === 'asthma_seniors';
+      return `[AURA FamilyAdvisor · INVERSION-ADAPTED SCHEDULE · Verifiable Execution]
+Target Archetype: ${isInfant ? 'Infant & School Children' : isSenior ? 'Elderly Asthmatic' : 'Active Commuters'}
+1. DIURNAL SCHEDULE CALIBRATION:
+   - 06:30–08:30 (Inversion Peak, Ceiling ~80m): Windows sealed airtight. School commutes must use vehicle air recirculation or N95 masks.
+   - 09:00–12:00: Work & study hours. Floor hygiene: Damp microfiber wet-mop only; zero dry broom sweeping.
+   - 13:30–15:30 (Golden Ventilation Window, Ceiling ~480m): Solar convection breaks inversion. Cross-ventilate for 45 min to exhaust indoor CO2.
+   - 17:30–20:00 (Evening Trap Resurgence): Reseal draft gaps with foam weatherstripping tape.
+   - 21:00–06:00 (Nocturnal Sanctuary): Continuous bedroom Corsi-Rosenthal / HEPA filtration.
+2. VERIFIABLE EXPOSURE REDUCTION:
+   - Avoids ~120 µg/day of toxic sub-micron particulate lung burden per family member.`;
+    }
   }
 ];
 
+const AGENT_REGISTRY = Object.freeze(
+  AGENT_DEFINITIONS.reduce((acc, def) => {
+    acc[def.id] = (query, context) => ({
+      agentId: def.id,
+      agentName: def.name,
+      role: def.role,
+      text: def.render(query, context)
+    });
+    return acc;
+  }, Object.create(null))
+);
+
 /**
- * Resolves query intent to determine optimal specialist agent.
+ * Resolves user query to specialized agent based on keyword heuristics.
  * @param {string} prompt - User query
- * @param {string|null} preferredAgentId - Explicit agent ID override
- * @returns {string} Target agent ID
+ * @param {string|null} [preferredAgentId=null] - Explicit override
+ * @returns {string} Target agent identifier
  */
 export function resolveAgentIntent(prompt, preferredAgentId = null) {
   if (preferredAgentId && AGENT_REGISTRY[preferredAgentId]) {
     return preferredAgentId;
   }
 
-  const lower = (prompt || '').toLowerCase();
-  for (const { agentId, keywords } of AGENT_KEYWORDS) {
-    if (keywords.some((kw) => lower.includes(kw))) {
-      return agentId;
+  const clean = (prompt || '').toLowerCase();
+  for (const def of AGENT_DEFINITIONS) {
+    if (def.keywords.some((kw) => clean.includes(kw))) {
+      return def.id;
     }
   }
-
   return 'family_advisor';
 }
 
 /**
- * Executes verifiable agent orchestration pipeline.
- *
- * Execution Steps:
- * 1. Intent Resolution & Agent Selection
- * 2. Input Sanitization & Threat Neutralization
- * 3. Execution (via Secure Proxy or Deterministic Model)
- * 4. Cryptographic Attestation Generation (SHA-256)
- * 5. Structured Execution Trace Assembly
- *
- * @param {string} rawPrompt - User query text
- * @param {object} [context={}] - Contextual parameters
- * @param {string|null} [preferredAgentId=null] - Direct agent target
- * @returns {Promise<{
- *   agentId: string,
- *   agentName: string,
- *   role: string,
- *   text: string,
- *   engine: string,
- *   durationMs: number,
- *   attestationToken: string,
- *   timestamp: number,
- *   trace: Array<{ step: string, status: string, detail: string }>
- * }>}
+ * Attempts live server proxy dispatch with fallback tracing.
+ * @private
+ */
+async function dispatchLiveProxy(cleanPrompt, trace) {
+  trace.push({
+    step: 'SERVER_PROXY_DISPATCH',
+    status: 'ATTEMPTING',
+    detail: 'Contacting serverless proxy (/api/gemini)'
+  });
+
+  const liveResult = await callSecureGeminiProxy(cleanPrompt);
+  if (liveResult && typeof liveResult.text === 'string' && liveResult.text.length > 0) {
+    trace.push({
+      step: 'SERVER_PROXY_DISPATCH',
+      status: 'SUCCESS',
+      detail: `Received live model completion from ${liveResult.model}`
+    });
+    return {
+      outputText: liveResult.text,
+      engineUsed: `Gemini 2.0 Flash (via Secure Server Proxy · ${liveResult.latencyMs}ms)`,
+      isFallback: false,
+      executionMode: 'LIVE_PROXY'
+    };
+  }
+
+  trace.push({
+    step: 'SERVER_PROXY_DISPATCH',
+    status: 'FALLBACK',
+    detail: 'Server proxy unavailable; routing to deterministic clinical specialist model'
+  });
+  return null;
+}
+
+/**
+ * Orchestrates multi-agent execution pipeline.
+ * @param {string} rawPrompt - User query string
+ * @param {object} [context={}] - Environmental context
+ * @param {string|null} [preferredAgentId=null] - Explicit specialist override
  */
 export async function orchestrateAgentWorkflow(rawPrompt, context = {}, preferredAgentId = null) {
   const startTime = performance.now();
   const trace = [];
 
-  const cleanPrompt = sanitizeInput(rawPrompt || '', 500);
+  const cleanPrompt = sanitizeInput(rawPrompt, 500);
+  trace.push({
+    step: 'INPUT_SANITIZATION',
+    status: 'COMPLETE',
+    detail: `Sanitized prompt (${cleanPrompt.length} chars)`
+  });
 
-  // Step 1: Intent Resolution
   const agentId = resolveAgentIntent(cleanPrompt, preferredAgentId);
   trace.push({
     step: 'INTENT_RESOLUTION',
-    status: 'OK',
-    detail: `Mapped query intent to agent: ${agentId}`
+    status: 'ROUTED',
+    detail: `Routed query to specialist: ${agentId}`
   });
 
-  // Step 2: Input Sanitization
-  trace.push({
-    step: 'INPUT_SANITIZATION',
-    status: 'OK',
-    detail: `Neutralized potential XSS/injection; prompt payload length: ${cleanPrompt.length} chars`
-  });
-
-  let outputText = '';
+  let outputText = null;
   let engineUsed = '';
   let isFallback = true;
   let executionMode = 'DETERMINISTIC_SPECIALIST';
 
-  // Step 3: Attempt Secure Gemini Proxy (if no explicit specialist override)
   if (!preferredAgentId && cleanPrompt.length > 5) {
-    trace.push({
-      step: 'SERVER_PROXY_DISPATCH',
-      status: 'ATTEMPTING',
-      detail: 'Contacting secure serverless proxy (/api/gemini)'
-    });
-
-    const liveResult = await callSecureGeminiProxy(cleanPrompt);
-    if (liveResult) {
-      outputText = liveResult.text;
-      engineUsed = `Gemini 2.0 Flash (via Secure Server Proxy · ${liveResult.latencyMs}ms)`;
-      isFallback = false;
-      executionMode = 'LIVE_PROXY';
-      trace.push({
-        step: 'SERVER_PROXY_DISPATCH',
-        status: 'SUCCESS',
-        detail: `Received live model completion from ${liveResult.model}`
-      });
-    } else {
-      trace.push({
-        step: 'SERVER_PROXY_DISPATCH',
-        status: 'FALLBACK',
-        detail: 'Server proxy unavailable; routing to deterministic clinical specialist model'
-      });
+    const liveDispatch = await dispatchLiveProxy(cleanPrompt, trace);
+    if (liveDispatch) {
+      outputText = liveDispatch.outputText;
+      engineUsed = liveDispatch.engineUsed;
+      isFallback = liveDispatch.isFallback;
+      executionMode = liveDispatch.executionMode;
     }
   }
 
-  // Step 4: Deterministic Specialist Execution
-  const handler = AGENT_REGISTRY[agentId] || executeFamilyAdvisor;
+  const handler = AGENT_REGISTRY[agentId] || AGENT_REGISTRY.family_advisor;
   const agentResult = handler(cleanPrompt, context);
 
-  if (!outputText) {
+  if (outputText === null) {
     outputText = agentResult.text;
     engineUsed = 'AURA Multi-Agent Mesh (Verified Clinical & Atmospheric Protocol)';
     trace.push({
@@ -376,7 +310,6 @@ export async function orchestrateAgentWorkflow(rawPrompt, context = {}, preferre
   const durationMs = Math.round(performance.now() - startTime);
   const timestamp = Date.now();
 
-  // Step 5: Cryptographic Attestation Generation
   const attestationPayload = `${agentId}|${cleanPrompt.slice(0, 32)}|${timestamp}|${durationMs}|${sha256(outputText).slice(0, 16)}`;
   const attestationToken = sha256(attestationPayload);
 

@@ -5,7 +5,11 @@ import { useHouseholdState } from '../hooks/useHouseholdState';
 import { useAlertsState } from '../hooks/useAlertsState';
 import { useCitizenLedgerState } from '../hooks/useCitizenLedgerState';
 
-const AppContext = createContext();
+export const UiContext = createContext(null);
+export const HouseholdContext = createContext(null);
+export const AlertsContext = createContext(null);
+export const LedgerContext = createContext(null);
+export const AppContext = createContext(null);
 
 export const NAV_ITEMS = [
   { id: 'command', label: 'Smog Command', icon: 'LayoutDashboard', badge: null },
@@ -22,6 +26,7 @@ export const NAV_ITEMS = [
 
 /**
  * Root Application Context Provider orchestrating modular state domains.
+ * Composes domain-specific contexts to prevent cross-cutting render churn.
  * @param {object} props
  * @param {React.ReactNode} props.children
  */
@@ -32,29 +37,66 @@ export function AppProvider({ children }) {
   const alertsState = useAlertsState(addToast, logAudit);
   const ledger = useCitizenLedgerState(addToast, logAudit);
 
-  const value = {
-    ...nav,
+  const uiValue = { toasts, setToasts, addToast, auditLogs, logAudit, ...nav };
+
+  const compositeValue = {
+    ...uiValue,
     ...household,
     ...alertsState,
-    ...ledger,
-    toasts,
-    setToasts,
-    addToast,
-    auditLogs,
-    logAudit
+    ...ledger
   };
 
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  return (
+    <UiContext.Provider value={uiValue}>
+      <HouseholdContext.Provider value={household}>
+        <AlertsContext.Provider value={alertsState}>
+          <LedgerContext.Provider value={ledger}>
+            <AppContext.Provider value={compositeValue}>{children}</AppContext.Provider>
+          </LedgerContext.Provider>
+        </AlertsContext.Provider>
+      </HouseholdContext.Provider>
+    </UiContext.Provider>
+  );
 }
 
-/**
- * Hook to access AURA application context state and dispatchers.
- * @returns {object} Context state object
- */
+export const AppProviders = AppProvider;
+
 export function useApp() {
   const context = useContext(AppContext);
   if (!context) {
     throw new Error('useApp must be used within an AppProvider');
+  }
+  return context;
+}
+
+export function useUi() {
+  const context = useContext(UiContext);
+  if (!context) {
+    throw new Error('useUi must be used within an AppProvider');
+  }
+  return context;
+}
+
+export function useHousehold() {
+  const context = useContext(HouseholdContext);
+  if (!context) {
+    throw new Error('useHousehold must be used within an AppProvider');
+  }
+  return context;
+}
+
+export function useAlerts() {
+  const context = useContext(AlertsContext);
+  if (!context) {
+    throw new Error('useAlerts must be used within an AppProvider');
+  }
+  return context;
+}
+
+export function useLedger() {
+  const context = useContext(LedgerContext);
+  if (!context) {
+    throw new Error('useLedger must be used within an AppProvider');
   }
   return context;
 }

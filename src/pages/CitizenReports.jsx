@@ -34,7 +34,60 @@ TamperWarningBanner.propTypes = {
   onVerify: PropTypes.func.isRequired
 };
 
+const ReportTableRow = React.memo(function ReportTableRow({ rep, onAdvanceStage }) {
+  return (
+    <tr className="hover:bg-white/5 transition">
+      <td className="py-3 text-cyan-300 font-bold">{rep.id}</td>
+      <td className="py-3 text-white font-sans max-w-xs truncate">{rep.issue}</td>
+      <td className="py-3 text-slate-300">{rep.location}</td>
+      <td className="py-3 text-slate-400">{rep.reporter}</td>
+      <td className="py-3 text-slate-500 font-mono text-[10px]">{rep.hash.slice(0, 12)}...</td>
+      <td className="py-3">
+        <div className="flex items-center gap-1">
+          {[1, 2, 3, 4].map((step) => (
+            <div
+              key={step}
+              className={`h-2 w-5 rounded-sm ${step <= rep.stage ? 'bg-cyan-400' : 'bg-slate-700'}`}
+            />
+          ))}
+          <span className="ml-2 text-[10px] text-slate-300 font-sans">{rep.statusText}</span>
+        </div>
+      </td>
+      <td className="py-3">
+        {rep.stage < 4 ? (
+          <button
+            onClick={() => onAdvanceStage(rep.id)}
+            aria-label={`Advance triage stage for report ${rep.id}`}
+            className="text-cyan-300 hover:underline font-mono text-[11px] cursor-pointer flex items-center gap-1"
+          >
+            Advance &rarr;
+          </button>
+        ) : (
+          <span className="text-emerald-400 text-[11px] flex items-center gap-1">
+            <CheckCircle2 className="h-3.5 w-3.5" /> Resolved
+          </span>
+        )}
+      </td>
+    </tr>
+  );
+});
+
+ReportTableRow.propTypes = {
+  rep: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    issue: PropTypes.string.isRequired,
+    location: PropTypes.string.isRequired,
+    reporter: PropTypes.string.isRequired,
+    hash: PropTypes.string.isRequired,
+    stage: PropTypes.number.isRequired,
+    statusText: PropTypes.string.isRequired
+  }).isRequired,
+  onAdvanceStage: PropTypes.func.isRequired
+};
+
 function CitizenReportsTable({ reports, onAdvanceStage }) {
+  const reversedReports = useMemo(() => reports.slice().reverse(), [reports]);
+
   return (
     <div className="panel p-5 space-y-3">
       <div className="border-b border-cyan-400/10 pb-3 flex items-center justify-between">
@@ -59,50 +112,9 @@ function CitizenReportsTable({ reports, onAdvanceStage }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-cyan-400/5">
-            {reports
-              .slice()
-              .reverse()
-              .map((rep) => (
-                <tr key={rep.id} className="hover:bg-white/5 transition">
-                  <td className="py-3 text-cyan-300 font-bold">{rep.id}</td>
-                  <td className="py-3 text-white font-sans max-w-xs truncate">{rep.issue}</td>
-                  <td className="py-3 text-slate-300">{rep.location}</td>
-                  <td className="py-3 text-slate-400">{rep.reporter}</td>
-                  <td className="py-3 text-slate-500 font-mono text-[10px]">
-                    {rep.hash.slice(0, 12)}...
-                  </td>
-                  <td className="py-3">
-                    <div className="flex items-center gap-1">
-                      {[1, 2, 3, 4].map((step) => (
-                        <div
-                          key={step}
-                          className={`h-2 w-5 rounded-sm ${
-                            step <= rep.stage ? 'bg-cyan-400' : 'bg-slate-700'
-                          }`}
-                        />
-                      ))}
-                      <span className="ml-2 text-[10px] text-slate-300 font-sans">
-                        {rep.statusText}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="py-3">
-                    {rep.stage < 4 ? (
-                      <button
-                        onClick={() => onAdvanceStage(rep.id)}
-                        aria-label={`Advance triage stage for report ${rep.id}`}
-                        className="text-cyan-300 hover:underline font-mono text-[11px] cursor-pointer flex items-center gap-1"
-                      >
-                        Advance &rarr;
-                      </button>
-                    ) : (
-                      <span className="text-emerald-400 text-[11px] flex items-center gap-1">
-                        <CheckCircle2 className="h-3.5 w-3.5" /> Resolved
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              ))}
+            {reversedReports.map((rep) => (
+              <ReportTableRow key={rep.id} rep={rep} onAdvanceStage={onAdvanceStage} />
+            ))}
           </tbody>
         </table>
       </div>

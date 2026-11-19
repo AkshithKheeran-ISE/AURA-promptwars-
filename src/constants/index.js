@@ -21,13 +21,14 @@ export const EMISSION_FACTORS = {
   SOLAR_OFFSET_PER_KWH: 0.82
 };
 
-// Economic Tariffs and Costs (INR)
+// Economic Tariffs, Savings, and Costs (INR)
 export const TARIFFS = {
   GRID_ELECTRICITY_PER_KWH: 7.5,
   PETROL_PER_LITER: 96.72,
   DIESEL_PER_LITER: 89.62,
   DIY_CORSI_ROSENTHAL_BOX_COST: 1450,
-  COMMERCIAL_HEPA_PURIFIER_COST: 12500
+  COMMERCIAL_HEPA_PURIFIER_COST: 12500,
+  HEALTH_SAVINGS_INR_PER_G_PM25: 12.5
 };
 
 // Physiological & Infiltration Parameters
@@ -41,8 +42,11 @@ export const INFILTRATION_FACTORS = {
   STANDARD_UNSEALED: 0.7,
   WEATHERSTRIPPED: 0.35,
   CORSI_ROSENTHAL_ATTENUATION: 0.85,
-  N95_MASK_PROTECTION_RATE: 0.95
+  N95_MASK_PROTECTION_RATE: 0.95,
+  HEPA_RESIDUAL_FRACTION: 0.1
 };
+
+export const TARGET_AIR_CHANGES_PER_HOUR = 5;
 
 // Atmospheric Boundary Layer & Thermal Inversion Heights (meters)
 export const INVERSION_HEIGHTS = {

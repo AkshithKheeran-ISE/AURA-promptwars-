@@ -27,6 +27,9 @@ jobs:
       - name: Static Analysis & Linting (ESLint 9)
         run: npm run lint
 
+      - name: TypeScript Syntax & Type Integrity Check
+        run: npm run typecheck
+
       - name: Code Formatting Check (Prettier)
         run: npm run format
 
@@ -38,3 +41,9 @@ jobs:
 
       - name: Production Build Compilation (Vite)
         run: npm run build
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Execute End-to-End Test Suite (Playwright)
+        run: npm run test:e2e

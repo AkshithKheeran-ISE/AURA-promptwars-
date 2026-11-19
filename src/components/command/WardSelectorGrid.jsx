@@ -19,7 +19,12 @@ export default function WardSelectorGrid({ selectedWard, onSelectWard, onNavigat
     <div className="panel p-5 xl:col-span-2 space-y-4">
       <div className="flex items-center justify-between border-b border-cyan-400/10 pb-3">
         <div>
-          <span className="label text-cyan-300">Neighborhood Smog Grid</span>
+          <div className="flex items-center gap-2">
+            <span className="label text-cyan-300">Neighborhood Smog Grid</span>
+            <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-400/10 text-amber-300 border border-amber-400/30">
+              SIMULATED IOT MESH
+            </span>
+          </div>
           <h2 className="text-lg font-bold text-white mt-0.5">
             Metropolitan Air Quality for Families
           </h2>

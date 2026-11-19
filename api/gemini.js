@@ -13,5 +13,10 @@ export default async function (req, res) {
   };
 
   const result = await handler(event);
+  if (result.headers) {
+    for (const [key, val] of Object.entries(result.headers)) {
+      res.setHeader(key, val);
+    }
+  }
   res.status(result.statusCode).json(JSON.parse(result.body));
 }

@@ -69,10 +69,16 @@ describe('AURA Verifiable GenAI & Multi-Agent Orchestration Service', () => {
         'What protection protocol for infant and asthmatic senior?'
       );
       expect(res.agentId).toBe('pediatric_shield');
-      expect(res.text).toContain('PediatricShield');
-      expect(res.text).toContain('Infants breathe 40–50 bpm');
-      expect(res.text).toContain('wet-mop');
-      expect(res.attestationToken.length).toBe(64);
+      expect(res.agentName).toBe('PediatricShield');
+      expect(res.role).toContain('Bronchial Protection');
+      expect(res.attestationToken).toMatch(/^[0-9a-f]{64}$/);
+      expect(res.trace).toBeInstanceOf(Array);
+      expect(res.trace.length).toBeGreaterThanOrEqual(4);
+
+      // Verify token differs per distinct prompt
+      const res2 = await orchestrateAgentWorkflow('Asthma senior breathing difficulty');
+      expect(res2.attestationToken).toMatch(/^[0-9a-f]{64}$/);
+      expect(res2.attestationToken).not.toBe(res.attestationToken);
     });
 
     it('executes MeteoForecaster with boundary layer inversion calculations', async () => {

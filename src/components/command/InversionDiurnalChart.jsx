@@ -22,7 +22,12 @@ export default function InversionDiurnalChart() {
     <div className="panel p-5 xl:col-span-2 space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-cyan-400/10 pb-3">
         <div>
-          <span className="label text-cyan-300">Atmospheric Dynamics</span>
+          <div className="flex items-center gap-2">
+            <span className="label text-cyan-300">Atmospheric Dynamics</span>
+            <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-purple-400/10 text-purple-300 border border-purple-400/30">
+              WRF-CHEM SIMULATION
+            </span>
+          </div>
           <h2 className="text-lg font-bold text-white">24-Hour Diurnal Smog & Ventilation Curve</h2>
         </div>
         <div className="flex items-center gap-1 bg-[#030712] p-1 rounded-lg border border-cyan-400/15 font-mono text-xs">

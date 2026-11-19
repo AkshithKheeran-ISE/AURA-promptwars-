@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { sanitizeInput } from '../utils/sanitize';
 import {
   orchestrateAgentWorkflow,
@@ -67,11 +67,11 @@ function buildConsensusSuccessMessage(result) {
     sender: 'aura',
     agent: 'AURA-CONSENSUS MESH',
     role: 'Distributed Synthesis',
-    engine: 'Local Deterministic Fallback',
-    text: result.consensusBrief,
+    engine: 'Multi-Agent Mesh',
+    text: result.consensusText,
     token: result.consensusToken,
     durationMs: result.totalLatencyMs,
-    trace: result.trace
+    agents: result.agentsEngaged
   };
 }
 
@@ -155,12 +155,14 @@ export function useAgentOrchestration(familyArchetype, ambientPm25, addToast, lo
   const [isThinking, setIsThinking] = useState(false);
   const [expandedTraceIdx, setExpandedTraceIdx] = useState(null);
   const [agentMetrics, setAgentMetrics] = useState(INITIAL_METRICS);
+  const isExecutingRef = useRef(false);
 
   const handleSend = async (queryText, directAgentId = null) => {
     const rawText = queryText || inputText;
     const cleanText = sanitizeInput(rawText, 500);
-    if (!cleanText.trim()) return;
+    if (!cleanText.trim() || isExecutingRef.current) return;
 
+    isExecutingRef.current = true;
     setMessages((prev) => [...prev, { sender: 'user', text: cleanText }]);
     setInputText('');
     setIsThinking(true);
@@ -175,11 +177,14 @@ export function useAgentOrchestration(familyArchetype, ambientPm25, addToast, lo
         logAudit
       });
     } finally {
+      isExecutingRef.current = false;
       setIsThinking(false);
     }
   };
 
   const handleRunConsensus = async () => {
+    if (isExecutingRef.current) return;
+    isExecutingRef.current = true;
     setIsThinking(true);
     try {
       await executeConsensusTask({
@@ -190,6 +195,7 @@ export function useAgentOrchestration(familyArchetype, ambientPm25, addToast, lo
         logAudit
       });
     } finally {
+      isExecutingRef.current = false;
       setIsThinking(false);
     }
   };

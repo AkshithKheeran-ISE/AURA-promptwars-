@@ -23,10 +23,10 @@ const PARSED_TICKER_ITEMS = [...LIVE_TICKER_ITEMS, ...LIVE_TICKER_ITEMS].map((it
 export default function LiveTicker() {
   return (
     <div className="relative flex h-8 items-center overflow-hidden border-b border-cyan-400/10 bg-[#08101e]/60">
-      {/* Fixed LIVE Badge */}
-      <div className="z-10 flex h-full items-center gap-2 bg-rose-500/90 px-3 font-mono text-[10px] font-bold tracking-widest text-white shadow-md">
-        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
-        LIVE
+      {/* Fixed SIMULATED TELEMETRY Badge */}
+      <div className="z-10 flex h-full items-center gap-2 bg-amber-500/90 px-3 font-mono text-[10px] font-bold tracking-widest text-slate-950 shadow-md">
+        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-slate-950" />
+        SIMULATED TELEMETRY
       </div>
 
       {/* Marquee Scroller */}

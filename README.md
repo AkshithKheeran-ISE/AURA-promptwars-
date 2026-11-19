@@ -3,13 +3,12 @@
 > **Atmospheric Understanding & Real-time Air Quality Intelligence Suite**  
 > _A GenAI-powered assistant helping families and communities navigate severe winter smog and urban air pollution with low-emission routines, DIY indoor air quality hacks, and sustainable alternatives tailored to location and lifestyle._
 
-[![CI Pipeline](https://github.com/akshithkheerankr/Urban-Air-Quality-Assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/akshithkheerankr/Urban-Air-Quality-Assistant/actions/workflows/ci.yml)
+[![CI Pipeline](https://github.com/AkshithKheeran-ISE/AURA-promptwars-/actions/workflows/ci.yml/badge.svg)](https://github.com/AkshithKheeran-ISE/AURA-promptwars-/actions/workflows/ci.yml)
 [![Live Demo](https://img.shields.io/badge/Live_Deployment-auratheairqualityassistant.vercel.app-cyan?style=flat&logo=vercel)](https://auratheairqualityassistant.vercel.app/)
-[![Vulnerabilities](https://img.shields.io/badge/vulnerabilities-0_zero-brightgreen)](#)
-[![Tests](https://img.shields.io/badge/tests-121%2F121_passing-brightgreen)](#)
-[![Coverage](https://img.shields.io/badge/coverage-97.21%25_lines-brightgreen)](#)
-[![Accessibility](https://img.shields.io/badge/accessibility-axe--core_automated_scans-blue)](#)
-[![Design](https://img.shields.io/badge/UI_Aesthetic-ORCA_Tactical_Command-blue)](#)
+[![Vitest](https://img.shields.io/badge/tests-vitest_142_passing-brightgreen)](tests/)
+[![Coverage](https://img.shields.io/badge/coverage-v8_integrated-brightgreen)](tests/)
+[![Accessibility](https://img.shields.io/badge/accessibility-axe--core_automated_scans-blue)](e2e/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
 
@@ -216,10 +215,12 @@ Continuous Integration:
 - Indoor infiltration follows ASHRAE 62.2 / US EPA standard residential envelopes (0.70 unsealed, 0.35 weatherstripped).
 - Adult resting respiratory rate averages ~15 m³/day; infant ventilation is calibrated for developing airways.
 
-### Limitations
+### Limitations & Transparent Architectural Disclosures
 
-- **Tier 2/3 Data Simulation**: Tier 1 sensor nodes represent real-world CAAQMS stations; Tier 2 and Tier 3 hyper-local community sensor feeds are calibrated simulations for high-density spatial demonstration.
-- **Offline Mode**: In full offline environments, GenAI responses use the deterministic expert system fallback rather than live Gemini 2.0 Flash inference.
+- **Telemetry Provenance & Simulation Boundaries**: Live CAAQMS statutory stations are clearly demarcated from WRF-Chem atmospheric numerical simulations and simulated hyper-local sensor mesh nodes via visible UI provenance chips (`SIMULATED TELEMETRY`, `WRF-CHEM SIMULATION`, `SIMULATED IOT MESH`).
+- **Tamper-Evident Client-Side Demo Ledger**: The cryptographic ledger data structure implements strict FIPS 180-4 SHA-256 hash-chaining and binary Merkle root trees in JavaScript (`src/utils/crypto.js`). In this client-side demonstration, the state is held in reactive application memory and localStorage rather than being broadcast to an external consensus network or server-anchored timestamping authority. The tamper-simulation and repair engine illustrates cryptographic chain verification and surgical zero-data-loss restoration client-side.
+- **Serverless In-Memory Rate Limiting**: The Gemini proxy (`api/gemini.js` and `netlify/functions/gemini.js`) enforces a sliding-window rate limit (15 req/min per IP) via an in-memory `Map`. In a multi-region distributed serverless environment, each container instance maintains its own memory table. It acts as an effective abuse speed-bump rather than a globally synchronized distributed token bucket (e.g., Redis / Upstash).
+- **Offline & Fallback Mode**: In full offline environments or when upstream rate limits trigger, GenAI responses use the deterministic scientific expert system fallback rather than live Gemini 2.0 Flash inference.
 
 ---
 
