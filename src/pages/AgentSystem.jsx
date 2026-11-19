@@ -1,7 +1,7 @@
 import React from 'react';
 import { Cpu, Layers } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
-import { useApp } from '../context/AppContext';
+import { useUi, useHousehold } from '../context/AppContext';
 import { useAgentOrchestration } from '../hooks/useAgentOrchestration';
 import AgentTopology from '../components/agent/AgentTopology';
 import AgentTerminal from '../components/agent/AgentTerminal';
@@ -12,7 +12,8 @@ import AgentRosterGrid from '../components/agent/AgentRosterGrid';
  * Coordinates 6 domain agents with verifiable cryptographic execution traces.
  */
 export default function AgentSystem() {
-  const { addToast, logAudit, familyArchetype, selectedWard } = useApp();
+  const { addToast, logAudit } = useUi();
+  const { familyArchetype, selectedWard } = useHousehold();
   const {
     messages,
     inputText,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useApp } from '../context/AppContext';
+import { useUi } from '../context/AppContext';
 
 const TONE_BORDER_CLASSES = {
   red: 'border-l-rose-500 bg-[#0c182c]/95',
@@ -12,7 +12,7 @@ const TONE_BORDER_CLASSES = {
 const DEFAULT_BORDER_CLASS = 'border-l-cyan-400 bg-[#0c182c]/95';
 
 export default function ToastContainer() {
-  const { toasts } = useApp();
+  const { toasts } = useUi();
 
   return (
     <div className="fixed bottom-4 right-4 z-[1000] space-y-2 pointer-events-none">

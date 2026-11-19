@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Search, X, LayoutDashboard, MapPin, Zap, ShieldAlert, Sparkles } from 'lucide-react';
-import { useApp, NAV_ITEMS } from '../context/AppContext';
+import { useUi, useHousehold, useLedger } from '../context/AppContext';
+import { NAV_ITEMS } from '../constants/navigation';
 import { WARDS_DATA } from '../data/airData';
 
 function QuickActionsSection({ onAction, toggleHack, setPage, simulateTamper, verifyLedger }) {
@@ -183,16 +184,9 @@ CommandPaletteModal.propTypes = {
 };
 
 export default function CommandPalette() {
-  const {
-    commandPaletteOpen,
-    setCommandPaletteOpen,
-    setPage,
-    setSelectedWardId,
-    addToast,
-    simulateTamper,
-    verifyLedger,
-    toggleHack
-  } = useApp();
+  const { commandPaletteOpen, setCommandPaletteOpen, setPage, addToast } = useUi();
+  const { setSelectedWardId, toggleHack } = useHousehold();
+  const { simulateTamper, verifyLedger } = useLedger();
 
   const [query, setQuery] = useState('');
 

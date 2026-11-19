@@ -1,8 +1,18 @@
 import React, { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { Download, Filter, Search, User, Bot, Cpu, CheckCircle2 } from 'lucide-react';
+import {
+  Download,
+  Filter,
+  Search,
+  User,
+  Bot,
+  Cpu,
+  CheckCircle2,
+  AlertTriangle
+} from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
-import { useApp } from '../context/AppContext';
+import { useUi } from '../context/AppContext';
+import { computeAuditHash } from '../data/telemetry';
 
 function downloadAuditCsv(auditLogs, addToast) {
   const headers = 'id,timestamp,actor,action,target,type,hash\n';
@@ -167,7 +177,15 @@ function AuditLogsTable({ logs }) {
                   <td className="py-3 text-cyan-300/80">{log.target}</td>
                   <td className="py-3 text-slate-500 text-[10px]">{log.hash.slice(0, 14)}...</td>
                   <td className="py-3">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                    {log.hash === computeAuditHash(log) ? (
+                      <span className="inline-flex items-center gap-1 rounded bg-emerald-400/15 px-1.5 py-0.5 text-[10px] font-bold text-emerald-300">
+                        <CheckCircle2 className="h-3 w-3" /> VERIFIED
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 rounded bg-rose-500/20 px-1.5 py-0.5 text-[10px] font-bold text-rose-300">
+                        <AlertTriangle className="h-3 w-3" /> MISMATCH
+                      </span>
+                    )}
                   </td>
                 </tr>
               );
@@ -184,7 +202,7 @@ AuditLogsTable.propTypes = {
 };
 
 export default function AuditTrail() {
-  const { auditLogs, addToast } = useApp();
+  const { auditLogs, addToast } = useUi();
   const [filterType, setFilterType] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 

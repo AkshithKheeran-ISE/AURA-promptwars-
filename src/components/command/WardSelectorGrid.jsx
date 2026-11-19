@@ -14,7 +14,12 @@ const DEFAULT_WARD_STATUS_CLASS = 'border-emerald-400/30 bg-emerald-400/5 hover:
 /**
  * 16-ward neighborhood grid with live telemetry and selection triggers.
  */
-export default function WardSelectorGrid({ selectedWard, onSelectWard, onNavigateMap }) {
+export default function WardSelectorGrid({
+  selectedWard,
+  onSelectWard,
+  onNavigateMap,
+  wards = WARDS_DATA
+}) {
   return (
     <div className="panel p-5 xl:col-span-2 space-y-4">
       <div className="flex items-center justify-between border-b border-cyan-400/10 pb-3">
@@ -47,7 +52,7 @@ export default function WardSelectorGrid({ selectedWard, onSelectWard, onNavigat
 
       {/* Wards Quick Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {WARDS_DATA.map((w) => {
+        {wards.map((w) => {
           const isSelected = selectedWard.id === w.id;
           const statusBg = WARD_STATUS_CLASSES[w.status] || DEFAULT_WARD_STATUS_CLASS;
 

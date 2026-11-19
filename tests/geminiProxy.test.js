@@ -15,10 +15,22 @@ describe('AURA Secure Gemini Serverless Proxy (netlify/functions/gemini.js)', ()
   });
 
   it('handles CORS OPTIONS preflight with status 200', async () => {
+    const event = {
+      httpMethod: 'OPTIONS',
+      headers: { origin: 'https://auratheairqualityassistant.vercel.app' }
+    };
+    const res = await handler(event);
+    expect(res.statusCode).toBe(200);
+    expect(res.headers['Access-Control-Allow-Origin']).toBe(
+      'https://auratheairqualityassistant.vercel.app'
+    );
+  });
+
+  it('returns null CORS origin when no origin header is provided', async () => {
     const event = { httpMethod: 'OPTIONS' };
     const res = await handler(event);
     expect(res.statusCode).toBe(200);
-    expect(res.headers['Access-Control-Allow-Origin']).toBe('*');
+    expect(res.headers['Access-Control-Allow-Origin']).toBe('null');
   });
 
   it('rejects non-POST HTTP methods with 405 Method Not Allowed', async () => {

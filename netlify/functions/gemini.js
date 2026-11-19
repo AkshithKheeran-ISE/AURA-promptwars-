@@ -12,19 +12,31 @@ Provide actionable low-emission daily routines, indoor air quality (IAQ) hacks (
 Always clearly explain the direct impact of choices: quantify inhaled PM2.5 lung burden reduced (in µg/day), avoided carbon emissions (kg CO2), and prevented respiratory clinic visits.
 Maintain a concise, authoritative, cyber-tactical yet compassionate tone.`;
 
+import crypto from 'node:crypto';
+
 /**
- * In-memory sliding rate limiter: clientIp -> { count, resetTime }
+ * In-memory sliding rate limiter fallback: hashedIp -> { count, resetTime }
  */
 const rateLimitMap = new Map();
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
 const MAX_REQUESTS_PER_WINDOW = 30;
+const UPSTREAM_TIMEOUT_MS = 7000;
+
+function hashClientIp(clientIp) {
+  return crypto
+    .createHash('sha256')
+    .update(String(clientIp || '127.0.0.1'))
+    .digest('hex')
+    .slice(0, 16);
+}
 
 function checkRateLimit(clientIp) {
+  const hashedIp = hashClientIp(clientIp);
   const now = Date.now();
-  const record = rateLimitMap.get(clientIp);
+  const record = rateLimitMap.get(hashedIp);
 
   if (!record || now > record.resetTime) {
-    rateLimitMap.set(clientIp, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+    rateLimitMap.set(hashedIp, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
     return { limited: false };
   }
 
@@ -35,6 +47,38 @@ function checkRateLimit(clientIp) {
   }
 
   return { limited: false };
+}
+
+async function checkDurableRateLimit(clientIp) {
+  const hashedIp = hashClientIp(clientIp);
+  const upstashUrl = process.env.UPSTASH_REDIS_REST_URL;
+  const upstashToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (upstashUrl && upstashToken) {
+    try {
+      const key = `aura_ratelimit_${hashedIp}`;
+      const res = await fetch(`${upstashUrl}/pipeline`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${upstashToken}` },
+        body: JSON.stringify([
+          ['INCR', key],
+          ['EXPIRE', key, 60]
+        ])
+      });
+      if (res.ok) {
+        const results = await res.json();
+        const count = results[0]?.result;
+        if (typeof count === 'number' && count > MAX_REQUESTS_PER_WINDOW) {
+          return { limited: true, retryAfterSeconds: 60 };
+        }
+        return { limited: false };
+      }
+    } catch {
+      // Graceful fallback to memory tracking
+    }
+  }
+
+  return checkRateLimit(clientIp);
 }
 
 const DEFAULT_ALLOWED_ORIGINS = [
@@ -50,7 +94,7 @@ const DEFAULT_ALLOWED_ORIGINS = [
 
 function getCorsOrigin(requestHeaders) {
   const origin = requestHeaders?.origin || requestHeaders?.Origin || '';
-  if (!origin) return '*';
+  if (!origin) return 'null';
   const allowed = (process.env.ALLOWED_ORIGINS || '')
     .split(',')
     .map((s) => s.trim())
@@ -74,8 +118,8 @@ function checkMethodPrecondition(method, headers) {
   return null;
 }
 
-function checkRateLimitPrecondition(clientIp, headers) {
-  const rateLimitStatus = checkRateLimit(clientIp);
+async function checkRateLimitPrecondition(clientIp, headers) {
+  const rateLimitStatus = await checkDurableRateLimit(clientIp);
   if (rateLimitStatus.limited) {
     return {
       statusCode: 429,
@@ -123,12 +167,12 @@ function checkPayloadSizePrecondition(body, headers) {
   return null;
 }
 
-function validatePreconditions(event, headers) {
+async function validatePreconditions(event, headers) {
   const methodError = checkMethodPrecondition(event.httpMethod, headers);
   if (methodError) return methodError;
 
   const clientIp = getClientIp(event.headers);
-  const rateError = checkRateLimitPrecondition(clientIp, headers);
+  const rateError = await checkRateLimitPrecondition(clientIp, headers);
   if (rateError) return rateError;
 
   const apiKey = process.env.GEMINI_API_KEY;
@@ -240,7 +284,7 @@ function handleGeminiFetchError(err, headers) {
 
 async function callGeminiApi(cleanPrompt, apiKey, headers) {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 7000);
+  const timeoutId = setTimeout(() => controller.abort(), UPSTREAM_TIMEOUT_MS);
   const startTime = Date.now();
 
   try {
@@ -306,7 +350,7 @@ export async function handler(event) {
     return { statusCode: 200, headers, body: '' };
   }
 
-  const preconditions = validatePreconditions(event, headers);
+  const preconditions = await validatePreconditions(event, headers);
   if (preconditions.statusCode) {
     return preconditions;
   }

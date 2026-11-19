@@ -3,14 +3,15 @@ import SectionHeader from '../components/SectionHeader';
 import MapLayersToolbar from '../components/map/MapLayersToolbar';
 import MapTacticalOverlays from '../components/map/MapTacticalOverlays';
 import SectorDossier from '../components/map/SectorDossier';
-import { useApp } from '../context/AppContext';
+import { useHousehold, useUi } from '../context/AppContext';
 import { useThreatMapLeaflet } from '../hooks/useThreatMapLeaflet';
 
 /**
  * Interactive spatial radar map displaying pollution plumes, sensors, and sensitive receptors.
  */
 export default function ThreatMap() {
-  const { selectedWard, setSelectedWardId, addToast } = useApp();
+  const { selectedWard, setSelectedWardId } = useHousehold();
+  const { addToast } = useUi();
   const mapContainerRef = useRef(null);
 
   const [layers, setLayers] = useState({

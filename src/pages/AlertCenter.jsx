@@ -21,7 +21,7 @@ import {
   Share2
 } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
-import { useApp } from '../context/AppContext';
+import { useAlerts } from '../context/AppContext';
 
 const PLAYBOOK_ICONS = {
   Droplets,
@@ -221,7 +221,7 @@ IncidentDetailDossier.propTypes = {
 };
 
 export default function AlertCenter() {
-  const { alerts, executePlaybookAction, boostAlertPriority } = useApp();
+  const { alerts, executePlaybookAction, boostAlertPriority } = useAlerts();
 
   const [selectedAlertId, setSelectedAlertId] = useState(alerts[0]?.id || 'ALR-DEL-901');
   const [filterSeverity, setFilterSeverity] = useState('all');

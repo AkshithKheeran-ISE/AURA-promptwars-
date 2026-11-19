@@ -3,7 +3,7 @@
 > **Atmospheric Understanding & Real-time Air Quality Intelligence Suite**  
 > _A GenAI-powered assistant helping families and communities navigate severe winter smog and urban air pollution with low-emission routines, DIY indoor air quality hacks, and sustainable alternatives tailored to location and lifestyle._
 
-[![CI Pipeline](https://github.com/AkshithKheeran-ISE/AURA-promptwars-/actions/workflows/ci.yml/badge.svg)](https://github.com/AkshithKheeran-ISE/AURA-promptwars-/actions/workflows/ci.yml)
+[![CI Pipeline](https://github.com/akshithkheerankr/Urban-Air-Quality-Assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/akshithkheerankr/Urban-Air-Quality-Assistant/actions/workflows/ci.yml)
 [![Live Demo](https://img.shields.io/badge/Live_Deployment-auratheairqualityassistant.vercel.app-cyan?style=flat&logo=vercel)](https://auratheairqualityassistant.vercel.app/)
 [![Vitest](https://img.shields.io/badge/tests-vitest_142_passing-brightgreen)](tests/)
 [![Coverage](https://img.shields.io/badge/coverage-v8_integrated-brightgreen)](tests/)
@@ -154,16 +154,16 @@ AURA provides transparent, explainable formulas directly in the interface with z
 
 ## 🧪 Automated Testing Suite
 
-Tested with Vitest across 11 suites and 121 automated tests, with 97.21% line coverage:
+Tested with Vitest across 18 suites and 142 automated tests, with UI, services, and hooks included in the V8 coverage pipeline:
 
 ```bash
 npm run test:coverage
 ```
 
 ```
- Test Files  11 passed (11)
-      Tests  121 passed (121)
-   Coverage  97.21% Lines
+ Test Files  18 passed (18)
+      Tests  142 passed (142)
+   Coverage  >98% Services & Utils, >78% Hooks
 ```
 
 Playwright End-to-End & Automated Accessibility Suite:
@@ -219,7 +219,7 @@ Continuous Integration:
 
 - **Telemetry Provenance & Simulation Boundaries**: Live CAAQMS statutory stations are clearly demarcated from WRF-Chem atmospheric numerical simulations and simulated hyper-local sensor mesh nodes via visible UI provenance chips (`SIMULATED TELEMETRY`, `WRF-CHEM SIMULATION`, `SIMULATED IOT MESH`).
 - **Tamper-Evident Client-Side Demo Ledger**: The cryptographic ledger data structure implements strict FIPS 180-4 SHA-256 hash-chaining and binary Merkle root trees in JavaScript (`src/utils/crypto.js`). In this client-side demonstration, the state is held in reactive application memory and localStorage rather than being broadcast to an external consensus network or server-anchored timestamping authority. The tamper-simulation and repair engine illustrates cryptographic chain verification and surgical zero-data-loss restoration client-side.
-- **Serverless In-Memory Rate Limiting**: The Gemini proxy (`api/gemini.js` and `netlify/functions/gemini.js`) enforces a sliding-window rate limit (15 req/min per IP) via an in-memory `Map`. In a multi-region distributed serverless environment, each container instance maintains its own memory table. It acts as an effective abuse speed-bump rather than a globally synchronized distributed token bucket (e.g., Redis / Upstash).
+- **Durable & In-Memory Rate Limiting**: The Gemini proxy (`api/gemini.js` and `netlify/functions/gemini.js`) enforces a 30 req/min rate limit keyed by SHA-256 hashed IP addresses. When configured with `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`, it utilizes a globally distributed Upstash Redis atomic pipeline (`INCR` + `EXPIRE`); in local or unconfigured environments, it gracefully falls back to a sliding-window in-memory map.
 - **Offline & Fallback Mode**: In full offline environments or when upstream rate limits trigger, GenAI responses use the deterministic scientific expert system fallback rather than live Gemini 2.0 Flash inference.
 
 ---

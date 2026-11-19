@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Search, AlertOctagon, ShieldCheck, Bell } from 'lucide-react';
-import { useApp, NAV_ITEMS } from '../context/AppContext';
+import { useUi, useAlerts } from '../context/AppContext';
+import { NAV_ITEMS } from '../constants/navigation';
 
 function LiveClock() {
   const [time, setTime] = useState(new Date());
@@ -99,7 +100,8 @@ function HeaderUserProfile() {
 }
 
 export default function Header() {
-  const { page, setPage, setCommandPaletteOpen, alerts } = useApp();
+  const { page, setPage, setCommandPaletteOpen } = useUi();
+  const { alerts } = useAlerts();
 
   const [notifOpen, setNotifOpen] = useState(false);
   const criticalCount = useMemo(

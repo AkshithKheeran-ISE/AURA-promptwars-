@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import SectionHeader from '../components/SectionHeader';
-import { useApp } from '../context/AppContext';
+import { useUi } from '../context/AppContext';
 import AlternativeCard from '../components/alternatives/AlternativeCard';
 import ALTERNATIVES_DATA from '../data/alternativesData.json';
 
@@ -124,7 +124,7 @@ function togglePledgeState(id, title, setAdoptedPledges, addToast, logAudit) {
  * Enables households and RWAs to simulate collective transitions and adopt clean habits.
  */
 export default function SustainableAlternatives() {
-  const { addToast, logAudit } = useApp();
+  const { addToast, logAudit } = useUi();
   const [householdScale, setHouseholdScale] = useState(50);
   const [adoptedPledges, setAdoptedPledges] = useState(['heating', 'commute']);
 

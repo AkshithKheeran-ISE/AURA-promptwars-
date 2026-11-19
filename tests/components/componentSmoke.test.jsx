@@ -5,6 +5,29 @@ import { AppProvider } from '../../src/context/AppContext';
 import CitizenReports from '../../src/pages/CitizenReports';
 import CommandCenter from '../../src/pages/CommandCenter';
 import AgentSystem from '../../src/pages/AgentSystem';
+import AlertCenter from '../../src/pages/AlertCenter';
+import AuditTrail from '../../src/pages/AuditTrail';
+import DailyRoutines from '../../src/pages/DailyRoutines';
+import Forecast from '../../src/pages/Forecast';
+import IndoorAirHacks from '../../src/pages/IndoorAirHacks';
+import SustainableAlternatives from '../../src/pages/SustainableAlternatives';
+import ThreatMap from '../../src/pages/ThreatMap';
+
+vi.mock('leaflet', () => ({
+  default: {
+    map: vi.fn(() => ({ remove: vi.fn() })),
+    tileLayer: vi.fn(() => ({ addTo: vi.fn() })),
+    divIcon: vi.fn(() => ({})),
+    marker: vi.fn(() => ({
+      bindPopup: vi.fn().mockReturnThis(),
+      on: vi.fn().mockReturnThis(),
+      addTo: vi.fn(),
+      remove: vi.fn()
+    })),
+    polyline: vi.fn(() => ({ addTo: vi.fn() })),
+    circle: vi.fn(() => ({ addTo: vi.fn() }))
+  }
+}));
 
 describe('UI Component Behavioral Smoke Tests', () => {
   beforeEach(() => {
@@ -18,21 +41,17 @@ describe('UI Component Behavioral Smoke Tests', () => {
       </AppProvider>
     );
 
-    // Verify main section header rendered
     expect(screen.getByRole('heading', { level: 1 })).toBeDefined();
 
-    // Verify simulate tamper button is present and click it
     const tamperBtn = screen.getByRole('button', { name: /Simulate Tamper/i });
     expect(tamperBtn).toBeDefined();
 
     fireEvent.click(tamperBtn);
 
-    // Assert that the tamper alert banner appears in the document
     await waitFor(() => {
       expect(screen.getByText(/SECURITY ALERT: Cryptographic Chain Broken!/i)).toBeDefined();
     });
 
-    // Verify that clicking Run Zero-Data-Loss Repair Engine restores the ledger
     const repairBtn = screen.getByRole('button', {
       name: /Run Zero-Data-Loss Repair Engine/i
     });
@@ -57,7 +76,6 @@ describe('UI Component Behavioral Smoke Tests', () => {
       })
     ).toBeDefined();
 
-    // Verify provenance and simulation indicators are visible
     expect(screen.getByText(/SIMULATED IOT MESH/i)).toBeDefined();
     expect(screen.getByText(/WRF-CHEM SIMULATION/i)).toBeDefined();
   });
@@ -75,7 +93,23 @@ describe('UI Component Behavioral Smoke Tests', () => {
       })
     ).toBeDefined();
 
-    // Verify GenAI terminal heading is present
     expect(screen.getByText(/GenAI Smog Assistant Terminal/i)).toBeDefined();
+  });
+
+  it.each([
+    ['AlertCenter', AlertCenter, /Air Quality Alert/i],
+    ['AuditTrail', AuditTrail, /Cryptographic Action History/i],
+    ['DailyRoutines', DailyRoutines, /06:30 – 08:30/i],
+    ['Forecast', Forecast, /Atmospheric Hazard Horizon/i],
+    ['IndoorAirHacks', IndoorAirHacks, /Corsi-Rosenthal/i],
+    ['SustainableAlternatives', SustainableAlternatives, /Metro/i],
+    ['ThreatMap', ThreatMap, /Urban Air Basin Threat Map/i]
+  ])('renders %s with its primary heading or identifier', async (_name, Page, heading) => {
+    render(
+      <AppProvider>
+        <Page />
+      </AppProvider>
+    );
+    expect(await screen.findByText(heading)).toBeDefined();
   });
 });

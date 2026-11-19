@@ -1,5 +1,5 @@
 import React, { useState, lazy, Suspense } from 'react';
-import { useApp } from './context/AppContext';
+import { useUi } from './context/AppContext';
 import BootScreen from './components/BootScreen';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
@@ -47,7 +47,7 @@ function PageLoader() {
 }
 
 export default function App() {
-  const { page, sidebarCollapsed } = useApp();
+  const { page, sidebarCollapsed } = useUi();
 
   const [booted, setBooted] = useState(() => {
     try {

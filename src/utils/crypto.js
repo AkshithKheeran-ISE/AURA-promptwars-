@@ -1,6 +1,6 @@
 /**
- * Cryptographic Utilities & SHA-256 Hash-Chain Engine for AURA.
- * Implements FIPS 180-4 standard SHA-256 using TextEncoder.
+ * Cryptographic Utilities & SHA-256 Hash-Chain Engine.
+ * Implements SHA-256 using TextEncoder and DataView word packing.
  */
 
 function rightRotate(value, amount) {

@@ -1,28 +1,17 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 import { useNavigationState } from '../hooks/useNavigationState';
 import { useToastAuditState } from '../hooks/useToastAuditState';
 import { useHouseholdState } from '../hooks/useHouseholdState';
 import { useAlertsState } from '../hooks/useAlertsState';
 import { useCitizenLedgerState } from '../hooks/useCitizenLedgerState';
+import { NAV_ITEMS } from '../constants/navigation';
+
+export { NAV_ITEMS } from '../constants/navigation';
 
 export const UiContext = createContext(null);
 export const HouseholdContext = createContext(null);
 export const AlertsContext = createContext(null);
 export const LedgerContext = createContext(null);
-export const AppContext = createContext(null);
-
-export const NAV_ITEMS = [
-  { id: 'command', label: 'Smog Command', icon: 'LayoutDashboard', badge: null },
-  { id: 'routines', label: 'Daily Routines', icon: 'Clock', badge: 'SMART' },
-  { id: 'hacks', label: 'Indoor IAQ Hacks', icon: 'Sparkles', badge: 'DIY' },
-  { id: 'alternatives', label: 'Clean Alternatives', icon: 'Leaf', badge: null },
-  { id: 'map', label: 'Neighborhood Map', icon: 'Map', badge: null },
-  { id: 'alerts', label: 'Family Alerts', icon: 'AlertTriangle', badge: 5 },
-  { id: 'reports', label: 'Community Watch', icon: 'FileText', badge: null },
-  { id: 'ai', label: 'GenAI Assistant', icon: 'Bot', badge: 'AI' },
-  { id: 'forecast', label: '30-Day Outlook', icon: 'CalendarDays', badge: null },
-  { id: 'audit', label: 'Impact Ledger', icon: 'ShieldCheck', badge: null }
-];
 
 /**
  * Root Application Context Provider orchestrating modular state domains.
@@ -37,22 +26,16 @@ export function AppProvider({ children }) {
   const alertsState = useAlertsState(addToast, logAudit);
   const ledger = useCitizenLedgerState(addToast, logAudit);
 
-  const uiValue = { toasts, setToasts, addToast, auditLogs, logAudit, ...nav };
-
-  const compositeValue = {
-    ...uiValue,
-    ...household,
-    ...alertsState,
-    ...ledger
-  };
+  const uiValue = useMemo(
+    () => ({ toasts, setToasts, addToast, auditLogs, logAudit, ...nav }),
+    [toasts, setToasts, addToast, auditLogs, logAudit, nav]
+  );
 
   return (
     <UiContext.Provider value={uiValue}>
       <HouseholdContext.Provider value={household}>
         <AlertsContext.Provider value={alertsState}>
-          <LedgerContext.Provider value={ledger}>
-            <AppContext.Provider value={compositeValue}>{children}</AppContext.Provider>
-          </LedgerContext.Provider>
+          <LedgerContext.Provider value={ledger}>{children}</LedgerContext.Provider>
         </AlertsContext.Provider>
       </HouseholdContext.Provider>
     </UiContext.Provider>
@@ -60,14 +43,6 @@ export function AppProvider({ children }) {
 }
 
 export const AppProviders = AppProvider;
-
-export function useApp() {
-  const context = useContext(AppContext);
-  if (!context) {
-    throw new Error('useApp must be used within an AppProvider');
-  }
-  return context;
-}
 
 export function useUi() {
   const context = useContext(UiContext);
@@ -99,4 +74,16 @@ export function useLedger() {
     throw new Error('useLedger must be used within an AppProvider');
   }
   return context;
+}
+
+/**
+ * Backward compatibility facade composing domain hooks.
+ */
+export function useApp() {
+  const ui = useUi();
+  const household = useHousehold();
+  const alerts = useAlerts();
+  const ledger = useLedger();
+
+  return { ...ui, ...household, ...alerts, ...ledger };
 }

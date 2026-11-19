@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { INITIAL_AUDIT_LOGS } from '../data/airData';
-import { sha256 } from '../utils/sanitize';
+import { INITIAL_AUDIT_LOGS, computeAuditHash } from '../data/telemetry';
 import { TIMEOUTS } from '../constants';
 
 /**
@@ -21,14 +20,10 @@ export function useToastAuditState() {
   const logAudit = (actor, action, target, type = 'human') => {
     const id = `AUD-${Math.floor(1000 + Math.random() * 9000)}`;
     const ts = Date.now();
+    const raw = { id, ts, actor, action, target, type };
     const newEntry = {
-      id,
-      ts,
-      actor,
-      action,
-      target,
-      type,
-      hash: sha256(`${id}|${actor}|${action}|${target}|${ts}`)
+      ...raw,
+      hash: computeAuditHash(raw)
     };
     setAuditLogs((prev) => [newEntry, ...prev]);
   };

@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { ShieldAlert, RotateCcw, CheckCircle2 } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
-import { useApp } from '../context/AppContext';
+import { useLedger, useUi } from '../context/AppContext';
 import { validateCitizenReport, computeMerkleRoot } from '../utils/sanitize';
 import ReportForm from '../components/reports/ReportForm';
 import ReportTimeline from '../components/reports/ReportTimeline';
@@ -138,9 +138,9 @@ export default function CitizenReports() {
     advanceReportStage,
     simulateTamper,
     verifyLedger,
-    ledgerTampered,
-    addToast
-  } = useApp();
+    ledgerTampered
+  } = useLedger();
+  const { addToast } = useUi();
 
   const merkleRootHex = useMemo(
     () => computeMerkleRoot(citizenReports.map((r) => r.hash)),
@@ -164,6 +164,12 @@ export default function CitizenReports() {
         desc="Every shoreline and ward observation is hashed with SHA-256 and chained to the previous one — a tamper-evident ledger, so no report can be silently altered or deleted."
         right={
           <div className="flex items-center gap-2">
+            <span
+              title={`Binary Merkle Root: ${merkleRootHex}`}
+              className="font-mono text-[10px] text-cyan-300 bg-cyan-950/60 border border-cyan-400/30 px-2 py-1 rounded-md hidden lg:inline-block"
+            >
+              Merkle Root: {merkleRootHex.slice(0, 12)}...
+            </span>
             <button
               onClick={simulateTamper}
               className="flex items-center gap-1.5 rounded-lg border border-rose-500/40 bg-rose-500/20 px-3 py-1.5 font-mono text-xs text-rose-200 hover:bg-rose-500/30 transition cursor-pointer"

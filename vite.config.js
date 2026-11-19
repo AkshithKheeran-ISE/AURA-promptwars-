@@ -14,7 +14,13 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
       include: ['src/**/*.{js,jsx}'],
-      exclude: ['src/main.jsx', 'src/data/**']
+      exclude: ['src/main.jsx', 'src/data/**'],
+      thresholds: {
+        lines: 70,
+        functions: 55,
+        branches: 55,
+        statements: 68
+      }
     }
   },
   server: {

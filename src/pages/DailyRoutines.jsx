@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { AlertTriangle, Sparkles, CheckCircle2, Users } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
-import { useApp } from '../context/AppContext';
+import { useUi, useHousehold } from '../context/AppContext';
 import {
   FAMILY_ARCHETYPES,
   DAILY_ROUTINE_SLOTS,
@@ -212,10 +212,9 @@ export default function DailyRoutines() {
     setDwellingType,
     selectedWard,
     exposureCalc,
-    communitySavings,
-    addToast,
-    logAudit
-  } = useApp();
+    communitySavings
+  } = useHousehold();
+  const { addToast, logAudit } = useUi();
 
   const currentGuidance = useMemo(
     () => generatePersonalizedGuidance(familyArchetype, selectedWard.aqi),

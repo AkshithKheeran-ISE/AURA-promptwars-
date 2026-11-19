@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Check, Plus, ChevronDown, ChevronUp } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
-import { useApp } from '../context/AppContext';
+import { useHousehold } from '../context/AppContext';
 import { IAQ_HACKS } from '../services/iaqHacks';
 
 function IndoorAirSimulatorBanner({ selectedWard, exposureCalc }) {
@@ -172,7 +172,7 @@ IaqHackCard.propTypes = {
 };
 
 export default function IndoorAirHacks() {
-  const { activeHacks, toggleHack, exposureCalc, selectedWard } = useApp();
+  const { activeHacks, toggleHack, exposureCalc, selectedWard } = useHousehold();
   const [expandedHackId, setExpandedHackId] = useState('corsi_rosenthal');
 
   return (

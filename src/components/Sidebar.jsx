@@ -16,7 +16,8 @@ import {
   Sparkles,
   Leaf
 } from 'lucide-react';
-import { useApp, NAV_ITEMS } from '../context/AppContext';
+import { useUi, useAlerts } from '../context/AppContext';
+import { NAV_ITEMS } from '../constants/navigation';
 
 const ICON_MAP = {
   LayoutDashboard,
@@ -96,7 +97,8 @@ function SidebarNavItem({ item, isActive, badgeValue, collapsed, onSelect }) {
 }
 
 export default function Sidebar() {
-  const { page, setPage, sidebarCollapsed, setSidebarCollapsed, alerts } = useApp();
+  const { page, setPage, sidebarCollapsed, setSidebarCollapsed } = useUi();
+  const { alerts } = useAlerts();
 
   const criticalCount = useMemo(
     () => alerts.filter((a) => a.severity === 'critical').length,

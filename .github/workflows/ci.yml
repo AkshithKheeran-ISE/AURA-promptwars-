@@ -27,7 +27,7 @@ jobs:
       - name: Static Analysis & Linting (ESLint 9)
         run: npm run lint
 
-      - name: TypeScript Syntax & Type Integrity Check
+      - name: TypeScript Syntax & Parsing Check
         run: npm run typecheck
 
       - name: Code Formatting Check (Prettier)

@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Sparkles, CheckCircle2, Layers, Leaf, Users, Clock } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
-import { useApp } from '../context/AppContext';
+import { useUi, useHousehold, useAlerts } from '../context/AppContext';
 import { WARDS_DATA, DATA_PROVENANCE_TIERS } from '../data/airData';
 import { FAMILY_ARCHETYPES } from '../services/routineEngine';
 import FamilyMetricCards from '../components/command/FamilyMetricCards';
@@ -181,8 +181,8 @@ CommandNavigationShortcuts.propTypes = {
 };
 
 export default function CommandCenter() {
+  const { setPage, addToast } = useUi();
   const {
-    setPage,
     selectedWard,
     setSelectedWardId,
     familyArchetype,
@@ -190,10 +190,11 @@ export default function CommandCenter() {
     exposureCalc,
     communitySavings,
     healthRisk,
-    alerts,
-    activeHacks,
-    addToast
-  } = useApp();
+    activeHacks
+  } = useHousehold();
+  const { alerts } = useAlerts();
+
+  const sortedWards = useMemo(() => [...WARDS_DATA].sort((a, b) => b.aqi - a.aqi), []);
 
   const outdoorColor = getAqiColor(selectedWard.aqi);
 
@@ -238,6 +239,7 @@ export default function CommandCenter() {
           selectedWard={selectedWard}
           onSelectWard={handleSelectWard}
           onNavigateMap={() => setPage('map')}
+          wards={sortedWards}
         />
         <IndoorShieldCard
           selectedWard={selectedWard}
