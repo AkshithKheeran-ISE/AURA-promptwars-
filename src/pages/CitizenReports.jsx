@@ -44,7 +44,7 @@ function ReportTableRowBase({ rep, onAdvanceStage }) {
       <td className="py-3 text-white font-sans max-w-xs truncate">{rep.issue}</td>
       <td className="py-3 text-slate-300">{rep.location}</td>
       <td className="py-3 text-slate-400">{rep.reporter}</td>
-      <td className="py-3 text-slate-500 font-mono text-[10px]">{rep.hash.slice(0, 12)}...</td>
+      <td className="py-3 text-slate-400 font-mono text-[10px]">{rep.hash.slice(0, 12)}...</td>
       <td className="py-3">
         <div className="flex items-center gap-1">
           {[1, 2, 3, 4].map((step) => (
@@ -106,7 +106,7 @@ function CitizenReportsTable({ reports, onAdvanceStage }) {
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs font-mono">
           <thead>
-            <tr className="border-b border-cyan-400/10 text-slate-500">
+            <tr className="border-b border-cyan-400/10 text-slate-400">
               <th className="pb-2 font-normal">Report ID</th>
               <th className="pb-2 font-normal">Issue Description</th>
               <th className="pb-2 font-normal">Ward Location</th>

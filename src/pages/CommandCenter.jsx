@@ -99,7 +99,7 @@ function ProvenanceTransparencyBar() {
               </span>
             </div>
             <p className="text-[10px] text-slate-300 font-sans leading-relaxed">{tier.method}</p>
-            <div className="text-[9px] text-slate-500 pt-1 border-t border-cyan-400/10 truncate">
+            <div className="text-[9px] text-slate-400 pt-1 border-t border-cyan-400/10 truncate">
               Source: {tier.source}
             </div>
           </div>

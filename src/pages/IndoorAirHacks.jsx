@@ -25,7 +25,7 @@ function IndoorAirSimulatorBanner({ selectedWard, exposureCalc }) {
 
       <div className="flex items-center gap-4 font-mono">
         <div className="rounded-xl border border-cyan-400/20 bg-[#030712] p-3 text-center">
-          <div className="text-[10px] text-slate-500">CLEAN AIR EFFICIENCY</div>
+          <div className="text-[10px] text-slate-400">CLEAN AIR EFFICIENCY</div>
           <div className="font-display text-3xl font-extrabold text-emerald-400 mt-0.5">
             -{exposureCalc.percentageReduction}%
           </div>
@@ -130,15 +130,15 @@ function IaqHackCard({ hack, isActive, isExpanded, onToggleActive, onToggleExpan
 
         <div className="grid grid-cols-2 gap-2 text-xs font-mono">
           <div className="rounded bg-[#030712] p-2 border border-cyan-400/10">
-            <span className="text-slate-500 text-[10px]">DIY Cost:</span>
+            <span className="text-slate-400 text-[10px]">DIY Cost:</span>
             <div className="font-bold text-emerald-400 mt-0.5">₹ {hack.costInr}</div>
-            <span className="text-slate-500 text-[9px] line-through">
+            <span className="text-slate-400 text-[9px] line-through">
               ₹ {hack.commercialAlternativeInr}
             </span>
           </div>
 
           <div className="rounded bg-[#030712] p-2 border border-cyan-400/10">
-            <span className="text-slate-500 text-[10px]">Filtration Efficacy:</span>
+            <span className="text-slate-400 text-[10px]">Filtration Efficacy:</span>
             <div className="font-bold text-white mt-0.5">{hack.pm25ReductionPct}% PM2.5</div>
             <span className="text-cyan-300 text-[9px]">{hack.difficulty}</span>
           </div>

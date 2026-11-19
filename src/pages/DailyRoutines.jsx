@@ -80,7 +80,7 @@ function ProtocolDirectiveBanner({ currentGuidance, selectedWard }) {
       <div className="rounded-xl border border-cyan-400/20 bg-black/40 p-3 text-center font-mono">
         <div className="text-[10px] text-slate-400">CURRENT INVERSION CEILING</div>
         <div className="text-xl font-bold text-amber-300 mt-0.5">{selectedWard.inversion}</div>
-        <div className="text-[9px] text-slate-500">{selectedWard.name}</div>
+        <div className="text-[9px] text-slate-400">{selectedWard.name}</div>
       </div>
     </div>
   );
@@ -120,7 +120,7 @@ function DailyRoutineSlotCard({ slot }) {
             <AlertTriangle className="h-3 w-3" /> Conventional High-Risk Habit
           </div>
           <p className="text-slate-300 leading-relaxed font-sans">{slot.standardPractice}</p>
-          <div className="text-[10px] font-mono text-slate-500 pt-1 border-t border-rose-500/10">
+          <div className="text-[10px] font-mono text-slate-400 pt-1 border-t border-rose-500/10">
             Atmospheric Condition: {slot.smogCondition} ({slot.inversionHeight})
           </div>
         </div>
@@ -160,7 +160,7 @@ function HouseholdImpactQuantificationCard({ exposureCalc, selectedWard, communi
 
       <div className="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-4 font-mono text-center">
         <div className="rounded-lg bg-[#030712] p-3 border border-cyan-400/15">
-          <div className="text-slate-500 text-[10px]">Inhaled PM2.5 Inhalation</div>
+          <div className="text-slate-400 text-[10px]">Inhaled PM2.5 Inhalation</div>
           <div className="font-display text-2xl font-bold text-emerald-400 mt-1">
             -{exposureCalc.percentageReduction}%
           </div>
@@ -170,7 +170,7 @@ function HouseholdImpactQuantificationCard({ exposureCalc, selectedWard, communi
         </div>
 
         <div className="rounded-lg bg-[#030712] p-3 border border-cyan-400/15">
-          <div className="text-slate-500 text-[10px]">Indoor Air Quality Index</div>
+          <div className="text-slate-400 text-[10px]">Indoor Air Quality Index</div>
           <div className="font-display text-2xl font-bold text-white mt-1">
             {exposureCalc.indoorPm25} µg
           </div>
@@ -180,7 +180,7 @@ function HouseholdImpactQuantificationCard({ exposureCalc, selectedWard, communi
         </div>
 
         <div className="rounded-lg bg-[#030712] p-3 border border-cyan-400/15">
-          <div className="text-slate-500 text-[10px]">Community CO2 Prevented</div>
+          <div className="text-slate-400 text-[10px]">Community CO2 Prevented</div>
           <div className="font-display text-2xl font-bold text-cyan-300 mt-1">
             {communitySavings.co2SavedKg} kg
           </div>
@@ -188,7 +188,7 @@ function HouseholdImpactQuantificationCard({ exposureCalc, selectedWard, communi
         </div>
 
         <div className="rounded-lg bg-[#030712] p-3 border border-cyan-400/15">
-          <div className="text-slate-500 text-[10px]">Health & Fuel Savings</div>
+          <div className="text-slate-400 text-[10px]">Health & Fuel Savings</div>
           <div className="font-display text-2xl font-bold text-amber-300 mt-1">
             ₹ {communitySavings.totalFinancialSavingsInr}
           </div>

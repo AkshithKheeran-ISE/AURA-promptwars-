@@ -98,7 +98,7 @@ function AuditFilterBar({ filterType, onFilterChange, searchTerm, onSearchChange
           Search action logs
         </label>
         <Search
-          className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500"
+          className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400"
           aria-hidden="true"
         />
         <input
@@ -138,7 +138,7 @@ function AuditLogsTable({ logs }) {
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs font-mono">
           <thead>
-            <tr className="border-b border-cyan-400/10 text-slate-500">
+            <tr className="border-b border-cyan-400/10 text-slate-400">
               <th className="pb-2 font-normal">Timestamp</th>
               <th className="pb-2 font-normal">Log ID</th>
               <th className="pb-2 font-normal">Actor</th>
@@ -168,14 +168,14 @@ function AuditLogsTable({ logs }) {
                       second: '2-digit'
                     })}
                   </td>
-                  <td className="py-3 text-slate-500 font-bold">{log.id}</td>
+                  <td className="py-3 text-slate-400 font-bold">{log.id}</td>
                   <td className={`py-3 ${actorColor} font-semibold flex items-center gap-1.5`}>
                     <ActorIcon className="h-3.5 w-3.5 shrink-0" />
                     <span className="truncate">{log.actor}</span>
                   </td>
                   <td className="py-3 text-slate-100 max-w-sm truncate">{log.action}</td>
                   <td className="py-3 text-cyan-300/80">{log.target}</td>
-                  <td className="py-3 text-slate-500 text-[10px]">{log.hash.slice(0, 14)}...</td>
+                  <td className="py-3 text-slate-400 text-[10px]">{log.hash.slice(0, 14)}...</td>
                   <td className="py-3">
                     {log.hash === computeAuditHash(log) ? (
                       <span className="inline-flex items-center gap-1 rounded bg-emerald-400/15 px-1.5 py-0.5 text-[10px] font-bold text-emerald-300">

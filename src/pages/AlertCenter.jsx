@@ -76,7 +76,7 @@ function IncidentQueueList({ alerts, selectedAlertId, onSelectAlert }) {
             >
               <div className="flex items-center justify-between font-mono text-xs">
                 <span className="font-bold text-cyan-300">{alr.id}</span>
-                <span className="text-slate-500 text-[10px]">{alr.timestamp}</span>
+                <span className="text-slate-400 text-[10px]">{alr.timestamp}</span>
               </div>
 
               <div className="text-sm font-semibold text-white leading-snug">{alr.title}</div>
@@ -88,7 +88,7 @@ function IncidentQueueList({ alerts, selectedAlertId, onSelectAlert }) {
                 >
                   {alr.severity}
                 </span>
-                <span className="text-slate-500 text-[10px]">AURA Score: {alr.score}/10</span>
+                <span className="text-slate-400 text-[10px]">AURA Score: {alr.score}/10</span>
               </div>
             </button>
           );
@@ -169,17 +169,17 @@ function IncidentDetailDossier({ selectedAlert, onBoostPriority, onExecutePlaybo
 
       <div className="grid grid-cols-2 gap-4 font-mono text-xs">
         <div className="rounded-lg bg-[#030712] p-3 border border-cyan-400/10">
-          <span className="text-slate-500">Source Attribution:</span>
+          <span className="text-slate-400">Source Attribution:</span>
           <div className="text-sm font-semibold text-white mt-1">{selectedAlert.source}</div>
         </div>
         <div className="rounded-lg bg-[#030712] p-3 border border-cyan-400/10">
-          <span className="text-slate-500">Exceedance Scale:</span>
+          <span className="text-slate-400">Exceedance Scale:</span>
           <div className="text-sm font-semibold text-rose-400 mt-1">{selectedAlert.exceedance}</div>
         </div>
       </div>
 
       <div className="rounded-lg bg-[#030712] p-3 border border-cyan-400/10 font-mono text-xs">
-        <span className="text-slate-500">Demographic & Proximity Impact:</span>
+        <span className="text-slate-400">Demographic & Proximity Impact:</span>
         <div className="text-sm text-slate-200 mt-1">{selectedAlert.affected}</div>
       </div>
 

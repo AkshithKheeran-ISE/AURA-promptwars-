@@ -42,7 +42,7 @@ function CommunityScaleSimulator({ householdScale, onScaleChange, metricReadouts
           aria-label="Neighborhood household scale multiplier"
           className="w-full accent-cyan-400 h-2 bg-slate-800 rounded-lg cursor-pointer"
         />
-        <div className="flex justify-between font-mono text-[10px] text-slate-500">
+        <div className="flex justify-between font-mono text-[10px] text-slate-400">
           <span>Small Street (10 Homes)</span>
           <span>Housing Society (100 Homes)</span>
           <span>Sub-Ward Complex (500 Homes)</span>
@@ -52,7 +52,7 @@ function CommunityScaleSimulator({ householdScale, onScaleChange, metricReadouts
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 font-mono text-center pt-2">
         {metricReadouts.map((m, idx) => (
           <div key={idx} className="rounded-xl bg-[#030712] p-3.5 border border-cyan-400/15">
-            <div className="text-slate-500 text-[10px]">{m.label}</div>
+            <div className="text-slate-400 text-[10px]">{m.label}</div>
             <div className={`font-display text-2xl font-bold ${m.color} mt-1`}>{m.value}</div>
             <div className="text-[10px] text-slate-400 mt-0.5">{m.sub}</div>
           </div>

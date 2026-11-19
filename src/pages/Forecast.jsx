@@ -76,19 +76,19 @@ function DayBriefingDossier({ selectedDay }) {
 
       <div className="grid grid-cols-2 gap-3 font-mono text-xs">
         <div className="rounded-lg bg-[#030712] p-2.5 border border-cyan-400/10">
-          <span className="text-slate-500 text-[10px]">Surface Wind:</span>
+          <span className="text-slate-400 text-[10px]">Surface Wind:</span>
           <div className="font-bold text-white mt-0.5">{selectedDay.windSpeed} km/h</div>
         </div>
         <div className="rounded-lg bg-[#030712] p-2.5 border border-cyan-400/10">
-          <span className="text-slate-500 text-[10px]">Inversion Height:</span>
+          <span className="text-slate-400 text-[10px]">Inversion Height:</span>
           <div className="font-bold text-amber-300 mt-0.5">{selectedDay.inversionHeight} m</div>
         </div>
         <div className="rounded-lg bg-[#030712] p-2.5 border border-cyan-400/10">
-          <span className="text-slate-500 text-[10px]">Temperature:</span>
+          <span className="text-slate-400 text-[10px]">Temperature:</span>
           <div className="font-bold text-white mt-0.5">{selectedDay.temp} °C</div>
         </div>
         <div className="rounded-lg bg-[#030712] p-2.5 border border-cyan-400/10">
-          <span className="text-slate-500 text-[10px]">Rain Chance:</span>
+          <span className="text-slate-400 text-[10px]">Rain Chance:</span>
           <div className="font-bold text-cyan-300 mt-0.5">{selectedDay.rainChance} %</div>
         </div>
       </div>
@@ -187,7 +187,7 @@ function ForecastProgressionChart({ selectedDayIndex }) {
 
       <div className="relative h-64 w-full pt-4">
         <ForecastChartSvg selectedDayIndex={selectedDayIndex} />
-        <div className="flex justify-between font-mono text-[9px] text-slate-500 pt-2">
+        <div className="flex justify-between font-mono text-[9px] text-slate-400 pt-2">
           <span>Day 1 (Now)</span>
           <span>Day 6</span>
           <span>Day 12</span>
