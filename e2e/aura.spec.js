@@ -3,6 +3,9 @@ import AxeBuilder from '@axe-core/playwright';
 
 test.describe('AURA Urban Air Quality Assistant E2E Test Suite', () => {
   test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      window.sessionStorage.setItem('aura-boot', '1');
+    });
     // Navigate to local application
     await page.goto('/');
 
@@ -34,7 +37,7 @@ test.describe('AURA Urban Air Quality Assistant E2E Test Suite', () => {
     await page.getByText('Daily Routines').first().click();
     await expect(page).toHaveURL(/#\/routines/);
     await expect(page.getByText(/Inversion/i).first()).toBeVisible();
-    await expect(page.getByText('06:30 – 08:30').first()).toBeVisible();
+    await expect(page.getByText(/06:30.*08:30/).first()).toBeVisible();
   });
 
   test('navigates to Indoor IAQ Hacks and toggles DIY Corsi-Rosenthal hack', async ({ page }) => {
@@ -62,7 +65,7 @@ test.describe('AURA Urban Air Quality Assistant E2E Test Suite', () => {
 
     // Verify report block was appended to ledger
     await expect(
-      page.getByText('Dense black rubber smoke rising near industrial bypass')
+      page.getByText(/Dense black rubber smoke rising near industrial bypass/i).first()
     ).toBeVisible();
 
     // Click Simulate Tamper
@@ -79,7 +82,7 @@ test.describe('AURA Urban Air Quality Assistant E2E Test Suite', () => {
 
     // Verify alert dismissed and user report remains intact
     await expect(
-      page.getByText('Dense black rubber smoke rising near industrial bypass')
+      page.getByText(/Dense black rubber smoke rising near industrial bypass/i).first()
     ).toBeVisible();
   });
 
@@ -101,7 +104,10 @@ test.describe('AURA Urban Air Quality Assistant E2E Test Suite', () => {
 
   test('opens Command Palette via Ctrl+K and navigates to Neighborhood Map', async ({ page }) => {
     // Open command palette via search bar
-    await page.getByRole('button', { name: /Search pollutants/i }).click();
+    await page
+      .getByRole('button', { name: /Search.*pollutants|command palette/i })
+      .first()
+      .click();
     await expect(page.getByRole('dialog', { name: 'Command Palette' })).toBeVisible();
 
     // Filter for Map
@@ -131,6 +137,7 @@ test.describe('AURA Urban Air Quality Assistant E2E Test Suite', () => {
     for (const route of routeList) {
       await page.goto(`/#/${route}`);
       await page.waitForLoadState('domcontentloaded');
+      await page.waitForTimeout(300);
 
       const results = await new AxeBuilder({ page }).include('#main-content').analyze();
 

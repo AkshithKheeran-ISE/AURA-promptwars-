@@ -15,8 +15,8 @@ export default defineConfig({
   webServer: {
     command:
       process.platform === 'win32'
-        ? 'cmd /c "npm run dev -- --host 127.0.0.1 --port 3000"'
-        : 'npm run dev -- --host 127.0.0.1 --port 3000',
+        ? 'cmd /c "npm run preview -- --host 127.0.0.1 --port 3000"'
+        : 'npm run preview -- --host 0.0.0.0 --port 3000',
     url: 'http://127.0.0.1:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120000
