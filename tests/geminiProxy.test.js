@@ -26,11 +26,11 @@ describe('AURA Secure Gemini Serverless Proxy (netlify/functions/gemini.js)', ()
     );
   });
 
-  it('returns null CORS origin when no origin header is provided', async () => {
+  it('omits CORS origin header when no origin header is provided', async () => {
     const event = { httpMethod: 'OPTIONS' };
     const res = await handler(event);
     expect(res.statusCode).toBe(200);
-    expect(res.headers['Access-Control-Allow-Origin']).toBe('null');
+    expect(res.headers['Access-Control-Allow-Origin']).toBeUndefined();
   });
 
   it('rejects non-POST HTTP methods with 405 Method Not Allowed', async () => {
@@ -181,7 +181,7 @@ describe('AURA Secure Gemini Serverless Proxy (netlify/functions/gemini.js)', ()
       headers: { origin: 'https://malicious-phishing-site.example.com' }
     };
     const untrustedRes = await handler(untrustedEvent);
-    expect(untrustedRes.headers['Access-Control-Allow-Origin']).toBe('null');
+    expect(untrustedRes.headers['Access-Control-Allow-Origin']).toBeUndefined();
   });
 
   it('enforces rate limiting and returns 429 when abuse threshold is exceeded', async () => {

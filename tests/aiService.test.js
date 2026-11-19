@@ -50,8 +50,8 @@ describe('AURA Verifiable GenAI & Multi-Agent Orchestration Service', () => {
       const res = await orchestrateAgentWorkflow('How do I build a DIY Corsi Rosenthal box?');
       expect(res.agentId).toBe('iaq_engineer');
       expect(res.agentName).toBe('IAQEngineer');
-      expect(typeof res.text).toBe('string');
-      expect(res.text.length).toBeGreaterThan(0);
+      expect(res.text.length).toBeGreaterThan(200);
+      expect(res.text).toContain('CORSI-ROSENTHAL');
       expect(res.attestationToken).toMatch(/^[0-9a-f]{64}$/);
 
       expect(res.trace).toBeInstanceOf(Array);
@@ -69,6 +69,8 @@ describe('AURA Verifiable GenAI & Multi-Agent Orchestration Service', () => {
       expect(res.agentId).toBe('pediatric_shield');
       expect(res.agentName).toBe('PediatricShield');
       expect(res.role).toContain('Bronchial Protection');
+      expect(res.text.length).toBeGreaterThan(200);
+      expect(res.text).toMatch(/Pediatric|Airway|Inhalation/i);
       expect(res.attestationToken).toMatch(/^[0-9a-f]{64}$/);
       expect(res.trace).toBeInstanceOf(Array);
       expect(res.trace.length).toBeGreaterThanOrEqual(4);
@@ -80,16 +82,20 @@ describe('AURA Verifiable GenAI & Multi-Agent Orchestration Service', () => {
     });
 
     it.each([
-      ['meteo_forecaster', 'When should I open my window for cross ventilation inversion?'],
-      ['eco_auditor', 'Taking metro transit vs car commute emissions'],
-      ['community_watch', 'How does citizen ledger verification work?']
+      [
+        'meteo_forecaster',
+        'When should I open my window for cross ventilation inversion?',
+        /inversion|ventilation/i
+      ],
+      ['eco_auditor', 'Taking metro transit vs car commute emissions', /emission|transit|savings/i],
+      ['community_watch', 'How does citizen ledger verification work?', /ledger|sha-256|hash/i]
     ])(
-      'executes %s specialist with attested token and structured payload',
-      async (expectedAgentId, prompt) => {
+      'executes %s specialist with attested token and domain keyword',
+      async (expectedAgentId, prompt, keywordMatcher) => {
         const res = await orchestrateAgentWorkflow(prompt);
         expect(res.agentId).toBe(expectedAgentId);
-        expect(typeof res.text).toBe('string');
-        expect(res.text.length).toBeGreaterThan(0);
+        expect(res.text.length).toBeGreaterThan(150);
+        expect(res.text).toMatch(keywordMatcher);
         expect(res.attestationToken).toMatch(/^[0-9a-f]{64}$/);
       }
     );

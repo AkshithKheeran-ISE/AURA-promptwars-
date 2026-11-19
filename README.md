@@ -3,9 +3,9 @@
 > **Atmospheric Understanding & Real-time Air Quality Intelligence Suite**  
 > _A GenAI-powered assistant helping families and communities navigate severe winter smog and urban air pollution with low-emission routines, DIY indoor air quality hacks, and sustainable alternatives tailored to location and lifestyle._
 
-[![CI Pipeline](https://github.com/akshithkheerankr/Urban-Air-Quality-Assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/akshithkheerankr/Urban-Air-Quality-Assistant/actions/workflows/ci.yml)
+[![CI Pipeline](https://github.com/akshithkheeran-design/Urban-Air-Quality-Assistant2026/actions/workflows/ci.yml/badge.svg)](https://github.com/akshithkheeran-design/Urban-Air-Quality-Assistant2026/actions/workflows/ci.yml)
 [![Live Demo](https://img.shields.io/badge/Live_Deployment-auratheairqualityassistant.vercel.app-cyan?style=flat&logo=vercel)](https://auratheairqualityassistant.vercel.app/)
-[![Vitest](https://img.shields.io/badge/tests-vitest_142_passing-brightgreen)](tests/)
+[![Vitest](https://img.shields.io/badge/tests-vitest_157_passing-brightgreen)](tests/)
 [![Coverage](https://img.shields.io/badge/coverage-v8_integrated-brightgreen)](tests/)
 [![Accessibility](https://img.shields.io/badge/accessibility-axe--core_automated_scans-blue)](e2e/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -154,16 +154,16 @@ AURA provides transparent, explainable formulas directly in the interface with z
 
 ## 🧪 Automated Testing Suite
 
-Tested with Vitest across 18 suites and 142 automated tests, with UI, services, and hooks included in the V8 coverage pipeline:
+Tested with Vitest across 19 suites and 157 automated tests, with UI, services, and hooks included in the V8 coverage pipeline:
 
 ```bash
 npm run test:coverage
 ```
 
 ```
- Test Files  18 passed (18)
-      Tests  142 passed (142)
-   Coverage  >98% Services & Utils, >78% Hooks
+ Test Files  19 passed (19)
+      Tests  157 passed (157)
+   Coverage  >98% Services & Utils, >94% Hooks, >86% Lines
 ```
 
 Playwright End-to-End & Automated Accessibility Suite:

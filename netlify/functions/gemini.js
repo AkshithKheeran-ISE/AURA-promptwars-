@@ -94,13 +94,13 @@ const DEFAULT_ALLOWED_ORIGINS = [
 
 function getCorsOrigin(requestHeaders) {
   const origin = requestHeaders?.origin || requestHeaders?.Origin || '';
-  if (!origin) return 'null';
+  if (!origin) return null;
   const allowed = (process.env.ALLOWED_ORIGINS || '')
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean);
   const allowedOrigins = allowed.length > 0 ? allowed : DEFAULT_ALLOWED_ORIGINS;
-  return allowedOrigins.includes(origin) ? origin : 'null';
+  return allowedOrigins.includes(origin) ? origin : null;
 }
 
 function getClientIp(headers) {
@@ -337,7 +337,6 @@ export async function handler(event) {
 
   // Security and CORS Headers
   const headers = {
-    'Access-Control-Allow-Origin': allowedOrigin,
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'X-Content-Type-Options': 'nosniff',
@@ -345,6 +344,10 @@ export async function handler(event) {
     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
     'Content-Type': 'application/json'
   };
+
+  if (allowedOrigin) {
+    headers['Access-Control-Allow-Origin'] = allowedOrigin;
+  }
 
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers, body: '' };

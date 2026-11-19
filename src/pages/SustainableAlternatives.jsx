@@ -102,12 +102,11 @@ function computeAlternativeMetrics(householdScale, pledgeCount) {
   ];
 }
 
-function togglePledgeState(id, title, setAdoptedPledges, addToast, logAudit) {
-  setAdoptedPledges((prev) => {
-    if (prev.includes(id)) {
-      addToast('Pledge Removed', `De-selected ${title}`, 'amber');
-      return prev.filter((p) => p !== id);
-    }
+function handlePledgeToggle(id, title, isCurrentlyAdopted, setAdoptedPledges, addToast, logAudit) {
+  if (isCurrentlyAdopted) {
+    addToast('Pledge Removed', `De-selected ${title}`, 'amber');
+    setAdoptedPledges((prev) => prev.filter((p) => p !== id));
+  } else {
     addToast('Alternative Adopted', `Pledged to use ${title} for household smog defense!`, 'green');
     logAudit(
       'Household Member',
@@ -115,8 +114,8 @@ function togglePledgeState(id, title, setAdoptedPledges, addToast, logAudit) {
       'Community Action',
       'human'
     );
-    return [...prev, id];
-  });
+    setAdoptedPledges((prev) => [...prev, id]);
+  }
 }
 
 /**
@@ -129,7 +128,8 @@ export default function SustainableAlternatives() {
   const [adoptedPledges, setAdoptedPledges] = useState(['heating', 'commute']);
 
   const handlePledge = (id, title) => {
-    togglePledgeState(id, title, setAdoptedPledges, addToast, logAudit);
+    const isCurrentlyAdopted = adoptedPledges.includes(id);
+    handlePledgeToggle(id, title, isCurrentlyAdopted, setAdoptedPledges, addToast, logAudit);
   };
 
   const metricReadouts = useMemo(
