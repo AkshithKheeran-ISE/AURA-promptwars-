@@ -106,7 +106,6 @@ function IaqHackCard({ hack, isActive, isExpanded, onToggleActive, onToggleExpan
           <button
             onClick={() => onToggleActive(hack.id)}
             aria-pressed={isActive}
-            aria-label={`${isActive ? 'Deactivate' : 'Activate'} ${hack.title}`}
             className={`px-3 py-1 rounded text-xs font-mono font-bold transition cursor-pointer flex items-center gap-1.5 ${
               isActive
                 ? 'bg-emerald-400 text-black hover:bg-emerald-300 shadow-glow-green'

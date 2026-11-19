@@ -130,7 +130,7 @@ export const IAQ_HACKS = [
     scientificExplanation:
       'Rhizosphere microbes in plant roots break down benzene, formaldehyde, and carbon monoxide, while transpiration maintains healthy 50% relative mucosal humidity.',
     badge: 'NATURAL OXYGEN & HUMIDITY',
-    badgeColor: '#a855f7'
+    badgeColor: '#c084fc'
   },
   {
     id: 'respirator_fit_hack',
@@ -155,6 +155,6 @@ export const IAQ_HACKS = [
     scientificExplanation:
       'A loose mask with a 2% perimeter gap lets in over 50% of unfiltered ambient air via the path of least resistance. Perfect seal guarantees 95% particle capture.',
     badge: 'CLINICAL GRADE PERSONAL SEAL',
-    badgeColor: '#f43f5e'
+    badgeColor: '#fb7185'
   }
 ];
