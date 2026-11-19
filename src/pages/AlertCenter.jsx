@@ -67,7 +67,6 @@ function IncidentQueueList({ alerts, selectedAlertId, onSelectAlert }) {
               key={alr.id}
               onClick={() => onSelectAlert(alr.id)}
               aria-pressed={isSelected}
-              aria-label={`Select incident alert ${alr.id}: ${alr.title}`}
               className={`w-full p-3.5 rounded-xl border text-left transition cursor-pointer space-y-2 focus:outline-none focus:ring-2 focus:ring-cyan-400 ${
                 isSelected
                   ? 'border-cyan-400/60 bg-[#0c182c] shadow-[inset_0_0_0_1px_rgba(34,211,238,0.4)]'
