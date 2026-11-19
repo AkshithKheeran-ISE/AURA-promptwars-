@@ -36,7 +36,18 @@ function createWardMarker(ward, isSelected, onSelect) {
     iconAnchor: [10, 10]
   });
 
-  const marker = L.marker([ward.lat, ward.lng], { icon: customIcon });
+  const marker = L.marker([ward.lat, ward.lng], {
+    icon: customIcon,
+    title: `${ward.name} Air Quality Monitoring Station`,
+    alt: `${ward.name} Air Quality Monitoring Station`
+  });
+  marker.on('add', () => {
+    const el = marker.getElement();
+    if (el) {
+      el.setAttribute('aria-label', `${ward.name} Monitoring Station (AQI ${ward.aqi})`);
+      el.setAttribute('title', `${ward.name} Monitoring Station`);
+    }
+  });
   marker.bindPopup(`
     <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">
       <div style="font-weight: bold; color: #22d3ee; margin-bottom: 4px;">${ward.name}</div>

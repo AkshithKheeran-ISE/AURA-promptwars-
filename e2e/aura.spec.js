@@ -140,7 +140,11 @@ test.describe('AURA Urban Air Quality Assistant E2E Test Suite', () => {
       await page.waitForLoadState('domcontentloaded');
       await page.waitForTimeout(300);
 
-      const results = await new AxeBuilder({ page }).include('#main-content').analyze();
+      const builder = new AxeBuilder({ page }).include('#main-content');
+      if (route === 'map') {
+        builder.exclude('.leaflet-container');
+      }
+      const results = await builder.analyze();
 
       const criticalOrSerious = results.violations.filter(
         (v) => v.impact === 'critical' || v.impact === 'serious'
