@@ -68,7 +68,7 @@ export default function InversionDiurnalChart() {
               <text
                 x={p.x}
                 y="178"
-                fill="#64748b"
+                fill="#94a3b8"
                 fontSize="8"
                 textAnchor="middle"
                 fontFamily="JetBrains Mono"

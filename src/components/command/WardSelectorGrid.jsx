@@ -72,7 +72,7 @@ export default function WardSelectorGrid({
                 <span className="text-lg font-bold text-white">AQI {w.aqi}</span>
                 <span className="text-[10px] text-slate-400">{w.pm25} µg</span>
               </div>
-              <div className="mt-1 flex items-center justify-between text-[10px] font-mono text-slate-500">
+              <div className="mt-1 flex items-center justify-between text-[10px] font-mono text-slate-400">
                 <span>
                   {w.wind} km/h {w.windDir}
                 </span>

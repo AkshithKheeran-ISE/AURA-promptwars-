@@ -28,9 +28,9 @@ test.describe('AURA Urban Air Quality Assistant E2E Test Suite', () => {
     await expect(main).toBeVisible();
 
     // Verify core navigation buttons or links
-    await expect(page.getByText('Smog Command')).toBeVisible();
-    await expect(page.getByText('Daily Routines')).toBeVisible();
-    await expect(page.getByText('Indoor IAQ Hacks')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Smog Command' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Daily Routines' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Indoor IAQ Hacks' })).toBeVisible();
   });
 
   test('navigates to Daily Routines and displays inversion-adapted slots', async ({ page }) => {
@@ -108,11 +108,12 @@ test.describe('AURA Urban Air Quality Assistant E2E Test Suite', () => {
       .getByRole('button', { name: /Search or open command palette/i })
       .first()
       .click();
-    await expect(page.getByRole('dialog', { name: 'Command Palette' })).toBeVisible();
+    const dialog = page.getByRole('dialog', { name: 'Command Palette' });
+    await expect(dialog).toBeVisible();
 
-    // Filter for Map
-    await page.locator('input[placeholder*="Type a command"]').fill('Map');
-    await page
+    // Filter for Map inside dialog
+    await dialog.locator('input[placeholder*="Type a command"]').fill('Map');
+    await dialog
       .getByRole('button', { name: /Neighborhood Map/i })
       .first()
       .click();
