@@ -71,7 +71,9 @@ test.describe('AURA Urban Air Quality Assistant E2E Test Suite', () => {
 
     // Click Verify Ledger to restore consensus without data loss
     await page
-      .getByRole('button', { name: /Re-verify & Restore|Verify Ledger/i })
+      .getByRole('button', {
+        name: /Re-verify & Restore|Verify Ledger|Run Zero-Data-Loss Repair Engine/i
+      })
       .first()
       .click();
 

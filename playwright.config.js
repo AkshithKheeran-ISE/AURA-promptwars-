@@ -9,7 +9,7 @@ export default defineConfig({
   workers: 1,
   reporter: 'list',
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://127.0.0.1:3000',
     trace: 'on-first-retry'
   },
   webServer: {
@@ -17,9 +17,9 @@ export default defineConfig({
       process.platform === 'win32'
         ? 'cmd /c "npm run dev -- --host 127.0.0.1 --port 3000"'
         : 'npm run dev -- --host 127.0.0.1 --port 3000',
-    port: 3000,
-    reuseExistingServer: true,
-    timeout: 60000
+    url: 'http://127.0.0.1:3000',
+    reuseExistingServer: !process.env.CI,
+    timeout: 120000
   },
   projects: [
     {
