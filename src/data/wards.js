@@ -3,6 +3,17 @@
  */
 
 export const DATA_PROVENANCE_TIERS = {
+  LIVE_OPEN_METEO_CAMS: {
+    id: 'LIVE_OPEN_METEO_CAMS',
+    label: 'Live Open-Meteo / CAMS',
+    badgeColor: '#34d399',
+    badgeText: 'LIVE · FREE API',
+    source: 'Open-Meteo Air Quality (CAMS) & Weather APIs — free, no API key',
+    method:
+      'Live modelled PM2.5, PM10, NO2, O3, CO, US AQI and boundary-layer height for the searched city, cached for 10 minutes',
+    freshness: 'Live hourly, cached 10 min',
+    isSimulation: false
+  },
   STATUTORY_BASELINE: {
     id: 'STATUTORY_BASELINE',
     label: 'Statutory CAAQMS Baseline',
