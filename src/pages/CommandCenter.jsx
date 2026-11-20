@@ -9,6 +9,7 @@ import FamilyMetricCards from '../components/command/FamilyMetricCards';
 import WardSelectorGrid from '../components/command/WardSelectorGrid';
 import IndoorShieldCard from '../components/command/IndoorShieldCard';
 import InversionDiurnalChart from '../components/command/InversionDiurnalChart';
+import LiveAirQualityPanel from '../components/live/LiveAirQualityPanel';
 
 function getAqiColor(aqi) {
   if (aqi <= 100) return '#34d399';
@@ -83,7 +84,7 @@ function ProvenanceTransparencyBar() {
           CPCB / EPA / WRF-Chem Atmospheric Calibrations
         </span>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
         {Object.values(DATA_PROVENANCE_TIERS).map((tier) => (
           <div
             key={tier.id}
@@ -95,7 +96,7 @@ function ProvenanceTransparencyBar() {
                 className="px-1.5 py-0.5 rounded text-[9px] font-bold"
                 style={{ backgroundColor: `${tier.badgeColor}20`, color: tier.badgeColor }}
               >
-                {tier.isSimulation ? 'SIMULATION / MODEL' : 'STATUTORY REAL'}
+                {tier.badgeText || (tier.isSimulation ? 'SIMULATION / MODEL' : 'STATUTORY REAL')}
               </span>
             </div>
             <p className="text-[10px] text-slate-300 font-sans leading-relaxed">{tier.method}</p>
@@ -218,6 +219,8 @@ export default function CommandCenter() {
           <CommandNavigationShortcuts onNavigate={setPage} activeHacksCount={activeHacks.length} />
         }
       />
+
+      <LiveAirQualityPanel />
 
       <FamilyMetricCards
         selectedWard={selectedWard}
