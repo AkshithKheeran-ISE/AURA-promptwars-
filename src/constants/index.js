@@ -62,7 +62,23 @@ export const TIMEOUTS = {
   GEMINI_SERVERLESS_ABORT_MS: 7000,
   TOAST_AUTO_DISMISS_MS: 4500,
   DEBOUNCE_SEARCH_MS: 300,
-  TICKER_REFRESH_INTERVAL_MS: 30000
+  TICKER_REFRESH_INTERVAL_MS: 30000,
+  LIVE_API_REQUEST_MS: 6000,
+  LIVE_API_CACHE_TTL_MS: 600000
+};
+
+// Free, key-less live data APIs (Open-Meteo / CAMS). No credentials required
+// and none are ever sent: requests carry only rounded public coordinates.
+export const LIVE_API = {
+  AIR_QUALITY_BASE: 'https://air-quality-api.open-meteo.com/v1/air-quality',
+  WEATHER_BASE: 'https://api.open-meteo.com/v1/forecast',
+  GEOCODING_BASE: 'https://geocoding-api.open-meteo.com/v1/search',
+  DEFAULT_PLACE: Object.freeze({
+    name: 'Delhi',
+    country: 'India',
+    latitude: 28.6139,
+    longitude: 77.209
+  })
 };
 
 // Clean Air Delivery Rates (CADR in CFM)
