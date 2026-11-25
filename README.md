@@ -2,10 +2,10 @@
 
 **Smog is hard to see. AURA tells your family what the air is doing today, and what to do about it.**
 
-Try it live: **[aura-by.netlify.app/#/audit](https://aura-by.netlify.app/#/audit)**
+Try it live: **[aura-promptwars.vercel.app/#/audit](https://aura-promptwars.vercel.app/#/audit)**
 
 [![CI Pipeline](https://github.com/AkshithKheeran-ISE/AURA-promptwars-/actions/workflows/ci.yml/badge.svg)](https://github.com/AkshithKheeran-ISE/AURA-promptwars-/actions/workflows/ci.yml)
-[![Live Demo](https://img.shields.io/badge/Live_Deployment-aura--by.netlify.app-cyan?style=flat&logo=netlify)](https://aura-by.netlify.app/#/audit)
+[![Live Demo](https://img.shields.io/badge/Live_Deployment-aura--promptwars.vercel.app-cyan?style=flat&logo=vercel)](https://aura-promptwars.vercel.app/#/audit)
 
 ---
 
