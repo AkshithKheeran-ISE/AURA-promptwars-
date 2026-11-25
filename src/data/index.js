@@ -3,6 +3,7 @@
  */
 
 export * from './wards';
+export * from './indiaCities';
 export * from './alerts';
 export * from './cems';
 export * from './reports';
