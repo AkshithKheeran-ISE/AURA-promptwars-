@@ -1,4 +1,3 @@
-
 name: AURA CI Pipeline
 
 on:
@@ -45,6 +44,14 @@ jobs:
 
       - name: Performance Budget Check (Bundle Size, gzip)
         run: npm run check:budget
+
+      # Lighthouse CI: measures the production build on desktop Chrome
+      # (preinstalled on the runner) and fails on accessibility or
+      # best-practices regressions. Performance is measured but not
+      # asserted yet — runner variance is high, so thresholds get set
+      # after the first baseline run. Runs npx @lhci/cli, no new dep.
+      - name: Lighthouse CI (Production Build Audit)
+        run: npx -y @lhci/cli@0.14.0 autorun --config=lighthouserc.json
 
       - name: Install Playwright Browsers
         run: npm run playwright:install
