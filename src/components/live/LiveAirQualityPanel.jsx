@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { CloudSun, RefreshCw, Search, Wind } from 'lucide-react';
 import { useLiveAirQuality } from '../../hooks/useLiveAirQuality';
 import { deriveVentilationAdvice, explainImpact } from '../../services/liveAirQuality';
+import AgeGuidance from './AgeGuidance';
 
 function Metric({ label, value, unit }) {
   return (
@@ -132,6 +133,8 @@ function SnapshotView({ snapshot }) {
         </div>
         <p className="mt-1 text-xs leading-relaxed text-slate-300">{advice.detail}</p>
       </div>
+
+      <AgeGuidance snapshot={snapshot} />
 
       {impact ? (
         <p className="text-xs leading-relaxed text-slate-300">
