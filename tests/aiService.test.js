@@ -4,7 +4,10 @@ import {
   orchestrateAgentWorkflow,
   orchestrateMultiAgentConsensus,
   resolveAgentIntent,
-  getAiServiceStatus
+  getAiServiceStatus,
+  PROMPT_VERSION,
+  PROMPT_CHANGELOG,
+  getPromptVersion
 } from '../src/services/aiService';
 
 describe('AURA Verifiable GenAI & Multi-Agent Orchestration Service', () => {
@@ -181,6 +184,28 @@ describe('AURA Verifiable GenAI & Multi-Agent Orchestration Service', () => {
         expect(typeof step.status).toBe('string');
         expect(typeof step.detail).toBe('string');
       });
+    });
+  });
+
+  describe('Prompt Versioning', () => {
+    it('exposes a date-based prompt version', () => {
+      expect(PROMPT_VERSION).toMatch(/^\d{4}-\d{2}-\d{2}\.\d+$/);
+      expect(getPromptVersion()).toBe(PROMPT_VERSION);
+    });
+
+    it('keeps a changelog entry for the current version', () => {
+      expect(Array.isArray(PROMPT_CHANGELOG)).toBe(true);
+      expect(PROMPT_CHANGELOG.length).toBeGreaterThanOrEqual(1);
+      const current = PROMPT_CHANGELOG.find((entry) => entry.version === PROMPT_VERSION);
+      expect(current).toBeDefined();
+      expect(typeof current.date).toBe('string');
+      expect(typeof current.change).toBe('string');
+      expect(current.change.length).toBeGreaterThan(0);
+    });
+
+    it('tags every workflow result with the prompt version that produced it', async () => {
+      const res = await orchestrateAgentWorkflow('Corsi Rosenthal box for 200 sq ft');
+      expect(res.promptVersion).toBe(PROMPT_VERSION);
     });
   });
 });
