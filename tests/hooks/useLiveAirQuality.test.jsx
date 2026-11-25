@@ -125,6 +125,40 @@ describe('useLiveAirQuality hook', () => {
     expect(result.current.searching).toBe(false);
   });
 
+  it('ignores an error from a superseded request instead of showing it', async () => {
+    let rejectFirst;
+    const firstGate = new Promise((_, reject) => {
+      rejectFirst = () => reject(new TypeError('first offline'));
+    });
+    let callCount = 0;
+    const fetchFn = vi.fn(async (url) => {
+      callCount += 1;
+      // Only the mount load's AQ request hangs until released. The
+      // weather request runs after it, so gating calls 1-2 would hang
+      // the superseding load too.
+      if (callCount === 1) await firstGate;
+      return url.includes('air-quality') ? okJson(aqPayload()) : okJson(wxPayload());
+    });
+    const { result } = renderHook(() => useLiveAirQuality({ fetchFn }));
+    const place = { latitude: 19.07, longitude: 72.87, name: 'Mumbai', country: 'India' };
+
+    // A second load supersedes the hung mount load, then the hung one fails.
+    await act(async () => {
+      await result.current.loadFor(place);
+    });
+    await waitFor(() => expect(result.current.status).toBe('live'));
+    expect(result.current.place.name).toBe('Mumbai');
+
+    await act(async () => {
+      rejectFirst();
+      await Promise.resolve();
+    });
+    // The stale failure must not overwrite the live snapshot.
+    expect(result.current.status).toBe('live');
+    expect(result.current.error).toBeNull();
+    expect(result.current.place.name).toBe('Mumbai');
+  });
+
   it('refresh forces a fresh load for the current place', async () => {
     const fetchFn = liveFetch();
     const { result } = renderHook(() => useLiveAirQuality({ fetchFn }));
