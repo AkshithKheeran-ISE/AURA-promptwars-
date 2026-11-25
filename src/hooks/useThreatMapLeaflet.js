@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import L from 'leaflet';
-import { WARDS_DATA } from '../data/airData';
+import { INDIA_CITIES, INDIA_VIEW, WARDS_DATA } from '../data/airData';
 
 const STATUS_COLORS = {
   Critical: '#f43f5e',
@@ -23,6 +23,17 @@ const RING_ROAD_CORRIDOR = [
   [28.61, 77.26],
   [28.7, 77.17]
 ];
+
+/**
+ * Free basemap with no API key. CARTO's dark tiles started returning
+ * "API KEY REQUIRED" watermark tiles, so the map background was unreadable.
+ * OpenStreetMap tiles need no key — only attribution, which Leaflet shows
+ * because attributionControl is on. The existing `.aura-map` CSS darkens
+ * the light tiles to match the app's dark theme.
+ */
+const TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+const TILE_ATTRIBUTION =
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
 function createWardMarker(ward, isSelected, onSelect) {
   const color = getStatusColor(ward.status);
@@ -61,7 +72,48 @@ function createWardMarker(ward, isSelected, onSelect) {
 }
 
 /**
+ * A city is a place to navigate to, not a measurement — no AQI value is
+ * stored or shown for it. The label is always visible so the map reads
+ * as a map of India at a glance; clicking flies in to the city.
+ */
+function createCityMarker(city, onFlyTo) {
+  const customIcon = L.divIcon({
+    className: 'aura-city-marker',
+    html: `
+      <span class="city-dot"></span>
+      <span class="city-label">${city.name}</span>
+    `,
+    iconSize: [120, 20],
+    iconAnchor: [6, 10]
+  });
+
+  const marker = L.marker([city.lat, city.lng], {
+    icon: customIcon,
+    title: `${city.name}, ${city.state}`,
+    alt: `${city.name}, ${city.state}`
+  });
+  marker.on('add', () => {
+    const el = marker.getElement();
+    if (el) {
+      el.setAttribute('aria-label', `${city.name}, ${city.state}`);
+      el.setAttribute('title', `${city.name}, ${city.state}`);
+    }
+  });
+  marker.bindPopup(`
+    <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">
+      <div style="font-weight: bold; color: #22d3ee; margin-bottom: 4px;">${city.name}, ${city.state}</div>
+      <div style="color: #94a3b8;">Live air quality for this city is on the Command Center — search the city name there.</div>
+    </div>
+  `);
+  marker.on('click', onFlyTo);
+  return marker;
+}
+
+/**
  * Manages Leaflet map initialization, tactical overlays, and sensor markers.
+ * The map opens on the whole of India with named city markers; the Delhi
+ * ward sensors are the detailed layer underneath.
+ * @returns {{ resetIndiaView: () => void }} - Zooms back out to the India view.
  */
 export function useThreatMapLeaflet(
   mapContainerRef,
@@ -70,6 +122,7 @@ export function useThreatMapLeaflet(
   addToast,
   layers
 ) {
+  /** @type {React.MutableRefObject<ReturnType<typeof L.map> | null>} */
   const mapInstanceRef = useRef(null);
   const markersRef = useRef({});
 
@@ -77,15 +130,15 @@ export function useThreatMapLeaflet(
     if (!mapContainerRef.current || mapInstanceRef.current) return;
 
     const map = L.map(mapContainerRef.current, {
-      center: [28.63, 77.2],
-      zoom: 11,
+      center: INDIA_VIEW.center,
+      zoom: INDIA_VIEW.zoom,
       zoomControl: true,
-      attributionControl: false
+      attributionControl: true
     });
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    L.tileLayer(TILE_URL, {
       maxZoom: 19,
-      subdomains: 'abcd'
+      attribution: TILE_ATTRIBUTION
     }).addTo(map);
 
     mapInstanceRef.current = map;
@@ -114,6 +167,14 @@ export function useThreatMapLeaflet(
       });
     }
 
+    INDIA_CITIES.forEach((city) => {
+      const marker = createCityMarker(city, () => {
+        map.flyTo([city.lat, city.lng], INDIA_VIEW.cityZoom);
+      });
+      marker.addTo(map);
+      markersRef.current[`city_${city.id}`] = marker;
+    });
+
     if (layers.traffic) {
       markersRef.current['traffic_line'] = L.polyline(RING_ROAD_CORRIDOR, {
         color: '#f43f5e',
@@ -135,4 +196,11 @@ export function useThreatMapLeaflet(
       });
     }
   }, [selectedWard, setSelectedWardId, addToast, layers]);
+
+  const resetIndiaView = useCallback(() => {
+    const map = mapInstanceRef.current;
+    if (map) map.setView(INDIA_VIEW.center, INDIA_VIEW.zoom);
+  }, []);
+
+  return { resetIndiaView };
 }
