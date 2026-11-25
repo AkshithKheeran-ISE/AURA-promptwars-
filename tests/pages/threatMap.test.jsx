@@ -13,9 +13,16 @@ function WardSwitcher() {
   );
 }
 
+const mockMapSetView = vi.fn();
+const mockMapFlyTo = vi.fn();
+
 vi.mock('leaflet', () => ({
   default: {
-    map: vi.fn(() => ({ remove: vi.fn() })),
+    map: vi.fn(() => ({
+      remove: vi.fn(),
+      setView: mockMapSetView,
+      flyTo: mockMapFlyTo
+    })),
     tileLayer: vi.fn(() => ({ addTo: vi.fn().mockReturnThis() })),
     divIcon: vi.fn(() => ({})),
     marker: vi.fn(() => ({
@@ -66,6 +73,14 @@ describe('ThreatMap', () => {
       fireEvent.click(box);
       expect(box.checked).toBe(true);
     }
+  });
+
+  it('shows a View all of India button that resets the map to the India view', () => {
+    renderMap();
+    const button = screen.getByRole('button', { name: /View all of India/i });
+    expect(button).toBeDefined();
+    fireEvent.click(button);
+    expect(mockMapSetView).toHaveBeenCalledWith([22.97, 78.65], 5);
   });
 
   it('shows a Critical ward dossier with the rose status colour', () => {
