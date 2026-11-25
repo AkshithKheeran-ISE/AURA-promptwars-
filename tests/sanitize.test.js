@@ -228,3 +228,26 @@ describe('Security & Sanitization Utilities', () => {
     });
   });
 });
+
+describe('Sanitization edge cases', () => {
+  it('stops stripping when a closing script tag has no closing bracket', () => {
+    expect(stripHtmlTags('a <script>x</script')).toBe('a');
+  });
+
+  it('rejects a null or non-object report payload', () => {
+    for (const bad of [null, undefined, 'not an object', 42]) {
+      const result = validateCitizenReport(bad);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toContain('Invalid report payload');
+      expect(result.sanitized).toBeNull();
+    }
+  });
+
+  it('reports short location and issue fields', () => {
+    const result = validateCitizenReport({ location: 'AB', issue: 'smog' });
+    expect(result.isValid).toBe(false);
+    expect(result.errors).toHaveLength(2);
+    expect(result.errors[0]).toMatch(/Location must be at least 3 characters/);
+    expect(result.errors[1]).toMatch(/Issue description must be at least 5 characters/);
+  });
+});
