@@ -7,7 +7,8 @@ import {
   getAiServiceStatus,
   PROMPT_VERSION,
   PROMPT_CHANGELOG,
-  getPromptVersion
+  getPromptVersion,
+  buildGeminiPrompt
 } from '../src/services/aiService';
 
 describe('AURA Verifiable GenAI & Multi-Agent Orchestration Service', () => {
@@ -206,6 +207,82 @@ describe('AURA Verifiable GenAI & Multi-Agent Orchestration Service', () => {
     it('tags every workflow result with the prompt version that produced it', async () => {
       const res = await orchestrateAgentWorkflow('Corsi Rosenthal box for 200 sq ft');
       expect(res.promptVersion).toBe(PROMPT_VERSION);
+    });
+  });
+
+  describe('Age/Circumstance Gemini Prompts', () => {
+    it('briefs Gemini with the household profile and live PM2.5 for each archetype', () => {
+      const cases = [
+        ['school_infant', 'Schoolchildren & Infants', '0–5'],
+        ['asthma_seniors', 'Asthmatic Senior', '60+'],
+        ['daily_commuter', 'Outdoor Commuters', '18–59'],
+        ['rwa_community', 'Neighborhood Community', 'mixed-age']
+      ];
+      for (const [archetype, label, ageHint] of cases) {
+        const prompt = buildGeminiPrompt('Should I go for a walk?', {
+          familyArchetype: archetype,
+          ambientPm25: 180
+        });
+        expect(prompt).toContain(label);
+        expect(prompt).toContain(ageHint);
+        expect(prompt).toContain('180 µg/m³');
+        expect(prompt).toContain('Should I go for a walk?');
+        expect(prompt).toContain('N95');
+      }
+    });
+
+    it('returns the query unchanged with no known archetype and no reading', () => {
+      expect(buildGeminiPrompt('Should I go for a walk?', {})).toBe('Should I go for a walk?');
+      expect(buildGeminiPrompt('Should I go for a walk?', { familyArchetype: 'unknown' })).toBe(
+        'Should I go for a walk?'
+      );
+    });
+
+    it('includes the profile without a reading, and the reading without a profile', () => {
+      const withProfile = buildGeminiPrompt('Should I ventilate?', {
+        familyArchetype: 'asthma_seniors'
+      });
+      expect(withProfile).toContain('Asthmatic Senior');
+      expect(withProfile).not.toContain('PM2.5:');
+
+      const withReading = buildGeminiPrompt('Should I ventilate?', { ambientPm25: 95 });
+      expect(withReading).toContain('95 µg/m³');
+      expect(withReading).not.toContain('Household:');
+    });
+
+    it('sends the profile-enriched prompt to the live proxy', async () => {
+      let sentPrompt = '';
+      const mockFetch = (url, options) => {
+        if (url === '/api/gemini') {
+          sentPrompt = JSON.parse(options.body).prompt;
+          return Promise.resolve({
+            ok: true,
+            json: async () => ({
+              success: true,
+              text: 'Stay indoors with your senior today.',
+              model: 'gemini-2.0-flash',
+              latencyMs: 80
+            })
+          });
+        }
+        return Promise.reject(new Error('Unknown url'));
+      };
+
+      const originalFetch = globalThis.fetch;
+      globalThis.fetch = mockFetch;
+
+      try {
+        const res = await orchestrateAgentWorkflow('Should I go for a walk?', {
+          familyArchetype: 'asthma_seniors',
+          ambientPm25: 180
+        });
+        expect(res.text).toBe('Stay indoors with your senior today.');
+        expect(sentPrompt).toContain('Asthmatic Senior');
+        expect(sentPrompt).toContain('180 µg/m³');
+        expect(sentPrompt).toContain('Should I go for a walk?');
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
     });
   });
 });
