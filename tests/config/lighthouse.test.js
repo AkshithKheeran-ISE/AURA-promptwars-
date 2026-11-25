@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { basename } from 'node:path';
 import lhciConfig from '../../lighthouserc.json';
 
 describe('Lighthouse CI configuration', () => {
@@ -22,5 +23,13 @@ describe('Lighthouse CI configuration', () => {
 
   it('keeps reports local instead of uploading them', () => {
     expect(lhciConfig.ci.upload.target).toBe('filesystem');
+  });
+
+  it('writes reports to a non-hidden directory so CI can upload them', () => {
+    // The CI workflow uploads this directory as an artifact. A hidden
+    // directory (one starting with a dot, like the old .lighthouseci)
+    // is invisible to the upload action's file search, so the step
+    // ran green while uploading nothing (run #141, 2026-11-26).
+    expect(basename(lhciConfig.ci.upload.outputDir).startsWith('.')).toBe(false);
   });
 });
