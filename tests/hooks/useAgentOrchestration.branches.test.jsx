@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useAgentOrchestration } from '../../src/hooks/useAgentOrchestration';
+import {
+  useAgentOrchestration,
+  AGENT_MESSAGES_STORAGE_KEY
+} from '../../src/hooks/useAgentOrchestration';
 
 const mockWorkflow = vi.fn();
 const mockConsensus = vi.fn();
@@ -32,6 +35,7 @@ const CONSENSUS_SUCCESS = {
 describe('useAgentOrchestration branch coverage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    window.localStorage.clear();
     mockWorkflow.mockResolvedValue(WORKFLOW_SUCCESS);
     mockConsensus.mockResolvedValue(CONSENSUS_SUCCESS);
   });
@@ -124,5 +128,64 @@ describe('useAgentOrchestration branch coverage', () => {
       await sendPromise;
     });
     expect(result.current.isThinking).toBe(false);
+  });
+
+  it('persists the conversation to localStorage after a send', async () => {
+    const { result } = setup();
+
+    await act(async () => {
+      await result.current.handleSend('Build a DIY purifier');
+    });
+
+    const stored = JSON.parse(window.localStorage.getItem(AGENT_MESSAGES_STORAGE_KEY));
+    expect(stored).toHaveLength(3); // sys banner, user, aura
+    expect(stored.map((m) => m.sender)).toEqual(['sys', 'user', 'aura']);
+    expect(stored[1].text).toContain('DIY purifier');
+  });
+
+  it('restores a saved conversation on a fresh mount', async () => {
+    const { result, unmount } = setup();
+
+    await act(async () => {
+      await result.current.handleSend('Build a DIY purifier');
+    });
+    expect(result.current.messages).toHaveLength(3);
+    unmount();
+
+    const fresh = setup();
+    expect(fresh.result.current.messages).toHaveLength(3);
+    expect(fresh.result.current.messages[2].agent).toBe('IAQEngineer');
+  });
+
+  it('falls back to the system banner when stored history is corrupt', () => {
+    window.localStorage.setItem(AGENT_MESSAGES_STORAGE_KEY, '{not json');
+    const { result } = setup();
+    expect(result.current.messages).toHaveLength(1);
+    expect(result.current.messages[0].sender).toBe('sys');
+  });
+
+  it('falls back to the system banner when stored history has the wrong shape', () => {
+    window.localStorage.setItem(AGENT_MESSAGES_STORAGE_KEY, JSON.stringify([{ sender: 'user' }]));
+    const { result } = setup();
+    expect(result.current.messages).toHaveLength(1);
+    expect(result.current.messages[0].sender).toBe('sys');
+  });
+
+  it('caps stored history at 50 messages', async () => {
+    const seeded = Array.from({ length: 60 }, (_, i) => ({
+      sender: i % 2 === 0 ? 'user' : 'aura',
+      text: `message ${i}`
+    }));
+    window.localStorage.setItem(AGENT_MESSAGES_STORAGE_KEY, JSON.stringify(seeded));
+    const { result } = setup();
+    expect(result.current.messages).toHaveLength(50);
+
+    await act(async () => {
+      await result.current.handleSend('One more question');
+    });
+
+    const stored = JSON.parse(window.localStorage.getItem(AGENT_MESSAGES_STORAGE_KEY));
+    expect(stored).toHaveLength(50);
+    expect(stored[stored.length - 1].text).toBe('Build a Corsi-Rosenthal box.');
   });
 });
