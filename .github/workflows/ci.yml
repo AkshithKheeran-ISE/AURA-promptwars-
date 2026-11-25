@@ -1,3 +1,4 @@
+
 name: AURA CI Pipeline
 
 on:
@@ -41,6 +42,9 @@ jobs:
 
       - name: Production Build Compilation (Vite)
         run: npm run build
+
+      - name: Performance Budget Check (Bundle Size, gzip)
+        run: npm run check:budget
 
       - name: Install Playwright Browsers
         run: npm run playwright:install
