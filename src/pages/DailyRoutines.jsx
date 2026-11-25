@@ -1,13 +1,57 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { AlertTriangle, Sparkles, CheckCircle2, Users } from 'lucide-react';
+import { AlertTriangle, Sparkles, CheckCircle2, Users, Wind } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
 import { useUi, useHousehold } from '../context/AppContext';
+import { useLiveAirQuality } from '../hooks/useLiveAirQuality';
+import { deriveVentilationAdvice } from '../services/liveAirQuality';
 import {
   FAMILY_ARCHETYPES,
   DAILY_ROUTINE_SLOTS,
   generatePersonalizedGuidance
 } from '../services/routineEngine';
+
+/**
+ * Live-air overlay for the routine page: the ward-based routine below is the
+ * statutory baseline, but when the free live API answers, today's plan is
+ * annotated with the air outside right now — PM2.5, AQI and the ventilation
+ * decision derived from the live boundary-layer height. Silent when the
+ * live API is unreachable; the baseline routine never depends on the network.
+ */
+function LiveRoutineBanner() {
+  const { status, snapshot } = useLiveAirQuality();
+  if (status !== 'live' || !snapshot) return null;
+  const advice = deriveVentilationAdvice(snapshot);
+  const category = snapshot.category;
+  return (
+    <div
+      aria-live="polite"
+      className="panel p-5 border-l-4 bg-emerald-400/5 flex flex-wrap items-center justify-between gap-4"
+      style={{ borderLeftColor: category?.color || '#34d399' }}
+    >
+      <div className="space-y-1">
+        <div className="label text-emerald-300 flex items-center gap-1.5">
+          <Wind className="h-3.5 w-3.5 text-emerald-400" />
+          Live right now in {snapshot.placeName} — not the seasonal baseline
+        </div>
+        <div className="text-lg font-bold text-white font-display">
+          PM2.5 {snapshot.pm25 ?? '—'} µg/m³ · US AQI {snapshot.usAqi ?? '—'}
+          {category ? ` (${category.label})` : ''}
+        </div>
+        <div className="text-xs text-slate-300">
+          <strong className="text-emerald-300">{advice.headline}.</strong> {advice.detail}
+        </div>
+      </div>
+      <div className="rounded-xl border border-emerald-400/20 bg-black/40 p-3 text-center font-mono">
+        <div className="text-[10px] text-slate-400">LIVE SOURCE</div>
+        <div className="text-xs font-bold text-emerald-300 mt-0.5">{snapshot.sourceLabel}</div>
+        <div className="text-[9px] text-slate-400">
+          observed {snapshot.observedAt || 'recently'}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function ArchetypeDwellingToolbar({
   familyArchetype,
@@ -104,7 +148,7 @@ function DailyRoutineSlotCard({ slot }) {
           <span className="rounded bg-black/50 border border-cyan-400/20 px-2.5 py-1 font-mono text-xs font-bold text-cyan-300">
             {slot.timeSlot}
           </span>
-          <h3 className="text-base font-bold text-white">{slot.title}</h3>
+          <h2 className="text-base font-bold text-white">{slot.title}</h2>
         </div>
         <span
           className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider uppercase border"
@@ -252,6 +296,8 @@ export default function DailyRoutines() {
       />
 
       <ProtocolDirectiveBanner currentGuidance={currentGuidance} selectedWard={selectedWard} />
+
+      <LiveRoutineBanner />
 
       <div className="space-y-4">
         {DAILY_ROUTINE_SLOTS.map((slot, idx) => (
