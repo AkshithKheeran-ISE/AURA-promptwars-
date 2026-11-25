@@ -2,10 +2,10 @@
 
 **Smog is hard to see. AURA tells your family what the air is doing today, and what to do about it.**
 
-Try it live: **[auratheairqualityassistant.vercel.app](https://auratheairqualityassistant.vercel.app/)**
+Try it live: **[aura-by.netlify.app/#/audit](https://aura-by.netlify.app/#/audit)**
 
 [![CI Pipeline](https://github.com/AkshithKheeran-ISE/AURA-promptwars-/actions/workflows/ci.yml/badge.svg)](https://github.com/AkshithKheeran-ISE/AURA-promptwars-/actions/workflows/ci.yml)
-[![Live Demo](https://img.shields.io/badge/Live_Deployment-auratheairqualityassistant.vercel.app-cyan?style=flat&logo=vercel)](https://auratheairqualityassistant.vercel.app/)
+[![Live Demo](https://img.shields.io/badge/Live_Deployment-aura--by.netlify.app-cyan?style=flat&logo=netlify)](https://aura-by.netlify.app/#/audit)
 
 ---
 
@@ -165,7 +165,7 @@ npm test      # run the tests
 npm run build # production build
 ```
 
-Health of the project, in one line: **430 tests passing, 43 suites. Coverage: 97.87% lines, 91.38% branches, 96.85% functions.** CI runs lint, typecheck, format, tests, audit, build, and Playwright end-to-end tests on every push.
+Health of the project, in one line: **484 tests passing, 51 suites. Coverage: 99.53% lines, 92.62% branches, 99.78% functions.** CI runs lint, typecheck, format, tests, audit, build, and Playwright end-to-end tests on every push.
 
 ---
 
