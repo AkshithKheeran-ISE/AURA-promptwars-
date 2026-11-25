@@ -52,22 +52,23 @@ describe('useCitizenLedgerState hook', () => {
     const logAudit = vi.fn();
 
     const { result } = renderHook(() => useCitizenLedgerState(addToast, logAudit));
-    const targetId = result.current.citizenReports[0].id;
-    const initialStage = result.current.citizenReports[0].stage;
+    // Seed stages are 4, 3, 2, 1 — target the stage-1 report so the
+    // advance is real and the assertions below always run.
+    const target = result.current.citizenReports.find((r) => r.stage === 1);
+    expect(target).toBeDefined();
+    const targetId = target.id;
 
     act(() => {
       result.current.advanceReportStage(targetId);
     });
 
     const targetReport = result.current.citizenReports.find((r) => r.id === targetId);
-    if (initialStage < 4) {
-      expect(targetReport.stage).toBeGreaterThan(initialStage);
-      expect(addToast).toHaveBeenCalledWith(
-        'Workflow Advanced',
-        expect.stringContaining(targetId),
-        'green'
-      );
-    }
+    expect(targetReport.stage).toBe(2);
+    expect(addToast).toHaveBeenCalledWith(
+      'Workflow Advanced',
+      expect.stringContaining(targetId),
+      'green'
+    );
   });
 
   it('simulates tamper, detects breach, and verifies zero-data-loss recovery with post-tamper submission preservation', () => {
