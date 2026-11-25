@@ -1,8 +1,11 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useAgentOrchestration } from '../../src/hooks/useAgentOrchestration';
 
 describe('useAgentOrchestration hook', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
   it('initializes with system online banner and initial metrics', () => {
     const addToast = vi.fn();
     const logAudit = vi.fn();
