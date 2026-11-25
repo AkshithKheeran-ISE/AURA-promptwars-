@@ -386,5 +386,53 @@ describe('liveAirQuality service (free Open-Meteo APIs)', () => {
         LiveDataError
       );
     });
+
+    it('returns null for a pollutant series shorter than the time axis', async () => {
+      // now 10:30 picks index 1, but pm2_5 only has index 0.
+      const short = aqPayload({ pm2_5: [180] });
+      const fetchFn = vi.fn(async (url) =>
+        url.includes('air-quality') ? okJson(short) : okJson(wxPayload())
+      );
+      const snap = await fetchLiveSnapshot(place, { fetchFn, now: NOW });
+      expect(snap.pm25).toBeNull();
+    });
+
+    it('returns empty weather when the weather time axis is empty', async () => {
+      const emptyWx = {
+        hourly: {
+          time: [],
+          temperature_2m: [],
+          relative_humidity_2m: [],
+          wind_speed_10m: [],
+          boundary_layer_height: []
+        }
+      };
+      const fetchFn = vi.fn(async (url) =>
+        url.includes('air-quality') ? okJson(aqPayload()) : okJson(emptyWx)
+      );
+      const snap = await fetchLiveSnapshot(place, { fetchFn, now: NOW });
+      expect(snap.pm25).toBe(210);
+      expect(snap.temperatureC).toBeNull();
+      expect(snap.boundaryLayerHeightM).toBeNull();
+    });
+
+    it('aborts a hung request and reports a timeout', async () => {
+      // DOMException is not an instanceof Error in Node, so the abort
+      // rejection must be a plain Error named AbortError for fetchJson
+      // to classify it as a timeout.
+      const fetchFn = vi.fn(
+        (_url, { signal } = {}) =>
+          new Promise((_, reject) => {
+            signal?.addEventListener('abort', () => {
+              const err = new Error('The operation was aborted.');
+              err.name = 'AbortError';
+              reject(err);
+            });
+          })
+      );
+      await expect(
+        fetchLiveSnapshot(place, { fetchFn, now: NOW, timeoutMs: 50 })
+      ).rejects.toMatchObject({ code: 'TIMEOUT' });
+    }, 10000);
   });
 });
