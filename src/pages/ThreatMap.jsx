@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { MapPin } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
 import MapLayersToolbar from '../components/map/MapLayersToolbar';
 import MapTacticalOverlays from '../components/map/MapTacticalOverlays';
@@ -26,7 +27,13 @@ export default function ThreatMap() {
     setLayers((prev) => ({ ...prev, [layerKey]: !prev[layerKey] }));
   };
 
-  useThreatMapLeaflet(mapContainerRef, selectedWard, setSelectedWardId, addToast, layers);
+  const { resetIndiaView } = useThreatMapLeaflet(
+    mapContainerRef,
+    selectedWard,
+    setSelectedWardId,
+    addToast,
+    layers
+  );
 
   return (
     <div className="space-y-6">
@@ -40,7 +47,14 @@ export default function ThreatMap() {
 
       <div className="grid gap-6 xl:grid-cols-3">
         <div className="panel p-2 xl:col-span-2 relative min-h-[540px] overflow-hidden">
-          <div ref={mapContainerRef} className="h-[540px] w-full rounded-xl z-0" />
+          <div ref={mapContainerRef} className="aura-map h-[540px] w-full rounded-xl z-0" />
+          <button
+            type="button"
+            onClick={resetIndiaView}
+            className="absolute top-4 right-4 z-10 flex cursor-pointer items-center gap-1.5 rounded-lg border border-cyan-400/30 bg-[#030712]/90 px-3 py-1.5 font-mono text-[11px] font-bold text-cyan-300 transition hover:bg-cyan-400/20"
+          >
+            <MapPin className="h-3.5 w-3.5" /> View all of India
+          </button>
           <MapTacticalOverlays />
         </div>
         <SectorDossier
