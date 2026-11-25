@@ -81,6 +81,24 @@ describe('App shell', () => {
     ).toBeDefined();
   });
 
+  it('still renders when session storage throws', async () => {
+    const getItemSpy = vi.spyOn(Storage.prototype, 'getItem').mockImplementation((key) => {
+      if (key === 'aura-boot') throw new Error('storage denied');
+      return null;
+    });
+    try {
+      render(
+        <AppProvider>
+          <App />
+        </AppProvider>
+      );
+      // The boot check falls back to "not booted" instead of crashing.
+      expect(screen.getByRole('heading', { level: 1, name: /AURA/i })).toBeDefined();
+    } finally {
+      getItemSpy.mockRestore();
+    }
+  });
+
   it('renders the skip link, header, ticker and footer', async () => {
     window.sessionStorage.setItem('aura-boot', '1');
     render(
