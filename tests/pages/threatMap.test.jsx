@@ -15,15 +15,26 @@ function WardSwitcher() {
 
 const mockMapSetView = vi.fn();
 const mockMapFlyTo = vi.fn();
+const mockMapLocate = vi.fn();
 
 vi.mock('leaflet', () => ({
   default: {
     map: vi.fn(() => ({
       remove: vi.fn(),
       setView: mockMapSetView,
-      flyTo: mockMapFlyTo
+      flyTo: mockMapFlyTo,
+      on: vi.fn(),
+      off: vi.fn(),
+      locate: mockMapLocate,
+      getZoom: vi.fn(() => 5)
     })),
     tileLayer: vi.fn(() => ({ addTo: vi.fn().mockReturnThis() })),
+    geoJSON: vi.fn(() => ({ addTo: vi.fn().mockReturnThis(), remove: vi.fn() })),
+    circleMarker: vi.fn(() => ({
+      bindPopup: vi.fn().mockReturnThis(),
+      addTo: vi.fn().mockReturnThis(),
+      remove: vi.fn()
+    })),
     divIcon: vi.fn(() => ({})),
     marker: vi.fn(() => ({
       bindPopup: vi.fn().mockReturnThis(),
@@ -81,6 +92,14 @@ describe('ThreatMap', () => {
     expect(button).toBeDefined();
     fireEvent.click(button);
     expect(mockMapSetView).toHaveBeenCalledWith([22.97, 78.65], 5);
+  });
+
+  it('shows a My location button that centres the map on the user position', () => {
+    renderMap();
+    const button = screen.getByRole('button', { name: /My location/i });
+    expect(button).toBeDefined();
+    fireEvent.click(button);
+    expect(mockMapLocate).toHaveBeenCalledWith({ setView: true, maxZoom: 12 });
   });
 
   it('shows a Critical ward dossier with the rose status colour', () => {
