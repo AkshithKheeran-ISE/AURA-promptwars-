@@ -291,12 +291,9 @@ export function repairLedgerChain(chain, canonicalStore) {
 
       block.prevHash = expectedPrev;
       block.hash = computeBlockHash(block, expectedPrev);
-    } else {
-      if (block.prevHash !== expectedPrev) {
-        block.prevHash = expectedPrev;
-        block.hash = computeBlockHash(block, expectedPrev);
-      }
     }
+    // No else needed: when neither pointer nor hash is corrupt the block
+    // already matches expectedPrev and its stored hash, so nothing to repair.
   }
 
   const verification = verifyLedgerIntegrity(repaired);
