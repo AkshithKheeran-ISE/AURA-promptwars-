@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { sanitizeInput } from '../utils/sanitize';
 import {
   orchestrateAgentWorkflow,
@@ -14,6 +14,63 @@ const INITIAL_METRICS = {
   eco_auditor: { calls: 0, lastLatencyMs: null, status: 'READY' },
   community_watch: { calls: 0, lastLatencyMs: null, status: 'READY' }
 };
+
+/**
+ * Storage key for the agent conversation history. Versioned so a future
+ * message-shape change can start fresh instead of restoring stale data.
+ */
+export const AGENT_MESSAGES_STORAGE_KEY = 'aura-agent-messages-v1';
+
+/** Maximum messages kept in storage (the in-memory chat is unbounded). */
+const MAX_STORED_AGENT_MESSAGES = 50;
+
+/**
+ * Restores a saved agent conversation from the user's own browser.
+ * History lives in localStorage only — it is never sent to any server.
+ * Returns null when nothing usable is stored, so the caller falls back
+ * to the system banner.
+ * @param {string} [storageKey=AGENT_MESSAGES_STORAGE_KEY]
+ * @returns {Array<object> | null}
+ */
+export function restoreAgentMessages(storageKey = AGENT_MESSAGES_STORAGE_KEY) {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) return null;
+    const raw = window.localStorage.getItem(storageKey);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (
+      !Array.isArray(parsed) ||
+      parsed.length === 0 ||
+      !parsed.every(
+        (message) =>
+          message && typeof message.sender === 'string' && typeof message.text === 'string'
+      )
+    ) {
+      return null;
+    }
+    return parsed.slice(-MAX_STORED_AGENT_MESSAGES);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Persists the conversation to the user's own browser (best-effort:
+ * storage can be full or unavailable in private mode — the chat still works).
+ * @param {Array<object>} messages
+ * @param {string} [storageKey=AGENT_MESSAGES_STORAGE_KEY]
+ */
+export function persistAgentMessages(messages, storageKey = AGENT_MESSAGES_STORAGE_KEY) {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) return;
+    window.localStorage.setItem(
+      storageKey,
+      JSON.stringify(messages.slice(-MAX_STORED_AGENT_MESSAGES))
+    );
+  } catch {
+    // Storage unavailable — conversation stays in memory only.
+  }
+}
 
 function updateAgentMetrics(prev, agentId, durationMs) {
   const current = prev[agentId] || { calls: 0, lastLatencyMs: null };
@@ -145,17 +202,26 @@ async function executeConsensusTask(options) {
  */
 export function useAgentOrchestration(familyArchetype, ambientPm25, addToast, logAudit) {
   const aiStatus = getAiServiceStatus();
-  const [messages, setMessages] = useState([
-    {
-      sender: 'sys',
-      text: `AURA Verifiable GenAI Orchestrator online.\nExecution Mode: ${aiStatus.engineName}.\nSix clinical and environmental intelligence agents armed with cryptographically verifiable execution traces.`
-    }
-  ]);
+  const [messages, setMessages] = useState(() => {
+    const restored = restoreAgentMessages();
+    if (restored) return restored;
+    return [
+      {
+        sender: 'sys',
+        text: `AURA Verifiable GenAI Orchestrator online.\nExecution Mode: ${aiStatus.engineName}.\nSix clinical and environmental intelligence agents armed with cryptographically verifiable execution traces.`
+      }
+    ];
+  });
   const [inputText, setInputText] = useState('');
   const [isThinking, setIsThinking] = useState(false);
   const [expandedTraceIdx, setExpandedTraceIdx] = useState(null);
   const [agentMetrics, setAgentMetrics] = useState(INITIAL_METRICS);
   const isExecutingRef = useRef(false);
+
+  // Keep the conversation across refreshes (localStorage, user's device only).
+  useEffect(() => {
+    persistAgentMessages(messages);
+  }, [messages]);
 
   const handleSend = async (queryText, directAgentId = null) => {
     const rawText = queryText || inputText;
