@@ -3,3 +3,9 @@ node_modules/
 coverage/
 package-lock.json
 *.log
+
+# Workflow files are edited in the GitHub web UI, which does not follow
+# Prettier formatting (e.g. a stray blank line at the top of ci.yml).
+# Checking them in CI only produces false failures, so they are excluded
+# from the format gate.
+.github/workflows/
