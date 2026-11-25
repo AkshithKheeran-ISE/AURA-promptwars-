@@ -14,6 +14,34 @@ import { sanitizeInput, sha256 } from '../utils/sanitize';
 import { TIMEOUTS, TARGET_AIR_CHANGES_PER_HOUR } from '../constants';
 
 /**
+ * Versioned prompt registry.
+ *
+ * Every deterministic specialist prompt in this file is written
+ * against a prompt version. Bump the version — and add a changelog
+ * entry — whenever a prompt's wording, numbers or advice change, so
+ * any agent answer can be traced back to the exact prompts that
+ * produced it (the version is baked into the SHA-256 attestation
+ * token and returned on every workflow result).
+ */
+export const PROMPT_VERSION = '2026-11-25.1';
+
+export const PROMPT_CHANGELOG = Object.freeze([
+  {
+    version: '2026-11-25.1',
+    date: '2026-11-25',
+    change: 'Initial versioned registry: six specialist prompts as shipped.'
+  }
+]);
+
+/**
+ * Returns the prompt version the specialist prompts are written against.
+ * @returns {string} e.g. '2026-11-25.1'
+ */
+export function getPromptVersion() {
+  return PROMPT_VERSION;
+}
+
+/**
  * Calls server-side Gemini proxy (/api/gemini).
  * @param {string} prompt - User query
  * @returns {Promise<{ text: string, model: string, latencyMs: number } | null>}
@@ -311,7 +339,7 @@ export async function orchestrateAgentWorkflow(rawPrompt, context = {}, preferre
   const durationMs = Math.round(performance.now() - startTime);
   const timestamp = Date.now();
 
-  const attestationPayload = `${agentId}|${cleanPrompt.slice(0, 32)}|${timestamp}|${durationMs}|${sha256(outputText || '').slice(0, 16)}`;
+  const attestationPayload = `${agentId}|${PROMPT_VERSION}|${cleanPrompt.slice(0, 32)}|${timestamp}|${durationMs}|${sha256(outputText || '').slice(0, 16)}`;
   const attestationToken = sha256(attestationPayload);
 
   trace.push({
@@ -328,6 +356,7 @@ export async function orchestrateAgentWorkflow(rawPrompt, context = {}, preferre
     engine: engineUsed,
     isFallback,
     executionMode,
+    promptVersion: PROMPT_VERSION,
     durationMs,
     attestationToken,
     timestamp,
