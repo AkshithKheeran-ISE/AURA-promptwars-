@@ -40,6 +40,19 @@ describe('useNavigationState hook', () => {
     expect(window.scrollTo).toHaveBeenCalled();
   });
 
+  it('initializes from a matching hash', () => {
+    window.location.hash = '#/routines';
+    window.scrollTo = vi.fn();
+    const { result } = renderHook(() => useNavigationState(TEST_NAV_ITEMS));
+    expect(result.current.page).toBe('routines');
+  });
+
+  it('falls back to the default page when the nav items are unusable', () => {
+    window.location.hash = '#/routines';
+    const { result } = renderHook(() => useNavigationState(null));
+    expect(result.current.page).toBe('command');
+  });
+
   it('toggles command palette on Ctrl+K hotkey', () => {
     const { result } = renderHook(() => useNavigationState(TEST_NAV_ITEMS));
     expect(result.current.commandPaletteOpen).toBe(false);
