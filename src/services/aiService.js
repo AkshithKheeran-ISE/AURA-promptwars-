@@ -23,13 +23,19 @@ import { TIMEOUTS, TARGET_AIR_CHANGES_PER_HOUR } from '../constants';
  * produced it (the version is baked into the SHA-256 attestation
  * token and returned on every workflow result).
  */
-export const PROMPT_VERSION = '2026-11-25.1';
+export const PROMPT_VERSION = '2026-11-25.2';
 
 export const PROMPT_CHANGELOG = Object.freeze([
   {
     version: '2026-11-25.1',
     date: '2026-11-25',
     change: 'Initial versioned registry: six specialist prompts as shipped.'
+  },
+  {
+    version: '2026-11-25.2',
+    date: '2026-11-25',
+    change:
+      'Gemini prompts now carry the household age/circumstance profile and the live PM2.5 reading (buildGeminiPrompt).'
   }
 ]);
 
@@ -39,6 +45,66 @@ export const PROMPT_CHANGELOG = Object.freeze([
  */
 export function getPromptVersion() {
   return PROMPT_VERSION;
+}
+
+/**
+ * Household archetype → age/circumstance profile used to brief Gemini.
+ * Maps the four family archetypes (FAMILY_ARCHETYPES in routineEngine.js)
+ * to the ages and conditions that change the advice. The age groups and
+ * sensitivity rules themselves live in ageGuidance.js — this only phrases
+ * the household for the model, it does not re-decide them.
+ */
+const ARCHETYPE_PROFILES = Object.freeze({
+  school_infant: {
+    label: 'Family with Schoolchildren & Infants',
+    profile:
+      'The youngest members are infants (0–5) and schoolchildren (6–12). Both are sensitive groups: immature lungs and a higher breathing rate per body weight.'
+  },
+  asthma_seniors: {
+    label: 'Multi-Generational with Asthmatic Senior',
+    profile:
+      'The household includes an older adult (60+) with asthma / COPD / cardiovascular risk — a sensitive group with weaker lungs and bronchial spasms in cold smog.'
+  },
+  daily_commuter: {
+    label: 'Working Parents & Outdoor Commuters',
+    profile:
+      'Healthy adults (18–59) who spend long hours outdoors commuting through traffic and street-canyon diesel soot.'
+  },
+  rwa_community: {
+    label: 'Housing Society / Neighborhood Community',
+    profile:
+      'A mixed-age neighbourhood community, including children and older adults, exposed to open waste smoldering and generator pollution.'
+  }
+});
+
+/**
+ * Builds the prompt sent to Gemini for a user query, briefed with the
+ * household's age/circumstance profile and the live PM2.5 reading.
+ * The deterministic specialist fallback already receives this context;
+ * this makes the live model see it too. With no known archetype and no
+ * reading, the query is returned unchanged.
+ * @param {string} userQuery - Sanitized user query
+ * @param {{ familyArchetype?: string, ambientPm25?: number }} [context={}] - Environmental context
+ * @returns {string} Prompt to send to the Gemini proxy
+ */
+export function buildGeminiPrompt(userQuery, context = {}) {
+  const archetype =
+    typeof context.familyArchetype === 'string'
+      ? ARCHETYPE_PROFILES[context.familyArchetype]
+      : undefined;
+  const pm25 = typeof context.ambientPm25 === 'number' ? context.ambientPm25 : null;
+
+  if (!archetype && pm25 === null) return userQuery;
+
+  const lines = ['You are AURA, an urban air quality assistant. Answer for this household:'];
+  if (archetype) lines.push(`- Household: ${archetype.label}. ${archetype.profile}`);
+  if (pm25 !== null) lines.push(`- Current outdoor PM2.5: ${pm25} µg/m³.`);
+  lines.push(
+    'Give advice specific to their ages and circumstances: how long to stay outdoors, whether to wear an N95 mask, and why, with WHO/EPA references where relevant. Keep it concise and actionable.',
+    '',
+    `User question: ${userQuery}`
+  );
+  return lines.join('\n');
 }
 
 /**
@@ -253,14 +319,14 @@ export function resolveAgentIntent(prompt, preferredAgentId = null) {
  * Attempts live server proxy dispatch with fallback tracing.
  * @private
  */
-async function dispatchLiveProxy(cleanPrompt, trace) {
+async function dispatchLiveProxy(cleanPrompt, trace, context = {}) {
   trace.push({
     step: 'SERVER_PROXY_DISPATCH',
     status: 'ATTEMPTING',
     detail: 'Contacting serverless proxy (/api/gemini)'
   });
 
-  const liveResult = await callSecureGeminiProxy(cleanPrompt);
+  const liveResult = await callSecureGeminiProxy(buildGeminiPrompt(cleanPrompt, context));
   if (liveResult && typeof liveResult.text === 'string' && liveResult.text.length > 0) {
     trace.push({
       step: 'SERVER_PROXY_DISPATCH',
@@ -314,7 +380,7 @@ export async function orchestrateAgentWorkflow(rawPrompt, context = {}, preferre
   let executionMode = 'DETERMINISTIC_SPECIALIST';
 
   if (!preferredAgentId && cleanPrompt.length > 5) {
-    const liveDispatch = await dispatchLiveProxy(cleanPrompt, trace);
+    const liveDispatch = await dispatchLiveProxy(cleanPrompt, trace, context);
     if (liveDispatch) {
       outputText = liveDispatch.outputText;
       engineUsed = liveDispatch.engineUsed;
