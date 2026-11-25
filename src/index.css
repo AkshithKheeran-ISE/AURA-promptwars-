@@ -248,6 +248,26 @@
   white-space: nowrap;
 }
 
+/* State name labels on the India map. The div is 0x0 at the state centre;
+   the span centres itself on that point. Non-interactive by design. */
+.aura-state-label {
+  background: transparent;
+  border: none;
+}
+.aura-state-label span {
+  display: inline-block;
+  transform: translate(-50%, -50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(226, 232, 240, 0.75);
+  text-shadow: 0 1px 3px rgba(3, 7, 18, 0.9);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
 /* Leaflet Dark Customization */
 .aura-map .leaflet-tile-pane {
   filter: brightness(0.7) invert(1) contrast(1.15) hue-rotate(185deg) saturate(1.3);
