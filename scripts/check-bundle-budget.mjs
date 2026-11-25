@@ -20,6 +20,16 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gzipSync } from 'node:zlib';
 
+/** Write a line to stdout. A CLI script's output goes through the
+ * process streams, not console, so the no-console rule stays clean. */
+function out(line) {
+  process.stdout.write(`${line}\n`);
+}
+/** Write a line to stderr (errors and failure reports). */
+function err(line) {
+  process.stderr.write(`${line}\n`);
+}
+
 const TOTAL_JS_GZIP_BUDGET_KB = 230;
 const MAX_CHUNK_GZIP_BUDGET_KB = 85;
 
@@ -27,14 +37,14 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const assetsDir = join(root, 'dist', 'assets');
 
 if (!existsSync(assetsDir)) {
-  console.error(`✖ dist/assets not found — run 'npm run build' first.`);
+  err(`✖ dist/assets not found — run 'npm run build' first.`);
   process.exit(1);
 }
 
 const jsFiles = readdirSync(assetsDir).filter((f) => f.endsWith('.js'));
 
 if (jsFiles.length === 0) {
-  console.error('✖ No JS chunks found in dist/assets.');
+  err('✖ No JS chunks found in dist/assets.');
   process.exit(1);
 }
 
@@ -49,16 +59,12 @@ const rows = jsFiles
 const totalGzipKb = rows.reduce((sum, r) => sum + r.gzipKb, 0);
 const largest = rows[0];
 
-console.log('Bundle budget check (gzip):\n');
+out('Bundle budget check (gzip):\n');
 for (const r of rows) {
-  console.log(
-    `  ${r.gzipKb.toFixed(1).padStart(7)} KB gzip  (${r.rawKb.toFixed(0)} KB raw)  ${r.file}`
-  );
+  out(`  ${r.gzipKb.toFixed(1).padStart(7)} KB gzip  (${r.rawKb.toFixed(0)} KB raw)  ${r.file}`);
 }
-console.log(
-  `\n  Total JS: ${totalGzipKb.toFixed(1)} KB gzip (budget ${TOTAL_JS_GZIP_BUDGET_KB} KB)`
-);
-console.log(
+out(`\n  Total JS: ${totalGzipKb.toFixed(1)} KB gzip (budget ${TOTAL_JS_GZIP_BUDGET_KB} KB)`);
+out(
   `  Largest chunk: ${largest.file} at ${largest.gzipKb.toFixed(1)} KB gzip (budget ${MAX_CHUNK_GZIP_BUDGET_KB} KB)`
 );
 
@@ -77,8 +83,8 @@ if (largest.gzipKb > MAX_CHUNK_GZIP_BUDGET_KB) {
 }
 
 if (failures.length > 0) {
-  console.error(`\n✖ Performance budget FAILED:\n  - ${failures.join('\n  - ')}`);
+  err(`\n✖ Performance budget FAILED:\n  - ${failures.join('\n  - ')}`);
   process.exit(1);
 }
 
-console.log('\n✓ Performance budget passed.');
+out('\n✓ Performance budget passed.');
