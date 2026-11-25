@@ -6,6 +6,10 @@ import { useThreatMapLeaflet } from '../../src/hooks/useThreatMapLeaflet';
 const mockMapRemove = vi.fn();
 const mockMapFlyTo = vi.fn();
 const mockMapSetView = vi.fn();
+const mockMapOn = vi.fn();
+const mockMapOff = vi.fn();
+const mockMapLocate = vi.fn();
+const mockMapGetZoom = vi.fn(() => 5);
 const mockTileLayerAddTo = vi.fn();
 const mockMarkerAddTo = vi.fn();
 const mockMarkerRemove = vi.fn();
@@ -16,13 +20,22 @@ const mockPolylineAddTo = vi.fn();
 const mockCircleAddTo = vi.fn();
 const mockPolylineRemove = vi.fn();
 const mockCircleRemove = vi.fn();
+const mockGeoJsonAddTo = vi.fn();
+const mockGeoJsonRemove = vi.fn();
+const mockCircleMarkerBindPopup = vi.fn();
+const mockCircleMarkerAddTo = vi.fn();
+const mockCircleMarkerRemove = vi.fn();
 
 vi.mock('leaflet', () => ({
   default: {
     map: vi.fn(() => ({
       remove: mockMapRemove,
       flyTo: mockMapFlyTo,
-      setView: mockMapSetView
+      setView: mockMapSetView,
+      on: mockMapOn,
+      off: mockMapOff,
+      locate: mockMapLocate,
+      getZoom: mockMapGetZoom
     })),
     tileLayer: vi.fn(() => ({
       addTo: mockTileLayerAddTo
@@ -42,6 +55,15 @@ vi.mock('leaflet', () => ({
     circle: vi.fn(() => ({
       addTo: mockCircleAddTo,
       remove: mockCircleRemove
+    })),
+    geoJSON: vi.fn(() => ({
+      addTo: mockGeoJsonAddTo,
+      remove: mockGeoJsonRemove
+    })),
+    circleMarker: vi.fn(() => ({
+      bindPopup: mockCircleMarkerBindPopup,
+      addTo: mockCircleMarkerAddTo,
+      remove: mockCircleMarkerRemove
     }))
   }
 }));
@@ -60,6 +82,9 @@ const selectedWard = { id: 'wazirpur', name: 'Wazirpur Industrial Sector', aqi: 
 describe('useThreatMapLeaflet branch coverage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockMapGetZoom.mockReturnValue(5);
+    // The state GeoJSON is an optional layer; in these tests it never loads.
+    globalThis.fetch = vi.fn(() => Promise.reject(new Error('offline in tests')));
     // Real Leaflet layers are chainable: addTo/bindPopup/on return the layer.
     // The hook stores addTo() results in markersRef and calls .remove() on them,
     // so the mocks must return `this` too.
@@ -68,6 +93,9 @@ describe('useThreatMapLeaflet branch coverage', () => {
     mockMarkerAddTo.mockReturnThis();
     mockPolylineAddTo.mockReturnThis();
     mockCircleAddTo.mockReturnThis();
+    mockGeoJsonAddTo.mockReturnThis();
+    mockCircleMarkerBindPopup.mockReturnThis();
+    mockCircleMarkerAddTo.mockReturnThis();
     mockMarkerGetElement.mockReturnValue(document.createElement('div'));
   });
 
@@ -83,7 +111,7 @@ describe('useThreatMapLeaflet branch coverage', () => {
     return { ...hook, setSelectedWardId, addToast };
   };
 
-  it('uses free OpenStreetMap tiles (no API key) and opens on all of India', () => {
+  it('uses free Esri World Street Map tiles (no API key) and opens on all of India', () => {
     renderMap();
     // Leaflet is mocked via vi.mock; the default import is the mock object.
     expect(L.map).toHaveBeenCalledWith(
@@ -95,9 +123,9 @@ describe('useThreatMapLeaflet branch coverage', () => {
       })
     );
     expect(L.tileLayer).toHaveBeenCalledWith(
-      'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
       expect.objectContaining({
-        attribution: expect.stringContaining('OpenStreetMap')
+        attribution: expect.stringContaining('Esri')
       })
     );
   });
