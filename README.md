@@ -5,7 +5,7 @@
 
 [![CI Pipeline](https://github.com/AkshithKheeran-ISE/AURA-promptwars-/actions/workflows/ci.yml/badge.svg)](https://github.com/AkshithKheeran-ISE/AURA-promptwars-/actions/workflows/ci.yml)
 [![Live Demo](https://img.shields.io/badge/Live_Deployment-auratheairqualityassistant.vercel.app-cyan?style=flat&logo=vercel)](https://auratheairqualityassistant.vercel.app/)
-[![Vitest](https://img.shields.io/badge/tests-vitest_246_passing-brightgreen)](tests/)
+[![Vitest](https://img.shields.io/badge/tests-vitest_430_passing-brightgreen)](tests/)
 [![Coverage](https://img.shields.io/badge/coverage-v8_integrated-brightgreen)](tests/)
 [![Accessibility](https://img.shields.io/badge/accessibility-axe--core_automated_scans-blue)](e2e/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -13,6 +13,23 @@
 ---
 
 > 🚀 **Live Production Application**: [https://auratheairqualityassistant.vercel.app/](https://auratheairqualityassistant.vercel.app/)
+
+---
+
+## ✨ Latest Version
+
+The latest version of AURA includes significant improvements to code quality, security, performance, testing, and accessibility while preserving the existing user experience and core functionality.
+
+- **Improved code structure, readability, maintainability, and consistency** — the live-data hook carries no lint suppressions, magic numbers are named constants, the three Open-Meteo URL builders share one helper, and the live snapshot is fully typed.
+- **Enhanced security practices and input validation** — sanitised inputs client + server, server-only Gemini key, CSP/HSTS security headers, SHA-256 hash-chained ledger, CodeQL + Dependabot, no secrets in the bundle.
+- **Optimised application efficiency and performance** — lazy-loaded routes, vendor chunk splitting, a 10-minute live-data cache, and immutable caching for hashed assets on Vercel and Netlify.
+- **Improved test coverage and reliability** — 430 Vitest tests in 43 suites (was 246 in 22): 97.87% lines, 91.38% branches, 96.85% functions; CI thresholds raised to 95 / 95 / 95 / 88. A previously vacuous ledger-stage test now asserts a real 1 → 2 stage advance. The new age-wise guidance service and panel are at 100% coverage.
+- **Strengthened accessibility and usability** — automated axe-core scans on all 10 routes plus the boot screen and the new age-wise guidance panel (12 scans, clean), including a fixed heading-order violation in Daily Routines; skip link, labelled controls, `aria-live` live-data status, keyboard focus rings.
+- **Age-wise guidance for every user** — the live panel now answers per age group (infants 0–5, schoolchildren 6–12, teenagers 13–17, healthy adults 18–59, older adults 60+) with asthma / heart / lung and pregnancy toggles. The same PM2.5 reading is judged one band stricter for sensitive groups, following the US EPA sensitive-groups framework and the WHO 2021 PM2.5 target (15 µg/m³ over 24 h) — outdoor-time and mask advice included, and the panel states plainly that it is guidance, not medical advice.
+- **Refined code organisation and reduced duplicated code** — one shared Open-Meteo URL builder, named measurement/ventilation/dose constants, and a dead code branch removed from the ledger repair path.
+- **Verified the application build** — lint, typecheck, format, all 430 tests, and the production build pass locally. _Deployment of this version is pending: it is committed locally and goes live once pushed and redeployed on Vercel._
+
+The deployed version maintains the original project vision while incorporating these technical improvements to deliver a more reliable, secure, accessible, and maintainable urban air quality monitoring experience.
 
 ---
 
@@ -177,30 +194,30 @@ AURA provides transparent, explainable formulas directly in the interface with z
 
 ## 🏆 Evaluation Scorecard — How Each Parameter Is Addressed
 
-| Parameter                       | Evidence in this repository                                                                                                                                                                            |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Code Quality**                | ESLint 9 + Prettier + strict `tsc` checkJs in CI, zero lint warnings, modular services/hooks/components, complexity and function-length rules, JSDoc on public APIs                                    |
-| **Security**                    | Server-only Gemini key, sanitised inputs client + server, rate-limited proxy, SHA-256 hash-chained ledger, CSP/HSTS headers, CodeQL + Dependabot, [SECURITY.md](SECURITY.md), no secrets in the bundle |
-| **Efficiency**                  | Lazy-loaded routes, vendor chunk splitting, 10-minute live-data cache, 6s request timeouts, preconnect to data APIs, gzip bundle reported on every build                                               |
-| **Testing**                     | 246 Vitest tests in 22 suites (services, hooks, components, proxy, ledger, edge cases), Playwright e2e + axe scans on all routes, coverage thresholds enforced in config and CI                        |
-| **Accessibility**               | WCAG 2.1 AA: skip link, labelled controls whose visible text matches accessible names, `aria-live` status for live data, keyboard focus rings, automated axe-core scans in e2e                         |
-| **Problem Statement Alignment** | Live location-tailored AQI, low-emission routines, DIY indoor hacks, sustainable alternatives with quantified impact (µg PM2.5 avoided, kg CO₂, ₹ saved) explained for every recommendation            |
+| Parameter                       | Evidence in this repository                                                                                                                                                                                             |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Code Quality**                | ESLint 9 + Prettier + strict `tsc` checkJs in CI, zero lint warnings, modular services/hooks/components, complexity and function-length rules, JSDoc on public APIs                                                     |
+| **Security**                    | Server-only Gemini key, sanitised inputs client + server, rate-limited proxy, SHA-256 hash-chained ledger, CSP/HSTS headers, CodeQL + Dependabot, [SECURITY.md](SECURITY.md), no secrets in the bundle                  |
+| **Efficiency**                  | Lazy-loaded routes, vendor chunk splitting, 10-minute live-data cache, 6s request timeouts, preconnect to data APIs, immutable caching for hashed assets, gzip bundle reported on every build                           |
+| **Testing**                     | 430 Vitest tests in 43 suites (services, hooks, components, proxy, ledger, edge cases, branch coverage), Playwright e2e + axe scans on all routes, coverage thresholds enforced in config and CI                        |
+| **Accessibility**               | WCAG 2.1 AA: skip link, labelled controls whose visible text matches accessible names, `aria-live` status for live data, keyboard focus rings, automated axe-core scans in e2e and in jsdom (`tests/a11y.axe.test.jsx`) |
+| **Problem Statement Alignment** | Live location-tailored AQI, low-emission routines, DIY indoor hacks, sustainable alternatives with quantified impact (µg PM2.5 avoided, kg CO₂, ₹ saved) explained for every recommendation                             |
 
 ---
 
 ## 🧪 Automated Testing Suite
 
-Tested with Vitest across 22 suites and 246 automated tests, with UI, services, and hooks included in the V8 coverage pipeline:
+Tested with Vitest across 43 suites and 430 automated tests, with UI, services, and hooks included in the V8 coverage pipeline:
 
 ```bash
 npm run test:coverage
 ```
 
 ```
- Test Files  22 passed (22)
-      Tests  246 passed (246)
-   Coverage  89.89% Lines · 88.62% Statements · 80.79% Functions · 78.06% Branches
-             (CI-enforced thresholds: 88 / 87 / 79 / 76)
+ Test Files  43 passed (43)
+      Tests  430 passed (430)
+   Coverage  97.87% Lines · 97.47% Statements · 96.85% Functions · 91.38% Branches
+             (CI-enforced thresholds: 95 / 95 / 95 / 88)
 ```
 
 Playwright End-to-End & Automated Accessibility Suite:
