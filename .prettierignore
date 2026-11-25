@@ -9,3 +9,4 @@ package-lock.json
 # Checking them in CI only produces false failures, so they are excluded
 # from the format gate.
 .github/workflows/
+public/data/
