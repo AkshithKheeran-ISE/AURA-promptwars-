@@ -6,8 +6,20 @@ import CommandCenter from '../../src/pages/CommandCenter';
 
 vi.mock('leaflet', () => ({
   default: {
-    map: vi.fn(() => ({ remove: vi.fn() })),
+    map: vi.fn(() => ({
+      remove: vi.fn(),
+      on: vi.fn(),
+      off: vi.fn(),
+      locate: vi.fn(),
+      getZoom: vi.fn(() => 5)
+    })),
     tileLayer: vi.fn(() => ({ addTo: vi.fn().mockReturnThis() })),
+    geoJSON: vi.fn(() => ({ addTo: vi.fn().mockReturnThis(), remove: vi.fn() })),
+    circleMarker: vi.fn(() => ({
+      bindPopup: vi.fn().mockReturnThis(),
+      addTo: vi.fn().mockReturnThis(),
+      remove: vi.fn()
+    })),
     divIcon: vi.fn(() => ({})),
     marker: vi.fn(() => ({
       bindPopup: vi.fn().mockReturnThis(),
