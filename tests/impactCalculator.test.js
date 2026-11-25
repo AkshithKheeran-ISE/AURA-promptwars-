@@ -104,3 +104,19 @@ describe('Impact Calculator Service (Scientific & Financial Accuracy)', () => {
     });
   });
 });
+
+describe('Health risk index tiers', () => {
+  it('reports Minimal Impact for indoor PM2.5 at or below 30 µg/m³', () => {
+    const result = calculateHealthRiskIndex(10);
+    expect(result.riskTier).toBe('Minimal Impact');
+    expect(result.riskScore).toBe(1);
+  });
+
+  it('reports Moderate Exceedance for indoor PM2.5 between 31 and 60 µg/m³', () => {
+    const result = calculateHealthRiskIndex(45);
+    expect(result.riskTier).toBe('Moderate Exceedance');
+    expect(result.tierColor).toBe('#fbbf24');
+    expect(result.riskScore).toBe(1.5);
+    expect(result.whoTargetExceedance).toBe('3× WHO Target');
+  });
+});
