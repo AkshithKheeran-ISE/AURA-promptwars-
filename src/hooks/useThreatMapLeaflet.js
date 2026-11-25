@@ -144,6 +144,219 @@ function createCityMarker(city, onFlyTo) {
 }
 
 /**
+ * Creates the Leaflet map once and tears it down on unmount.
+ * Returns the cleanup that removes the map.
+ */
+function initMap(mapContainerRef, mapInstanceRef) {
+  if (!mapContainerRef.current || mapInstanceRef.current) return undefined;
+
+  const map = L.map(mapContainerRef.current, {
+    center: INDIA_VIEW.center,
+    zoom: INDIA_VIEW.zoom,
+    zoomControl: true,
+    attributionControl: true
+  });
+
+  L.tileLayer(TILE_URL, {
+    maxZoom: 19,
+    attribution: TILE_ATTRIBUTION
+  }).addTo(map);
+
+  mapInstanceRef.current = map;
+
+  return () => {
+    map.remove();
+    mapInstanceRef.current = null;
+  };
+}
+
+/**
+ * Rebuilds the ward sensors, city markers, traffic corridor and plumes
+ * whenever the selection, layer toggles or toasts change. Markers from
+ * the previous run are removed first.
+ */
+function syncMapOverlays(
+  mapInstanceRef,
+  markersRef,
+  selectedWard,
+  setSelectedWardId,
+  addToast,
+  layers
+) {
+  const map = mapInstanceRef.current;
+  if (!map) return;
+
+  Object.values(markersRef.current).forEach((m) => m.remove());
+  markersRef.current = {};
+
+  if (layers.sensors) {
+    WARDS_DATA.forEach((ward) => {
+      const marker = createWardMarker(ward, selectedWard.id === ward.id, () => {
+        setSelectedWardId(ward.id);
+        addToast('Sensor Selected', `Focused on ${ward.name} · AQI ${ward.aqi}`, 'cyan');
+      });
+      marker.addTo(map);
+      markersRef.current[ward.id] = marker;
+    });
+  }
+
+  INDIA_CITIES.forEach((city) => {
+    const marker = createCityMarker(city, () => {
+      map.flyTo([city.lat, city.lng], INDIA_VIEW.cityZoom);
+    });
+    marker.addTo(map);
+    markersRef.current[`city_${city.id}`] = marker;
+  });
+
+  if (layers.traffic) {
+    markersRef.current['traffic_line'] = L.polyline(RING_ROAD_CORRIDOR, {
+      color: '#f43f5e',
+      weight: 2.5,
+      dashArray: '6 8',
+      opacity: 0.65
+    }).addTo(map);
+  }
+
+  if (layers.plumes) {
+    WARDS_DATA.filter((w) => w.status === 'Critical').forEach((w) => {
+      markersRef.current[`plume_${w.id}`] = L.circle([w.lat, w.lng], {
+        color: '#f43f5e',
+        fillColor: '#f43f5e',
+        fillOpacity: 0.15,
+        radius: 3500,
+        weight: 1
+      }).addTo(map);
+    });
+  }
+}
+
+/** Shows the state labels the current zoom level calls for. */
+function updateStateLabels(map, stateLayerRef) {
+  const state = stateLayerRef.current;
+  if (!state) return;
+  const zoom = map.getZoom();
+  state.labels.forEach((entry) => {
+    const shouldShow = zoom >= SMALL_STATE_MIN_ZOOM || entry.area > SMALL_STATE_AREA;
+    if (shouldShow && !entry.shown) {
+      entry.marker.addTo(map);
+      entry.shown = true;
+    } else if (!shouldShow && entry.shown) {
+      entry.marker.remove();
+      entry.shown = false;
+    }
+  });
+}
+
+/** Drops the "You are here" marker when geolocation succeeds. */
+function handleLocationFound(event, map, locationMarkerRef, addToast) {
+  if (locationMarkerRef.current) locationMarkerRef.current.remove();
+  const marker = L.circleMarker(event.latlng, {
+    color: '#ffffff',
+    weight: 2,
+    fillColor: '#22d3ee',
+    fillOpacity: 0.7,
+    radius: 8
+  });
+  marker.bindPopup(`
+    <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">
+      <div style="font-weight: bold; color: #22d3ee; margin-bottom: 4px;">You are here</div>
+      <div style="color: #94a3b8;">Your current position, from your browser location.</div>
+    </div>
+  `);
+  marker.addTo(map);
+  locationMarkerRef.current = marker;
+  addToast('Location Found', 'Showing your current position on the map', 'cyan');
+}
+
+/** Tells the user geolocation is unavailable. */
+function handleLocationError(addToast) {
+  addToast(
+    'Location Unavailable',
+    'Allow location access in your browser to show your position',
+    'red'
+  );
+}
+
+/**
+ * Fetches the state boundaries GeoJSON and adds it to the map.
+ * Returns a cancel function; the caller runs it on cleanup so a late
+ * response never touches a removed map. The outlines are optional —
+ * a failed fetch leaves the map working without them.
+ */
+function loadStateBoundaries(map, mapInstanceRef, stateLayerRef) {
+  let cancelled = false;
+  (async () => {
+    try {
+      const res = await fetch(STATES_GEOJSON_URL);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (cancelled || !mapInstanceRef.current) return;
+      const boundaries = L.geoJSON(data, {
+        style: STATE_STYLE,
+        onEachFeature: (feature, layer) => {
+          const name = feature && feature.properties ? feature.properties.NAME_1 : null;
+          if (!name || typeof layer.getBounds !== 'function') return;
+          const bounds = layer.getBounds();
+          const area =
+            Math.abs(bounds.getEast() - bounds.getWest()) *
+            Math.abs(bounds.getNorth() - bounds.getSouth());
+          stateLayerRef.current.labels.push({
+            marker: createStateLabel(name, bounds.getCenter()),
+            area,
+            shown: false
+          });
+        }
+      });
+      boundaries.addTo(map);
+      stateLayerRef.current.boundaries = boundaries;
+      updateStateLabels(map, stateLayerRef);
+    } catch {
+      // State outlines are an optional layer; the map works without them.
+    }
+  })();
+  return () => {
+    cancelled = true;
+  };
+}
+
+/**
+ * Wires up geolocation, state-label visibility and the state boundaries
+ * overlay. Returns the cleanup that unregisters the listeners, cancels
+ * the boundary fetch and removes the overlay and location marker.
+ */
+function attachStateLayerAndLocation(mapInstanceRef, stateLayerRef, locationMarkerRef, addToast) {
+  const map = mapInstanceRef.current;
+  if (!map) return undefined;
+
+  const onLocationFound = (event) => handleLocationFound(event, map, locationMarkerRef, addToast);
+  const onLocationError = () => handleLocationError(addToast);
+  const onZoomEnd = () => updateStateLabels(map, stateLayerRef);
+
+  map.on('locationfound', onLocationFound);
+  map.on('locationerror', onLocationError);
+  map.on('zoomend', onZoomEnd);
+
+  const cancelLoad = loadStateBoundaries(map, mapInstanceRef, stateLayerRef);
+
+  return () => {
+    cancelLoad();
+    map.off('locationfound', onLocationFound);
+    map.off('locationerror', onLocationError);
+    map.off('zoomend', onZoomEnd);
+    const state = stateLayerRef.current;
+    if (state) {
+      state.labels.forEach((entry) => entry.marker.remove());
+      if (state.boundaries) state.boundaries.remove();
+      stateLayerRef.current = { boundaries: null, labels: [] };
+    }
+    if (locationMarkerRef.current) {
+      locationMarkerRef.current.remove();
+      locationMarkerRef.current = null;
+    }
+  };
+}
+
+/**
  * Manages Leaflet map initialization, tactical overlays, and sensor markers.
  * The map opens on the whole of India with named city markers; the Delhi
  * ward sensors are the detailed layer underneath. State boundaries and
@@ -166,75 +379,10 @@ export function useThreatMapLeaflet(
   /** @type {React.MutableRefObject<{ remove: () => void } | null>} */
   const locationMarkerRef = useRef(null);
 
-  useEffect(() => {
-    if (!mapContainerRef.current || mapInstanceRef.current) return;
-
-    const map = L.map(mapContainerRef.current, {
-      center: INDIA_VIEW.center,
-      zoom: INDIA_VIEW.zoom,
-      zoomControl: true,
-      attributionControl: true
-    });
-
-    L.tileLayer(TILE_URL, {
-      maxZoom: 19,
-      attribution: TILE_ATTRIBUTION
-    }).addTo(map);
-
-    mapInstanceRef.current = map;
-
-    return () => {
-      map.remove();
-      mapInstanceRef.current = null;
-    };
-  }, [mapContainerRef]);
+  useEffect(() => initMap(mapContainerRef, mapInstanceRef), [mapContainerRef]);
 
   useEffect(() => {
-    const map = mapInstanceRef.current;
-    if (!map) return;
-
-    Object.values(markersRef.current).forEach((m) => m.remove());
-    markersRef.current = {};
-
-    if (layers.sensors) {
-      WARDS_DATA.forEach((ward) => {
-        const marker = createWardMarker(ward, selectedWard.id === ward.id, () => {
-          setSelectedWardId(ward.id);
-          addToast('Sensor Selected', `Focused on ${ward.name} · AQI ${ward.aqi}`, 'cyan');
-        });
-        marker.addTo(map);
-        markersRef.current[ward.id] = marker;
-      });
-    }
-
-    INDIA_CITIES.forEach((city) => {
-      const marker = createCityMarker(city, () => {
-        map.flyTo([city.lat, city.lng], INDIA_VIEW.cityZoom);
-      });
-      marker.addTo(map);
-      markersRef.current[`city_${city.id}`] = marker;
-    });
-
-    if (layers.traffic) {
-      markersRef.current['traffic_line'] = L.polyline(RING_ROAD_CORRIDOR, {
-        color: '#f43f5e',
-        weight: 2.5,
-        dashArray: '6 8',
-        opacity: 0.65
-      }).addTo(map);
-    }
-
-    if (layers.plumes) {
-      WARDS_DATA.filter((w) => w.status === 'Critical').forEach((w) => {
-        markersRef.current[`plume_${w.id}`] = L.circle([w.lat, w.lng], {
-          color: '#f43f5e',
-          fillColor: '#f43f5e',
-          fillOpacity: 0.15,
-          radius: 3500,
-          weight: 1
-        }).addTo(map);
-      });
-    }
+    syncMapOverlays(mapInstanceRef, markersRef, selectedWard, setSelectedWardId, addToast, layers);
   }, [selectedWard, setSelectedWardId, addToast, layers]);
 
   const resetIndiaView = useCallback(() => {
@@ -247,105 +395,10 @@ export function useThreatMapLeaflet(
     if (map) map.locate({ setView: true, maxZoom: 12 });
   }, []);
 
-  useEffect(() => {
-    const map = mapInstanceRef.current;
-    if (!map) return;
-
-    const updateStateLabels = () => {
-      const state = stateLayerRef.current;
-      if (!state) return;
-      const zoom = map.getZoom();
-      state.labels.forEach((entry) => {
-        const shouldShow = zoom >= SMALL_STATE_MIN_ZOOM || entry.area > SMALL_STATE_AREA;
-        if (shouldShow && !entry.shown) {
-          entry.marker.addTo(map);
-          entry.shown = true;
-        } else if (!shouldShow && entry.shown) {
-          entry.marker.remove();
-          entry.shown = false;
-        }
-      });
-    };
-
-    const onLocationFound = (event) => {
-      if (locationMarkerRef.current) locationMarkerRef.current.remove();
-      const marker = L.circleMarker(event.latlng, {
-        color: '#ffffff',
-        weight: 2,
-        fillColor: '#22d3ee',
-        fillOpacity: 0.7,
-        radius: 8
-      });
-      marker.bindPopup(`
-        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">
-          <div style="font-weight: bold; color: #22d3ee; margin-bottom: 4px;">You are here</div>
-          <div style="color: #94a3b8;">Your current position, from your browser location.</div>
-        </div>
-      `);
-      marker.addTo(map);
-      locationMarkerRef.current = marker;
-      addToast('Location Found', 'Showing your current position on the map', 'cyan');
-    };
-    const onLocationError = () => {
-      addToast(
-        'Location Unavailable',
-        'Allow location access in your browser to show your position',
-        'red'
-      );
-    };
-
-    map.on('locationfound', onLocationFound);
-    map.on('locationerror', onLocationError);
-    map.on('zoomend', updateStateLabels);
-
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch(STATES_GEOJSON_URL);
-        if (!res.ok) return;
-        const data = await res.json();
-        if (cancelled || !mapInstanceRef.current) return;
-        const boundaries = L.geoJSON(data, {
-          style: STATE_STYLE,
-          onEachFeature: (feature, layer) => {
-            const name = feature && feature.properties ? feature.properties.NAME_1 : null;
-            if (!name || typeof layer.getBounds !== 'function') return;
-            const bounds = layer.getBounds();
-            const area =
-              Math.abs(bounds.getEast() - bounds.getWest()) *
-              Math.abs(bounds.getNorth() - bounds.getSouth());
-            stateLayerRef.current.labels.push({
-              marker: createStateLabel(name, bounds.getCenter()),
-              area,
-              shown: false
-            });
-          }
-        });
-        boundaries.addTo(map);
-        stateLayerRef.current.boundaries = boundaries;
-        updateStateLabels();
-      } catch {
-        // State outlines are an optional layer; the map works without them.
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-      map.off('locationfound', onLocationFound);
-      map.off('locationerror', onLocationError);
-      map.off('zoomend', updateStateLabels);
-      const state = stateLayerRef.current;
-      if (state) {
-        state.labels.forEach((entry) => entry.marker.remove());
-        if (state.boundaries) state.boundaries.remove();
-        stateLayerRef.current = { boundaries: null, labels: [] };
-      }
-      if (locationMarkerRef.current) {
-        locationMarkerRef.current.remove();
-        locationMarkerRef.current = null;
-      }
-    };
-  }, [addToast]);
+  useEffect(
+    () => attachStateLayerAndLocation(mapInstanceRef, stateLayerRef, locationMarkerRef, addToast),
+    [addToast]
+  );
 
   return { resetIndiaView, locateMe };
 }
