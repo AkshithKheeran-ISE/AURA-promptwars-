@@ -18,6 +18,7 @@
     "playwright:install": "playwright install --with-deps chromium",
     "lint": "eslint .",
     "typecheck": "tsc -p jsconfig.json",
+    "check:budget": "node scripts/check-bundle-budget.mjs",
     "format": "prettier --check .",
     "format:fix": "prettier --write ."
   },
