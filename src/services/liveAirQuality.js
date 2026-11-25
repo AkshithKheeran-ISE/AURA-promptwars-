@@ -32,6 +32,33 @@ export const LIVE_PROVENANCE = Object.freeze({
   isSimulation: false
 });
 
+/**
+ * @typedef {object} LiveSnapshot - Normalised live air-quality snapshot
+ * @property {string} provenance
+ * @property {string} sourceLabel
+ * @property {string} placeName
+ * @property {string} country
+ * @property {number|null} latitude
+ * @property {number|null} longitude
+ * @property {string} timezone
+ * @property {string} observedAt
+ * @property {number|null} usAqi
+ * @property {number|null} europeanAqi
+ * @property {{ id: string, label: string, color: string, guidance: string }|null} category
+ * @property {number|null} pm25
+ * @property {number|null} pm10
+ * @property {number|null} no2
+ * @property {number|null} o3
+ * @property {number|null} coMgM3
+ * @property {number|null} temperatureC
+ * @property {number|null} humidityPct
+ * @property {number|null} windSpeedKmh
+ * @property {number|null} boundaryLayerHeightM
+ * @property {number[]} hourlyBoundaryLayer
+ * @property {number[]} hourlyPm25
+ * @property {string[]} hourlyTimes
+ */
+
 /** Typed error so callers can distinguish live-data failures from bugs. */
 export class LiveDataError extends Error {
   /**
@@ -88,21 +115,55 @@ const AQ_FIELDS = 'pm2_5,pm10,carbon_monoxide,nitrogen_dioxide,ozone,us_aqi,euro
 const WX_FIELDS =
   'temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,boundary_layer_height';
 
+/** Sane ceilings for clamping raw measurements (units in the field name). */
+export const MEASUREMENT_LIMITS = Object.freeze({
+  DEFAULT: 2000,
+  AQI: 1000,
+  CARBON_MONOXIDE_UG_M3: 100000,
+  BOUNDARY_LAYER_M: 5000,
+  TEMPERATURE_C: 80,
+  HUMIDITY_PCT: 100,
+  WIND_KMH: 400
+});
+
+/** Ventilation physics thresholds (see deriveVentilationAdvice). */
+export const VENTILATION = Object.freeze({
+  BRIEF_PM25_MAX: 100,
+  DISPERSIVE_BOUNDARY_LAYER_M: 400
+});
+
+/** Adult daily breathing volume (m³/day) and the sealed+filtered dose fraction. */
+export const DOSE = Object.freeze({
+  ADULT_DAILY_BREATHING_VOLUME_M3: 15,
+  PROTECTED_DOSE_FRACTION: 0.08
+});
+
+const MICROGRAMS_PER_MILLIGRAM = 1000;
+
+/**
+ * Shared Open-Meteo URL builder: validated + rounded coordinates, hourly
+ * fields, 2-day forecast, local timezone. The three public builders below
+ * differ only in base URL and field list.
+ */
+function buildOpenMeteoUrl(base, { latitude, longitude }, fields) {
+  const { latitude: lat, longitude: lon } = requireValidCoordinates(latitude, longitude);
+  const params = new URLSearchParams({
+    latitude: String(roundCoordinate(lat)),
+    longitude: String(roundCoordinate(lon)),
+    hourly: fields,
+    forecast_days: '2',
+    timezone: 'auto'
+  });
+  return `${base}?${params.toString()}`;
+}
+
 /**
  * Builds the Open-Meteo air-quality request URL for validated coordinates.
  * @param {{ latitude: number, longitude: number }} coords
  * @returns {string} Absolute URL (no credentials, rounded coordinates only)
  */
-export function buildAirQualityUrl({ latitude, longitude }) {
-  const { latitude: lat, longitude: lon } = requireValidCoordinates(latitude, longitude);
-  const params = new URLSearchParams({
-    latitude: String(roundCoordinate(lat)),
-    longitude: String(roundCoordinate(lon)),
-    hourly: AQ_FIELDS,
-    forecast_days: '2',
-    timezone: 'auto'
-  });
-  return `${LIVE_API.AIR_QUALITY_BASE}?${params.toString()}`;
+export function buildAirQualityUrl(coords) {
+  return buildOpenMeteoUrl(LIVE_API.AIR_QUALITY_BASE, coords, AQ_FIELDS);
 }
 
 /**
@@ -110,16 +171,8 @@ export function buildAirQualityUrl({ latitude, longitude }) {
  * @param {{ latitude: number, longitude: number }} coords
  * @returns {string} Absolute URL
  */
-export function buildWeatherUrl({ latitude, longitude }) {
-  const { latitude: lat, longitude: lon } = requireValidCoordinates(latitude, longitude);
-  const params = new URLSearchParams({
-    latitude: String(roundCoordinate(lat)),
-    longitude: String(roundCoordinate(lon)),
-    hourly: WX_FIELDS,
-    forecast_days: '2',
-    timezone: 'auto'
-  });
-  return `${LIVE_API.WEATHER_BASE}?${params.toString()}`;
+export function buildWeatherUrl(coords) {
+  return buildOpenMeteoUrl(LIVE_API.WEATHER_BASE, coords, WX_FIELDS);
 }
 
 /**
@@ -197,8 +250,13 @@ export function usAqiCategory(aqi) {
   return US_AQI_BANDS.find((band) => value <= band.max) || null;
 }
 
-/** Clamps a raw measurement to a sane, finite, non-negative number or null. */
-export function clampMeasurement(value, max = 2000) {
+/**
+ * Clamps a raw measurement to a sane, finite, non-negative number or null.
+ * @param {unknown} value
+ * @param {number} [max]
+ * @returns {number|null}
+ */
+export function clampMeasurement(value, max = MEASUREMENT_LIMITS.DEFAULT) {
   if (value === null || value === undefined || value === '' || typeof value === 'boolean') {
     return null;
   }
@@ -252,7 +310,7 @@ function roundOrNull(value) {
 }
 
 function ugToMg(value) {
-  return value === null ? null : Math.round((value / 1000) * 100) / 100;
+  return value === null ? null : Math.round((value / MICROGRAMS_PER_MILLIGRAM) * 100) / 100;
 }
 
 const EMPTY_WEATHER = Object.freeze({
@@ -269,10 +327,15 @@ function weatherFields(wxPayload, now) {
   const index = pickCurrentIndex(wx.time, now);
   if (index < 0) return EMPTY_WEATHER;
   return {
-    temperatureC: measurement(wx, 'temperature_2m', index, 80),
-    humidityPct: measurement(wx, 'relative_humidity_2m', index, 100),
-    windSpeedKmh: measurement(wx, 'wind_speed_10m', index, 400),
-    boundaryLayerHeightM: measurement(wx, 'boundary_layer_height', index, 5000),
+    temperatureC: measurement(wx, 'temperature_2m', index, MEASUREMENT_LIMITS.TEMPERATURE_C),
+    humidityPct: measurement(wx, 'relative_humidity_2m', index, MEASUREMENT_LIMITS.HUMIDITY_PCT),
+    windSpeedKmh: measurement(wx, 'wind_speed_10m', index, MEASUREMENT_LIMITS.WIND_KMH),
+    boundaryLayerHeightM: measurement(
+      wx,
+      'boundary_layer_height',
+      index,
+      MEASUREMENT_LIMITS.BOUNDARY_LAYER_M
+    ),
     hourlyBoundaryLayer: Array.isArray(wx.boundary_layer_height) ? wx.boundary_layer_height : []
   };
 }
@@ -283,7 +346,7 @@ function weatherFields(wxPayload, now) {
  * @param {any} wxPayload - Weather API JSON (optional)
  * @param {{ name?: string, country?: string }} [place]
  * @param {Date} [now]
- * @returns {object} Snapshot with provenance, measurements and category
+ * @returns {LiveSnapshot} Snapshot with provenance, measurements and category
  */
 export function normalizeSnapshot(aqPayload, wxPayload, place = {}, now = new Date()) {
   const hourly = aqPayload?.hourly;
@@ -291,8 +354,13 @@ export function normalizeSnapshot(aqPayload, wxPayload, place = {}, now = new Da
     throw new LiveDataError('Air-quality response contained no hourly data.', 'EMPTY');
   }
   const index = pickCurrentIndex(hourly.time, now);
-  const usAqiRaw = measurement(hourly, 'us_aqi', index, 1000);
-  const coRaw = measurement(hourly, 'carbon_monoxide', index, 100000);
+  const usAqiRaw = measurement(hourly, 'us_aqi', index, MEASUREMENT_LIMITS.AQI);
+  const coRaw = measurement(
+    hourly,
+    'carbon_monoxide',
+    index,
+    MEASUREMENT_LIMITS.CARBON_MONOXIDE_UG_M3
+  );
   return {
     provenance: LIVE_PROVENANCE.id,
     sourceLabel: LIVE_PROVENANCE.label,
@@ -303,7 +371,7 @@ export function normalizeSnapshot(aqPayload, wxPayload, place = {}, now = new Da
     timezone: textOr(aqPayload.timezone, 'UTC'),
     observedAt: hourly.time[index],
     usAqi: roundOrNull(usAqiRaw),
-    europeanAqi: measurement(hourly, 'european_aqi', index, 1000),
+    europeanAqi: measurement(hourly, 'european_aqi', index, MEASUREMENT_LIMITS.AQI),
     category: usAqiCategory(usAqiRaw),
     pm25: measurement(hourly, 'pm2_5', index),
     pm10: measurement(hourly, 'pm10', index),
@@ -333,14 +401,17 @@ export function deriveVentilationAdvice(snapshot) {
         'Live PM2.5 is unavailable for this location, so AURA cannot certify a safe ventilation window.'
     };
   }
-  if (pm25 <= WHO_PM25_24H_TARGET * 4 && (blh === null || blh >= 400)) {
+  if (
+    pm25 <= WHO_PM25_24H_TARGET * 4 &&
+    (blh === null || blh >= VENTILATION.DISPERSIVE_BOUNDARY_LAYER_M)
+  ) {
     return {
       level: 'golden',
       headline: 'Golden window — ventilate now',
       detail: `PM2.5 is ${pm25} µg/m³ and the mixing layer is ${blh === null ? 'dispersive' : `${Math.round(blh)} m high`}. Cross-ventilate for 30–45 minutes to flush indoor CO₂ and cooking particles.`
     };
   }
-  if (pm25 <= 100) {
+  if (pm25 <= VENTILATION.BRIEF_PM25_MAX) {
     return {
       level: 'caution',
       headline: 'Brief ventilation only',
@@ -364,8 +435,8 @@ export function deriveVentilationAdvice(snapshot) {
 export function explainImpact(snapshot) {
   const pm25 = snapshot?.pm25;
   if (pm25 === null || pm25 === undefined || !Number.isFinite(Number(pm25))) return null;
-  const unprotectedUg = Math.round(Number(pm25) * 15);
-  const protectedUg = Math.round(unprotectedUg * 0.08);
+  const unprotectedUg = Math.round(Number(pm25) * DOSE.ADULT_DAILY_BREATHING_VOLUME_M3);
+  const protectedUg = Math.round(unprotectedUg * DOSE.PROTECTED_DOSE_FRACTION);
   return {
     unprotectedUg,
     protectedUg,
