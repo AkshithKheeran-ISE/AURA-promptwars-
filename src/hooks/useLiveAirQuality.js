@@ -2,6 +2,22 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { LIVE_API } from '../constants';
 import { fetchLiveSnapshot, searchCities, validateCoordinates } from '../services/liveAirQuality';
 
+/**
+ * @typedef {import('../services/liveAirQuality').LiveSnapshot} LiveSnapshot
+ * @typedef {object} LiveAirQualityState
+ * @property {'idle'|'loading'|'live'|'error'} status
+ * @property {LiveSnapshot|null} snapshot - Normalised live snapshot (null until live)
+ * @property {string|null} error
+ * @property {object} place
+ * @property {Array} searchResults
+ * @property {boolean} searching
+ * @property {(targetPlace: object, loadOptions?: object) => Promise<object|null>} loadFor
+ * @property {(query: string) => Promise<Array>} search
+ * @property {(nextPlace: object) => Promise<object|null>} selectPlace
+ * @property {() => Promise<object|null>} refresh
+ */
+
+/** @type {Omit<LiveAirQualityState, 'loadFor'|'search'|'selectPlace'|'refresh'>} */
 const INITIAL_STATE = {
   status: 'idle',
   snapshot: null,
@@ -16,7 +32,7 @@ const INITIAL_STATE = {
  * panel keeps the statutory baseline and says so — a failed free API must
  * never look like live data. Superseded requests are ignored by request id.
  * @param {{ fetchFn?: Function }} [options] - Injectable fetch for tests
- * @returns {object} Live state and actions
+ * @returns {LiveAirQualityState} Live state and actions
  */
 export function useLiveAirQuality(options = {}) {
   const fetchFn = options.fetchFn;
@@ -76,13 +92,19 @@ export function useLiveAirQuality(options = {}) {
 
   const refresh = useCallback(() => loadFor(state.place, { force: true }), [loadFor, state.place]);
 
+  // Latest-ref pattern: the mount effect must load the default city exactly
+  // once, even when a caller passes a fresh fetchFn on every render (the
+  // hook tests do exactly that). Listing loadFor in the deps would re-run
+  // the effect on every render and loop forever; the ref keeps the effect
+  // dependency-free with no lint suppression.
+  const loadForRef = useRef(loadFor);
+  loadForRef.current = loadFor;
+
   useEffect(() => {
-    loadFor(LIVE_API.DEFAULT_PLACE);
+    loadForRef.current(LIVE_API.DEFAULT_PLACE);
     return () => {
       requestIdRef.current += 1; // invalidate in-flight work on unmount
     };
-    // Load the default city exactly once on mount.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { ...state, loadFor, search, selectPlace, refresh };
