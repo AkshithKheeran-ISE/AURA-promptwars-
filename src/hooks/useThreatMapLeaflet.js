@@ -25,15 +25,49 @@ const RING_ROAD_CORRIDOR = [
 ];
 
 /**
- * Free basemap with no API key. CARTO's dark tiles started returning
- * "API KEY REQUIRED" watermark tiles, so the map background was unreadable.
- * OpenStreetMap tiles need no key — only attribution, which Leaflet shows
- * because attributionControl is on. The existing `.aura-map` CSS darkens
- * the light tiles to match the app's dark theme.
+ * Free basemap with no API key. The map has now lost two tile providers:
+ * CARTO's dark tiles started returning "API KEY REQUIRED" watermark tiles,
+ * and OpenStreetMap's volunteer-run servers return 403 "Access blocked"
+ * tiles for some networks (their tile usage policy blocks whole IP ranges
+ * when abuse is detected, so it works from one network and not another).
+ * Esri's World Street Map is served from their commercial CDN for exactly
+ * this embedding use, needs no key, and does not block per IP. Note the
+ * URL order is {z}/{y}/{x}, unlike OSM's {z}/{x}/{y}. Attribution is
+ * required and Leaflet shows it because attributionControl is on. The
+ * existing `.aura-map` CSS darkens the light tiles to match the app's
+ * dark theme.
  */
-const TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+const TILE_URL =
+  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}';
 const TILE_ATTRIBUTION =
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+  'Tiles &copy; Esri &mdash; Source: Esri, TomTom, Garmin, FAO, NOAA, USGS, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, and the GIS User Community';
+
+/**
+ * State boundaries overlay. The GeoJSON is a simplified copy of the
+ * BharatMaps state dataset (36 states/UTs, NAME_1 property), shipped as a
+ * static file so it costs nothing in the JS bundle and is cached by the
+ * browser. If it fails to load, the map still works — only the state
+ * outlines are missing.
+ */
+const STATES_GEOJSON_URL = '/data/india-states.geojson';
+const STATE_STYLE = { color: '#22d3ee', weight: 1, opacity: 0.5, fillOpacity: 0 };
+/** States smaller than this (bounds span product, sq. degrees) only get a
+ * name label once the user zooms in (zoom >= 6); big states are labelled
+ * at the India-wide view too. Keeps tiny neighbours (Goa, Delhi,
+ * Chandigarh) from overlapping at zoom 5. */
+const SMALL_STATE_AREA = 2;
+const SMALL_STATE_MIN_ZOOM = 6;
+
+/** A state name shown on the map. Non-interactive so it never blocks clicks. */
+function createStateLabel(name, center) {
+  const labelIcon = L.divIcon({
+    className: 'aura-state-label',
+    html: `<span>${name}</span>`,
+    iconSize: [0, 0],
+    iconAnchor: [0, 0]
+  });
+  return L.marker(center, { icon: labelIcon, interactive: false, keyboard: false });
+}
 
 function createWardMarker(ward, isSelected, onSelect) {
   const color = getStatusColor(ward.status);
@@ -112,8 +146,10 @@ function createCityMarker(city, onFlyTo) {
 /**
  * Manages Leaflet map initialization, tactical overlays, and sensor markers.
  * The map opens on the whole of India with named city markers; the Delhi
- * ward sensors are the detailed layer underneath.
- * @returns {{ resetIndiaView: () => void }} - Zooms back out to the India view.
+ * ward sensors are the detailed layer underneath. State boundaries and
+ * state names come from a static GeoJSON overlay, and locateMe drops a
+ * marker on the user's current position (browser geolocation).
+ * @returns {{ resetIndiaView: () => void, locateMe: () => void }} - Zooms back out to the India view, and centres on the user's location.
  */
 export function useThreatMapLeaflet(
   mapContainerRef,
@@ -125,6 +161,10 @@ export function useThreatMapLeaflet(
   /** @type {React.MutableRefObject<ReturnType<typeof L.map> | null>} */
   const mapInstanceRef = useRef(null);
   const markersRef = useRef({});
+  /** @type {React.MutableRefObject<{ boundaries: { remove: () => void } | null, labels: Array<{ marker: { addTo: (map: unknown) => unknown, remove: () => void }, area: number, shown: boolean }> }>} */
+  const stateLayerRef = useRef({ boundaries: null, labels: [] });
+  /** @type {React.MutableRefObject<{ remove: () => void } | null>} */
+  const locationMarkerRef = useRef(null);
 
   useEffect(() => {
     if (!mapContainerRef.current || mapInstanceRef.current) return;
@@ -202,5 +242,110 @@ export function useThreatMapLeaflet(
     if (map) map.setView(INDIA_VIEW.center, INDIA_VIEW.zoom);
   }, []);
 
-  return { resetIndiaView };
+  const locateMe = useCallback(() => {
+    const map = mapInstanceRef.current;
+    if (map) map.locate({ setView: true, maxZoom: 12 });
+  }, []);
+
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
+    const updateStateLabels = () => {
+      const state = stateLayerRef.current;
+      if (!state) return;
+      const zoom = map.getZoom();
+      state.labels.forEach((entry) => {
+        const shouldShow = zoom >= SMALL_STATE_MIN_ZOOM || entry.area > SMALL_STATE_AREA;
+        if (shouldShow && !entry.shown) {
+          entry.marker.addTo(map);
+          entry.shown = true;
+        } else if (!shouldShow && entry.shown) {
+          entry.marker.remove();
+          entry.shown = false;
+        }
+      });
+    };
+
+    const onLocationFound = (event) => {
+      if (locationMarkerRef.current) locationMarkerRef.current.remove();
+      const marker = L.circleMarker(event.latlng, {
+        color: '#ffffff',
+        weight: 2,
+        fillColor: '#22d3ee',
+        fillOpacity: 0.7,
+        radius: 8
+      });
+      marker.bindPopup(`
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">
+          <div style="font-weight: bold; color: #22d3ee; margin-bottom: 4px;">You are here</div>
+          <div style="color: #94a3b8;">Your current position, from your browser location.</div>
+        </div>
+      `);
+      marker.addTo(map);
+      locationMarkerRef.current = marker;
+      addToast('Location Found', 'Showing your current position on the map', 'cyan');
+    };
+    const onLocationError = () => {
+      addToast(
+        'Location Unavailable',
+        'Allow location access in your browser to show your position',
+        'red'
+      );
+    };
+
+    map.on('locationfound', onLocationFound);
+    map.on('locationerror', onLocationError);
+    map.on('zoomend', updateStateLabels);
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(STATES_GEOJSON_URL);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (cancelled || !mapInstanceRef.current) return;
+        const boundaries = L.geoJSON(data, {
+          style: STATE_STYLE,
+          onEachFeature: (feature, layer) => {
+            const name = feature && feature.properties ? feature.properties.NAME_1 : null;
+            if (!name || typeof layer.getBounds !== 'function') return;
+            const bounds = layer.getBounds();
+            const area =
+              Math.abs(bounds.getEast() - bounds.getWest()) *
+              Math.abs(bounds.getNorth() - bounds.getSouth());
+            stateLayerRef.current.labels.push({
+              marker: createStateLabel(name, bounds.getCenter()),
+              area,
+              shown: false
+            });
+          }
+        });
+        boundaries.addTo(map);
+        stateLayerRef.current.boundaries = boundaries;
+        updateStateLabels();
+      } catch {
+        // State outlines are an optional layer; the map works without them.
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      map.off('locationfound', onLocationFound);
+      map.off('locationerror', onLocationError);
+      map.off('zoomend', updateStateLabels);
+      const state = stateLayerRef.current;
+      if (state) {
+        state.labels.forEach((entry) => entry.marker.remove());
+        if (state.boundaries) state.boundaries.remove();
+        stateLayerRef.current = { boundaries: null, labels: [] };
+      }
+      if (locationMarkerRef.current) {
+        locationMarkerRef.current.remove();
+        locationMarkerRef.current = null;
+      }
+    };
+  }, [addToast]);
+
+  return { resetIndiaView, locateMe };
 }
